@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Go4Lunch">
         <activity
-            android:name=".AuthenticationActivity"
+            android:name=".ui.activities.AuthenticationActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
