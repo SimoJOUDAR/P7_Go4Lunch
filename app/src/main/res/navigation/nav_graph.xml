@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mapFragment">
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="fr.joudar.go4lunch.ui.fragments.map.MapFragment"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map" />
+    <fragment
+        android:id="@+id/restaurantsListFragment"
+        android:name="fr.joudar.go4lunch.ui.fragments.restaurantsList.RestaurantsListFragment"
+        android:label="fragment_restaurants_list"
+        tools:layout="@layout/fragment_restaurants_list" />
+    <fragment
+        android:id="@+id/colleaguesListFragment"
+        android:name="fr.joudar.go4lunch.ui.fragments.colleaguesList.ColleaguesListFragment"
+        android:label="fragment_colleagues_list"
+        tools:layout="@layout/fragment_colleagues_list" />
+    <fragment
+        android:id="@+id/restaurantDetailsFragment"
+        android:name="fr.joudar.go4lunch.ui.fragments.restaurantDetails.RestaurantDetailsFragment"
+        android:label="fragment_restaurant_details"
+        tools:layout="@layout/fragment_restaurant_details" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="fr.joudar.go4lunch.ui.fragments.settings.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" />
+</navigation>
