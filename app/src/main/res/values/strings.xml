@@ -4,7 +4,13 @@
 
     <string name="logo_title">Find a nice restaurant and invite your co-workers for lunch</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="facebook_login_btn_txt">Sign in with Facebook</string>
+    <string name="google_login_btn_txt">Sign in with Google</string>
     <string name="retry_login_btn_txt">Retry</string>
 
     <string name="login_failed_unknown_error">Login Failed \n An error occurred during the authentication process, please try again.</string>
+
+    <string name="facebook_application_id" translatable="false">2259369484202600</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb2259369484202600</string>
 </resources>

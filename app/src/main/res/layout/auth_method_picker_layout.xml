@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/authentication_background"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:id="@+id/login_view_root"
+    android:padding="35dp">
+
+    <include
+        layout="@layout/brand"
+        android:layout_width="match_parent"
+        android:layout_height="480dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/fb_login_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cornerRadius="10dp"
+            android:layout_marginVertical="10dp"
+            android:maxWidth="30dp"
+            android:paddingVertical="14dp"
+            android:text="@string/facebook_login_btn_txt"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            app:backgroundTint="@color/com_facebook_button_background_color"
+            app:icon="@drawable/ic_facebook_logo" />
+
+        <Button
+            android:id="@+id/google_login_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cornerRadius="10dp"
+            android:paddingVertical="14dp"
+            android:text="@string/google_login_btn_txt"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            app:backgroundTint="@color/red_bg"
+            app:icon="@drawable/ic_google_plus_logo" />
+    </LinearLayout>
+
+</LinearLayout>
