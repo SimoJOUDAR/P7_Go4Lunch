@@ -8,17 +8,17 @@
     <fragment
         android:id="@+id/mapFragment"
         android:name="fr.joudar.go4lunch.ui.fragments.map.MapFragment"
-        android:label="fragment_map"
+        android:label="I'm Hungry!"
         tools:layout="@layout/fragment_map" />
     <fragment
         android:id="@+id/restaurantsListFragment"
         android:name="fr.joudar.go4lunch.ui.fragments.restaurantsList.RestaurantsListFragment"
-        android:label="fragment_restaurants_list"
+        android:label="I'm Hungry!"
         tools:layout="@layout/fragment_restaurants_list" />
     <fragment
         android:id="@+id/colleaguesListFragment"
         android:name="fr.joudar.go4lunch.ui.fragments.colleaguesList.ColleaguesListFragment"
-        android:label="fragment_colleagues_list"
+        android:label="Available Workmates"
         tools:layout="@layout/fragment_colleagues_list" />
     <fragment
         android:id="@+id/restaurantDetailsFragment"

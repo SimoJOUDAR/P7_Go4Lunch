@@ -1,9 +1,7 @@
 package fr.joudar.go4lunch.ui.activities;
 
-import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
@@ -17,7 +15,6 @@ import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -49,16 +46,12 @@ public class AuthenticationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        uiSetUp();
-        isAuth();
-        init();
-
-    }
-
-    private void uiSetUp() {
         binding = ActivityAuthenticationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        isAuth();
     }
+
 
     private void isAuth() {
         firebaseAuth = FirebaseAuth.getInstance();
@@ -72,8 +65,8 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     private void startHomepageActivity() {
-        final Intent startMainActivityIntent = new Intent(this, HomepageActivity.class);
-        startActivity(startMainActivityIntent);
+        final Intent homepageActivityIntent = new Intent(this, HomepageActivity.class);
+        startActivity(homepageActivityIntent);
         finish();
     }
 
@@ -120,9 +113,5 @@ public class AuthenticationActivity extends AppCompatActivity {
         }
     }
 
-
-    private void init() {
-
-    }
 
 }

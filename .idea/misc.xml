@@ -3,20 +3,30 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/ic_logout_24.xml" value="0.1355" />
+        <entry key="app/src/main/res/drawable-v24/ic_map_24.xml" value="0.1355" />
+        <entry key="app/src/main/res/drawable-v24/ic_meals_24.xml" value="0.1355" />
         <entry key="app/src/main/res/drawable-v24/ic_retry.xml" value="0.1545" />
+        <entry key="app/src/main/res/drawable-v24/ic_search_24.xml" value="0.1355" />
+        <entry key="app/src/main/res/drawable-v24/ic_settings_24.xml" value="0.1355" />
         <entry key="app/src/main/res/drawable/ic_google.xml" value="0.1545" />
         <entry key="app/src/main/res/drawable/ic_google_plus_logo.xml" value="0.1355" />
         <entry key="app/src/main/res/layout/activity_authenfication.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/activity_authentication.xml" value="0.2822630705656829" />
-        <entry key="app/src/main/res/layout/activity_homepage.xml" value="0.29583333333333334" />
+        <entry key="app/src/main/res/layout/activity_homepage.xml" value="0.2617604573567708" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.29583333333333334" />
         <entry key="app/src/main/res/layout/auth_method_picker_layout.xml" value="0.2842284620853892" />
         <entry key="app/src/main/res/layout/brand.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/drawer_nav_header.xml" value="0.2530629475911458" />
         <entry key="app/src/main/res/layout/fragment_colleagues_list.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_map.xml" value="0.29583333333333334" />
         <entry key="app/src/main/res/layout/fragment_restaurant_details.xml" value="0.29583333333333334" />
         <entry key="app/src/main/res/layout/fragment_restaurants_list.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/menu/bottom_nav_layout.xml" value="0.2101851851851852" />
+        <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/menu/drawer_nav_layout.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/menu/toolbar_layout.xml" value="0.23496907552083332" />
       </map>
     </option>
   </component>

@@ -1,16 +1,24 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
-    <!-- TODO: Remove or change this placeholder text -->
-
-    <string name="logo_title">Find a nice restaurant and invite your co-workers for lunch</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
-    <string name="facebook_login_btn_txt">Sign in with Facebook</string>
-    <string name="google_login_btn_txt">Sign in with Google</string>
-    <string name="retry_login_btn_txt">Retry</string>
-
-    <string name="login_failed_unknown_error">Login Failed \n An error occurred during the authentication process, please try again.</string>
 
     <string name="facebook_application_id" translatable="false">2259369484202600</string>
     <string name="facebook_login_protocol_scheme" translatable="false">fb2259369484202600</string>
+
+    <string name="logo_title">Find a nice restaurant and invite your co-workers for lunch</string>
+    <string name="facebook_login_btn_txt">Sign in with Facebook</string>
+    <string name="google_login_btn_txt">Sign in with Google</string>
+    <string name="retry_login_btn_txt">Retry</string>
+    <string name="login_failed_unknown_error">Login Failed \n An error occurred during the authentication process, please try again.</string>
+
+    <string name="search_restaurant_btn_txt">Search for a restaurant</string>
+    <string name="sort_menu">Sort restaurants</string>
+    <string name="order_by_stars">Best rated</string>
+    <string name="order_by_nearest">Nearest</string>
+    <string name="order_by_workmates_count">Colleagues most frequented</string>
+    <string name="map_menu">Map View</string>
+    <string name="restaurant_list_menu">List View</string>
+    <string name="colleagues_list_menu">Workmates</string>
+    <string name="your_lunch_drawer_nav_btn_txt">YOUR LUNCH</string>
+    <string name="settings_drawer_nav_btn_txt">SETTINGS</string>
+    <string name="logout_drawer_nav_btn_txt">LOGOUT</string>
 </resources>

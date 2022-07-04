@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/ic_search_24"
+        android:title="@string/search_restaurant_btn_txt"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        />
+
+    <item
+        android:id="@+id/sort"
+        android:title="@string/sort_menu"
+        android:icon="@drawable/ic_filter_list_24"
+        app:showAsAction="always">
+
+        <menu>
+            <item
+                android:id="@+id/sorting_rates"
+                android:title="@string/order_by_stars"/>
+
+            <item
+                android:id="@+id/sorting_nearest"
+                android:title="@string/order_by_nearest"/>
+
+            <item android:id="@+id/sorting_Workmates_most_frequented"
+                android:title="@string/order_by_workmates_count"/>
+        </menu>
+
+    </item>
+</menu>
