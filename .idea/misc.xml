@@ -9,8 +9,11 @@
         <entry key="app/src/main/res/drawable-v24/ic_retry.xml" value="0.1545" />
         <entry key="app/src/main/res/drawable-v24/ic_search_24.xml" value="0.1355" />
         <entry key="app/src/main/res/drawable-v24/ic_settings_24.xml" value="0.1355" />
+        <entry key="app/src/main/res/drawable/ic_baseline_food_bank_24.xml" value="0.1355" />
+        <entry key="app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.1355" />
         <entry key="app/src/main/res/drawable/ic_google.xml" value="0.1545" />
         <entry key="app/src/main/res/drawable/ic_google_plus_logo.xml" value="0.1355" />
+        <entry key="app/src/main/res/drawable/ic_soup_kitchen_24.xml" value="0.1355" />
         <entry key="app/src/main/res/layout/activity_authenfication.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/activity_authentication.xml" value="0.2822630705656829" />
         <entry key="app/src/main/res/layout/activity_homepage.xml" value="0.2617604573567708" />
@@ -25,7 +28,7 @@
         <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/menu/bottom_nav_layout.xml" value="0.2101851851851852" />
         <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.3098958333333333" />
-        <entry key="app/src/main/res/menu/drawer_nav_layout.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/menu/drawer_nav_layout.xml" value="0.24378102620442704" />
         <entry key="app/src/main/res/menu/toolbar_layout.xml" value="0.23496907552083332" />
       </map>
     </option>

@@ -4,13 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.firebase.ui.auth.AuthUI;
 
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.ActivityHomepageBinding;
@@ -46,8 +51,8 @@ public class HomepageActivity extends AppCompatActivity {
 
         // Sets the DrawerNav.
         NavigationUI.setupWithNavController(binding.drawerNav, navController);
-//        binding.drawerNav.setNavigationItemSelectedListener(
-//                this::onNavigationDrawerMenuItemSelected);
+        binding.drawerNav.setNavigationItemSelectedListener(
+                this::onDrawerNavMenuItemSelected);
 
         // Sets the BottomNav.
         NavigationUI.setupWithNavController(binding.bottomNav, navController);
@@ -82,17 +87,30 @@ public class HomepageActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    // Sets up the actions of the option menu items that are not managed by the Navigation component
-//    @Override
-//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.your_lunch:
-//                showCurrentUserChosenRestaurant();
-//                break;
-//            case R.id.logout:
-//                signOut();
-//                break;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
+    // Sets up option menu items action (YOUR LUNCH, SETTINGS, LOGOUT).
+    private boolean onDrawerNavMenuItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.your_lunch:
+                Toast.makeText(this, "Your lunch", Toast.LENGTH_SHORT).show();
+                //showCurrentUserChosenRestaurant();
+                return true;
+            case R.id.logout:
+                Toast.makeText(this, "You signed out", Toast.LENGTH_SHORT).show();
+                signOut();
+                return true;
+            case R.id.settingsFragment:
+                Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.settingsFragment);
+                binding.getRoot().closeDrawer(binding.drawerNav, false);
+        }
+        return true;
+    }
+
+
+    // Logout the user and takes him to the login activity
+    private void signOut() {
+        AuthUI.getInstance().signOut(this).addOnSuccessListener(__ -> {
+                            startActivity(new Intent(this, AuthenticationActivity.class));
+                            finish();
+                        });
+    }
 }

@@ -5,6 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start"
     tools:context=".ui.activities.HomepageActivity">
 
     <RelativeLayout
@@ -40,16 +42,37 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            app:menu="@menu/bottom_nav_layout" />
+            app:menu="@menu/bottom_nav_layout"
+            app:labelVisibilityMode="labeled"/>
 
     </RelativeLayout>
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/drawer_nav"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:menu="@menu/drawer_nav_layout"
         android:layout_gravity="start"
         app:itemTextColor="@color/white"
         android:background="@color/orange_primary"
-        app:headerLayout="@layout/drawer_nav_header"/>
+        app:elevation="16dp"
+        android:fitsSystemWindows="true"
+        app:itemIconTint="@color/white"
+        app:headerLayout="@layout/drawer_nav_header"
+        app:menu="@menu/drawer_nav_layout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="center"
+            android:layout_margin="50dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_soup_kitchen_24" />
+
+        </LinearLayout>
+    </com.google.android.material.navigation.NavigationView>
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -48,7 +48,6 @@ public class AuthenticationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAuthenticationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         isAuth();
     }
 
@@ -76,6 +75,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(getAuthProviders())
+                .setIsSmartLockEnabled(false)
                 .setAuthMethodPickerLayout(getCustomAuthMethodPickerLayout())
                 .setTheme(R.style.AuthTheme)
                 .build();
@@ -97,19 +97,14 @@ public class AuthenticationActivity extends AppCompatActivity {
                 .build();
     }
 
-    // Manages login results (success/failure)
+    // Handles login results (success/failure)
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
         Log.i("LOGING", "____ON_RESULT_LOGIN______");
         if (result.getResultCode() == Activity.RESULT_OK) {
             startHomepageActivity();
         } else {
             binding.getRoot().setVisibility(View.VISIBLE);
-            if (result.getResultCode() == Activity.RESULT_CANCELED) {
-                //showLoginError(R.string.login_canceled);
-            } else {
-                //handleLoginFailure(result.getData());
-                Toast.makeText(this, "No Auths", Toast.LENGTH_SHORT).show();
-            }
+            binding.retryLogin.setOnClickListener(arg -> startAuth());
         }
     }
 
