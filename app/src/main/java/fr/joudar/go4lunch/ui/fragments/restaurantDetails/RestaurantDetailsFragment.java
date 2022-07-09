@@ -8,7 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import fr.joudar.go4lunch.R;
+import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 
 public class RestaurantDetailsFragment extends Fragment {
 
@@ -28,7 +31,12 @@ public class RestaurantDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         return inflater.inflate(R.layout.fragment_restaurant_details, container, false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((HomepageActivity)getActivity()).restaurantDetailsFragmentDisplayOptions();
     }
 }

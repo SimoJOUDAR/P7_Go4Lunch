@@ -9,13 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import fr.joudar.go4lunch.R;
-
+import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 
 public class MapFragment extends Fragment {
 
     public MapFragment() {
     }
-
 
     public static MapFragment newInstance() {
         MapFragment fragment = new MapFragment();
@@ -25,13 +24,17 @@ public class MapFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((HomepageActivity)getActivity()).mapFragmentDisplayOptions();
     }
 }

@@ -13,9 +13,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.ActivityHomepageBinding;
@@ -25,7 +27,12 @@ public class HomepageActivity extends AppCompatActivity {
     ActivityHomepageBinding binding;
     NavHostFragment navHostFragment;
     NavController navController;
+    Menu menu;
+    BottomNavigationView bottomNav;
 
+    /***********************************************************************************************
+     ** The onCreate method
+     **********************************************************************************************/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +42,9 @@ public class HomepageActivity extends AppCompatActivity {
         InitNavigation();
 
     }
+    /***********************************************************************************************
+     ** Navigation
+     **********************************************************************************************/
 
     // Sets up the NavHost (fragments), the Toolbar, the DrawerNavigation and the BottomNavigation.
     private void InitNavigation() {
@@ -56,7 +66,7 @@ public class HomepageActivity extends AppCompatActivity {
 
         // Sets the BottomNav.
         NavigationUI.setupWithNavController(binding.bottomNav, navController);
-
+        this.bottomNav = binding.bottomNav;
     }
 
     // Sets up the BottomNavigation components.
@@ -78,8 +88,9 @@ public class HomepageActivity extends AppCompatActivity {
     // To connect our option menu to the Navigation
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.toolbar_layout, menu);
-        menu.findItem(R.id.sort).setVisible(false);
+        mapFragmentDisplayOptions();
         final SearchView searchField = (SearchView) menu.findItem(R.id.search).getActionView();
 //        searchField.setOnQueryTextFocusChangeListener(this::onSearchFieldFocusChanged);
 //        searchField.setOnQueryTextListener(getQueryListener());
@@ -101,6 +112,11 @@ public class HomepageActivity extends AppCompatActivity {
             case R.id.settingsFragment:
                 Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.settingsFragment);
                 binding.getRoot().closeDrawer(binding.drawerNav, false);
+                return true;
+            case R.id.restaurantDetailsFragment: //TODO : This last case is just for testing... To be removed along with the xml menu item
+                Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.restaurantDetailsFragment);
+                binding.getRoot().closeDrawer(binding.drawerNav, false);
+                return true;
         }
         return true;
     }
@@ -113,4 +129,59 @@ public class HomepageActivity extends AppCompatActivity {
                             finish();
                         });
     }
+
+    /***********************************************************************************************
+    ** Fragments display options
+    **********************************************************************************************/
+    // Sets up visibility options for the toolbar, menu items and bottomNav
+    public void mapFragmentDisplayOptions(){
+        if(getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
+            getSupportActionBar().show();
+        }
+        if(menu != null && menu.findItem(R.id.sort).isVisible()) {
+            menu.findItem(R.id.sort).setVisible(false);
+        }
+        if(bottomNav != null && bottomNav.getVisibility() != View.VISIBLE) {
+            bottomNav.setVisibility(View.VISIBLE);
+        }
+    }
+    public void restaurantsListFragmentDisplayOptions(){
+        if(getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
+            getSupportActionBar().show();
+        }
+        if(menu != null && !menu.findItem(R.id.sort).isVisible()) {
+            menu.findItem(R.id.sort).setVisible(true);
+        }
+        if(bottomNav != null && bottomNav.getVisibility() != View.VISIBLE) {
+            bottomNav.setVisibility(View.VISIBLE);
+        }
+    }
+    public void colleaguesListFragmentDisplayOptions(){
+        if(getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
+            getSupportActionBar().show();
+        }
+        if(menu != null && menu.findItem(R.id.sort).isVisible()) {
+            menu.findItem(R.id.sort).setVisible(false);
+        }
+        if(bottomNav != null && bottomNav.getVisibility() != View.VISIBLE) {
+            bottomNav.setVisibility(View.VISIBLE);
+        }
+    }
+    public void restaurantDetailsFragmentDisplayOptions(){
+        if(getSupportActionBar() != null && getSupportActionBar().isShowing()) {
+            getSupportActionBar().hide();
+        }
+        if(bottomNav != null && bottomNav.getVisibility() == View.VISIBLE) {
+            bottomNav.setVisibility(View.INVISIBLE);
+        }
+    }
+    public void settingsFragmentDisplayOptions(){
+        if(getSupportActionBar() != null && getSupportActionBar().isShowing()) {
+            getSupportActionBar().hide();
+        }
+        if(bottomNav != null && bottomNav.getVisibility() == View.VISIBLE) {
+            bottomNav.setVisibility(View.INVISIBLE);
+        }
+    }
+
 }
