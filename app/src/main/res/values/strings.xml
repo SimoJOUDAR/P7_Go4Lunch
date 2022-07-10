@@ -21,4 +21,10 @@
     <string name="your_lunch_drawer_nav_btn_txt">YOUR LUNCH</string>
     <string name="settings_drawer_nav_btn_txt">SETTINGS</string>
     <string name="logout_drawer_nav_btn_txt">LOGOUT</string>
+    <string name="call_btn_text">CALL</string>
+    <string name="like_btn_text">LIKE</string>
+    <string name="website_btn_text">WEBSITE</string>
+    <string name="empty_list">No colleagues joining this restaurant yet</string>
+    <string name="Restaurant_Name">Restaurant Name</string>
+    <string name="chosen_restaurant">Chosen restaurant</string>
 </resources>

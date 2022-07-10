@@ -6,7 +6,7 @@
     android:id="@+id/entry_point_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/authentication_background"
+    android:background="@drawable/main_image"
     android:scaleType = "centerCrop"
     android:fitsSystemWindows="true"
     android:gravity="center"
