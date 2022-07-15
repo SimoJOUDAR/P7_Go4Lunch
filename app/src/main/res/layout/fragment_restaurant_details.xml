@@ -178,52 +178,51 @@
         android:id="@+id/restaurant_rate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_gravity="start|top"
         android:layout_marginStart="16dp"
+        android:orientation="horizontal"
         android:paddingBottom="6dp"
         android:scaleType="fitStart"
         app:layout_anchor="@id/appBarLayout"
         app:layout_anchorGravity="bottom|start"
-        app:layout_collapseMode="parallax"
-        >
+        app:layout_collapseMode="parallax">
 
         <TextView
             android:id="@+id/restaurant_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="220dp"
-            android:text="@string/Restaurant_Name"
+            android:paddingEnd="8dp"
+            tools:text="@string/Restaurant_Name"
             android:textColor="@color/white"
-            android:textSize="20sp"
-            android:paddingEnd="8dp"/>
+            android:textSize="20sp" />
 
         <ImageView
             android:id="@+id/restaurant_rate_star_N1"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:scaleType="fitStart"
+            android:visibility="visible"
             app:tint="#FFEB3B"
-            tools:src="@drawable/ic_star_full_24"
-            android:visibility="visible"/>
+            android:src="@drawable/ic_star_full_24" />
 
         <ImageView
             android:id="@+id/restaurant_rate_star_N2"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:scaleType="fitStart"
+            android:visibility="gone"
             app:tint="#FFEB3B"
-            tools:src="@drawable/ic_star_full_24"
-            android:visibility="gone"/>
+            android:src="@drawable/ic_star_full_24" />
 
         <ImageView
             android:id="@+id/restaurant_rate_star_N3"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:scaleType="fitStart"
+            android:visibility="gone"
             app:tint="#FFEB3B"
-            tools:src="@drawable/ic_star_full_24"
-            android:visibility="gone"/>
+            android:src="@drawable/ic_star_full_24" />
 
     </LinearLayout>
 
