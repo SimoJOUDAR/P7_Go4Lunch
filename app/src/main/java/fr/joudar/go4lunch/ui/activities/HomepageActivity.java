@@ -134,54 +134,62 @@ public class HomepageActivity extends AppCompatActivity {
     ** Fragments display options
     **********************************************************************************************/
     // Sets up visibility options for the toolbar, menu items and bottomNav
+
     public void mapFragmentDisplayOptions(){
-        if(getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
-            getSupportActionBar().show();
-        }
-        if(menu != null && menu.findItem(R.id.sort).isVisible()) {
-            menu.findItem(R.id.sort).setVisible(false);
-        }
-        if(bottomNav != null && bottomNav.getVisibility() != View.VISIBLE) {
-            bottomNav.setVisibility(View.VISIBLE);
-        }
+        actionbarVisibility(true);
+        menuVisibility(false);
+        bottomNavigationVisibility(true);
     }
     public void restaurantsListFragmentDisplayOptions(){
-        if(getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
-            getSupportActionBar().show();
-        }
-        if(menu != null && !menu.findItem(R.id.sort).isVisible()) {
-            menu.findItem(R.id.sort).setVisible(true);
-        }
-        if(bottomNav != null && bottomNav.getVisibility() != View.VISIBLE) {
-            bottomNav.setVisibility(View.VISIBLE);
-        }
+        actionbarVisibility(true);
+        menuVisibility(true);
+        bottomNavigationVisibility(true);
     }
     public void colleaguesListFragmentDisplayOptions(){
-        if(getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
-            getSupportActionBar().show();
-        }
-        if(menu != null && menu.findItem(R.id.sort).isVisible()) {
-            menu.findItem(R.id.sort).setVisible(false);
-        }
-        if(bottomNav != null && bottomNav.getVisibility() != View.VISIBLE) {
-            bottomNav.setVisibility(View.VISIBLE);
-        }
+        actionbarVisibility(true);
+        menuVisibility(false);
+        bottomNavigationVisibility(true);
     }
     public void restaurantDetailsFragmentDisplayOptions(){
-        if(getSupportActionBar() != null && getSupportActionBar().isShowing()) {
-            getSupportActionBar().hide();
-        }
-        if(bottomNav != null && bottomNav.getVisibility() == View.VISIBLE) {
-            bottomNav.setVisibility(View.INVISIBLE);
-        }
+        actionbarVisibility(false);
+        bottomNavigationVisibility(false);
     }
     public void settingsFragmentDisplayOptions(){
-        if(getSupportActionBar() != null && getSupportActionBar().isShowing()) {
-            getSupportActionBar().hide();
-        }
-        if(bottomNav != null && bottomNav.getVisibility() == View.VISIBLE) {
-            bottomNav.setVisibility(View.INVISIBLE);
-        }
+        actionbarVisibility(false);
+        bottomNavigationVisibility(false);
     }
 
+    public void actionbarVisibility(boolean val) {
+        if(val) {
+            if(getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
+                getSupportActionBar().show();
+            }
+        } else {
+            if(getSupportActionBar() != null && getSupportActionBar().isShowing()) {
+                getSupportActionBar().hide();
+            }
+        }
+    }
+    public void menuVisibility(boolean val) {
+        if (val) {
+            if(menu != null && !menu.findItem(R.id.sort).isVisible()) {
+                menu.findItem(R.id.sort).setVisible(true);
+            }
+        } else {
+            if(menu != null && menu.findItem(R.id.sort).isVisible()) {
+                menu.findItem(R.id.sort).setVisible(false);
+            }
+        }
+    }
+    public void bottomNavigationVisibility(boolean val) {
+        if (val) {
+            if(bottomNav != null && bottomNav.getVisibility() != View.VISIBLE) {
+                bottomNav.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if(bottomNav != null && bottomNav.getVisibility() == View.VISIBLE) {
+                bottomNav.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
 }
