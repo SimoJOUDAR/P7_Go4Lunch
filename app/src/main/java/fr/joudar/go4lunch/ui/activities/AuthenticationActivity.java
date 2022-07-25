@@ -53,14 +53,16 @@ public class AuthenticationActivity extends AppCompatActivity {
 
 
     private void isAuth() {
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-        if (firebaseUser != null) {
-            startHomepageActivity();
-        }
-        else {
-            startAuth();
-        }
+        startHomepageActivity();
+        // TODO : To skip Auth for dev period - To activate Firebase (paid warning !!!???)
+//        firebaseAuth = FirebaseAuth.getInstance();
+//        firebaseUser = firebaseAuth.getCurrentUser();
+//        if (firebaseUser != null) {
+//            startHomepageActivity();
+//        }
+//        else {
+//            startAuth();
+//        }
     }
 
     private void startHomepageActivity() {

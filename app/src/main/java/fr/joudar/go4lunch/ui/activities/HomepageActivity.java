@@ -19,16 +19,26 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.ActivityHomepageBinding;
+import fr.joudar.go4lunch.domain.core.LocationPermissionHandler;
+import pub.devrel.easypermissions.EasyPermissions;
 
+@AndroidEntryPoint
 public class HomepageActivity extends AppCompatActivity {
 
+    // UI
     ActivityHomepageBinding binding;
     NavHostFragment navHostFragment;
     NavController navController;
     Menu menu;
     BottomNavigationView bottomNav;
+
+    // Domain
+    @Inject public LocationPermissionHandler mLocationPermissionHandler;
 
     /***********************************************************************************************
      ** The onCreate method
@@ -131,9 +141,19 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     /***********************************************************************************************
+     ** Permissions
+     **********************************************************************************************/
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, mLocationPermissionHandler);
+    }
+
+    /***********************************************************************************************
     ** Fragments display options
     **********************************************************************************************/
-    // Sets up visibility options for the toolbar, menu items and bottomNav
+    // Visibility setups for the toolbar, menu and bottomNav
 
     public void mapFragmentDisplayOptions(){
         actionbarVisibility(true);
@@ -192,4 +212,5 @@ public class HomepageActivity extends AppCompatActivity {
             }
         }
     }
+
 }

@@ -3,6 +3,7 @@
     package="fr.joudar.go4lunch">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 
     <application

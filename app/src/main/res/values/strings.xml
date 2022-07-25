@@ -27,4 +27,7 @@
     <string name="empty_list">No colleagues joining this restaurant yet</string>
     <string name="Restaurant_Name">Restaurant Name</string>
     <string name="chosen_restaurant">Chosen restaurant</string>
+    <string name="location_permission_request_txt">Go4Lunch needs to access your Location in order to function</string>
+    <string name="location_permission_request_negative_btn_txt">Skip</string>
+    <string name="location_permission_request_positive_btn_txt">Continue</string>
 </resources>
