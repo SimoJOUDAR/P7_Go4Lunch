@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "496045652096",
-    "project_id": "go4lunch-joudar-p7",
-    "storage_bucket": "go4lunch-joudar-p7.appspot.com"
+    "project_number": "793161237023",
+    "project_id": "go4lunch-mohamed-joudar",
+    "storage_bucket": "go4lunch-mohamed-joudar.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:496045652096:android:ca85b9a03364ad161e0e65",
+        "mobilesdk_app_id": "1:793161237023:android:85099cce775c9185b1cb2a",
         "android_client_info": {
           "package_name": "fr.joudar.go4lunch"
         }
       },
       "oauth_client": [
         {
-          "client_id": "496045652096-cqa8sifg3t2uc5kvfat7unobhc1jntnp.apps.googleusercontent.com",
+          "client_id": "793161237023-0ppfja3i3s37gp22iiak381njk9tp7ls.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "fr.joudar.go4lunch",
-            "certificate_hash": "52de4b8dd0c4c537eb84147a4698d9b86cf155c6"
+            "certificate_hash": "4c6ab6002c525fc884e9b26af6a1d9e07b169ef3"
           }
         },
         {
-          "client_id": "496045652096-v5761mkfrvluben0ms33rvh7aounfg6a.apps.googleusercontent.com",
+          "client_id": "793161237023-2l06t9atr2u23f52498u0g2jdl2ubp4p.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDs4UzU7c4YF4ACiU5s_wJ-dFX59u1lmvk"
+          "current_key": "AIzaSyAnVXgic2V62CsBn7IyfTsjBcuwJUAYLuw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "496045652096-v5761mkfrvluben0ms33rvh7aounfg6a.apps.googleusercontent.com",
+              "client_id": "793161237023-2l06t9atr2u23f52498u0g2jdl2ubp4p.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

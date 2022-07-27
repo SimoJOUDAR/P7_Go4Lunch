@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import javax.inject.Inject;
 
@@ -134,10 +136,16 @@ public class HomepageActivity extends AppCompatActivity {
 
     // Logout the user and takes him to the login activity
     private void signOut() {
-        AuthUI.getInstance().signOut(this).addOnSuccessListener(__ -> {
-                            startActivity(new Intent(this, AuthenticationActivity.class));
-                            finish();
-                        });
+        FirebaseAuth.getInstance().signOut();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) { //TODO: Centralize currentUser in UserRepository
+            startAuthenticationActivity();
+        }
+        //FirebaseAuth.getInstance().signOut();
+    }
+    private void startAuthenticationActivity(){
+        startActivity(new Intent(this, AuthenticationActivity.class));
+        finish();
     }
 
     /***********************************************************************************************

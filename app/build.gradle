@@ -7,6 +7,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/Users/simo/newAndroidStudioKeystore.jks')
+            storePassword 'android'
+            keyAlias 'newAndroidStudioKeystore'
+            keyPassword 'android'
+        }
+    }
     compileSdk 32
 
     defaultConfig {

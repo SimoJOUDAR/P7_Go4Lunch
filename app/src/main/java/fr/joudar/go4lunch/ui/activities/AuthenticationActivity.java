@@ -52,15 +52,14 @@ public class AuthenticationActivity extends AppCompatActivity {
 
 
     private void isAuth() {
-        startHomepageActivity();
-//        firebaseAuth = FirebaseAuth.getInstance();
-//        firebaseUser = firebaseAuth.getCurrentUser();
-//        if (firebaseUser != null) {
-//            startHomepageActivity();
-//        }
-//        else {
-//            startAuth();
-//        }
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            startHomepageActivity();
+        }
+        else {
+            startAuth();
+        }
     }
 
     private void startHomepageActivity() {
@@ -84,8 +83,9 @@ public class AuthenticationActivity extends AppCompatActivity {
     // Provides the auth services (google, facebook)
     private List<AuthUI.IdpConfig> getAuthProviders() {
         return Arrays.asList(
-                new AuthUI.IdpConfig.GoogleBuilder().build()
-                //TODO: ReAdd FacebookAuth: new AuthUI.IdpConfig.FacebookBuilder().build()
+                new AuthUI.IdpConfig.GoogleBuilder().build(),
+                new AuthUI.IdpConfig.EmailBuilder().build() //TODO - Just a place filler for facebook Auth below
+                //new AuthUI.IdpConfig.FacebookBuilder().build()
         );
     }
 
@@ -93,7 +93,8 @@ public class AuthenticationActivity extends AppCompatActivity {
     private AuthMethodPickerLayout getCustomAuthMethodPickerLayout() {
         return new AuthMethodPickerLayout.Builder(R.layout.auth_method_picker_layout)
                 .setGoogleButtonId(R.id.google_login_btn)
-                //TODO: ReAdd FacebookAuth: .setFacebookButtonId(R.id.fb_login_btn)
+                .setEmailButtonId(R.id.fb_login_btn) //TODO - Just a place filler for facebook auth below
+                //.setFacebookButtonId(R.id.fb_login_btn)
                 .build();
     }
 

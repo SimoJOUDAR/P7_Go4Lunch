@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
 
-    <string name="facebook_application_id" translatable="false">2259369484202600</string>
-    <string name="facebook_login_protocol_scheme" translatable="false">fb2259369484202600</string>
+    <string name="facebook_application_id" translatable="false">596300901865228</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb596300901865228</string>
 
     <string name="logo_title">Find a nice restaurant and invite your co-workers for lunch</string>
     <string name="facebook_login_btn_txt">Sign in with Facebook</string>
