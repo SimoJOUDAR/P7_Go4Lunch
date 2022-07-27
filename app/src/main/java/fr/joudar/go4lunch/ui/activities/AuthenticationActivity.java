@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
@@ -54,7 +53,6 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     private void isAuth() {
         startHomepageActivity();
-        // TODO : To skip Auth for dev period - To activate Firebase (paid warning !!!???)
 //        firebaseAuth = FirebaseAuth.getInstance();
 //        firebaseUser = firebaseAuth.getCurrentUser();
 //        if (firebaseUser != null) {
@@ -71,9 +69,8 @@ public class AuthenticationActivity extends AppCompatActivity {
         finish();
     }
 
+    // Create and launch sign-in intent
     private void startAuth() {
-
-        // Create and launch sign-in intent
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(getAuthProviders())
@@ -87,15 +84,16 @@ public class AuthenticationActivity extends AppCompatActivity {
     // Provides the auth services (google, facebook)
     private List<AuthUI.IdpConfig> getAuthProviders() {
         return Arrays.asList(
-                new AuthUI.IdpConfig.GoogleBuilder().build(),
-                new AuthUI.IdpConfig.FacebookBuilder().build());
+                new AuthUI.IdpConfig.GoogleBuilder().build()
+                //TODO: ReAdd FacebookAuth: new AuthUI.IdpConfig.FacebookBuilder().build()
+        );
     }
 
     //applies our custom theme to the login section
     private AuthMethodPickerLayout getCustomAuthMethodPickerLayout() {
         return new AuthMethodPickerLayout.Builder(R.layout.auth_method_picker_layout)
                 .setGoogleButtonId(R.id.google_login_btn)
-                .setFacebookButtonId(R.id.fb_login_btn)
+                //TODO: ReAdd FacebookAuth: .setFacebookButtonId(R.id.fb_login_btn)
                 .build();
     }
 
