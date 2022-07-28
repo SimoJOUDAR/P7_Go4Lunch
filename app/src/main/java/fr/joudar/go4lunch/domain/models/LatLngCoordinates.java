@@ -1,5 +1,6 @@
 package fr.joudar.go4lunch.domain.models;
 
+//TODO: unused? To delete? (because we used Position instead)
 public class LatLngCoordinates {
     private double latitude;
     private double longitude;
