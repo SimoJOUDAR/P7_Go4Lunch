@@ -1,27 +1,29 @@
 package fr.joudar.go4lunch.repositories;
 
-import android.content.Context;
+import androidx.lifecycle.MutableLiveData;
 
 import com.annimon.stream.Stream;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.auth.FirebaseAuth;
-
 import java.util.Map;
 import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.services.FirebaseServicesProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
 
+@Singleton
 public class FirebaseServicesRepository {
     private final FirebaseServicesProvider firebaseServicesProvider;
+    private MutableLiveData<User> currentUser = new MutableLiveData<>();
 
     @Inject
     public FirebaseServicesRepository(FirebaseServicesProvider firebaseServicesProvider) {
         this.firebaseServicesProvider = firebaseServicesProvider;
+        currentUser.postValue(this.firebaseServicesProvider.getCurrentUser());
     }
 
-    public User getCurrentUser() {
-        return firebaseServicesProvider.getCurrentUser();
+    public MutableLiveData<User> getCurrentUser() {
+        return currentUser;
     }
 
     public void getColleagues(Callback<User[]> callback) {

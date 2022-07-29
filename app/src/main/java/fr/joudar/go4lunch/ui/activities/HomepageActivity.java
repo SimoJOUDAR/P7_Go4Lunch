@@ -3,6 +3,7 @@ package fr.joudar.go4lunch.ui.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -31,6 +32,7 @@ import fr.joudar.go4lunch.databinding.ActivityHomepageBinding;
 import fr.joudar.go4lunch.domain.core.LocationPermissionHandler;
 import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.repositories.FirebaseServicesRepository;
+import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 import pub.devrel.easypermissions.EasyPermissions;
 
 @AndroidEntryPoint
@@ -46,9 +48,7 @@ public class HomepageActivity extends AppCompatActivity {
     // Domain
     //TODO: Make FirebaseServicesRepository static ?
     @Inject public LocationPermissionHandler mLocationPermissionHandler;
-    @Inject FirebaseServicesRepository firebaseServicesRepository;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseAuth.AuthStateListener authStateListener;
+    private HomepageViewModel homepageViewModel;
 
 
     /***********************************************************************************************
@@ -60,7 +60,7 @@ public class HomepageActivity extends AppCompatActivity {
         binding = ActivityHomepageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         InitNavigation();
-        initFirebaseAuth();
+        initViewModel();
     }
     /***********************************************************************************************
      ** Navigation
@@ -127,7 +127,8 @@ public class HomepageActivity extends AppCompatActivity {
                 return true;
             case R.id.logout:
                 Toast.makeText(this, "You've signed out", Toast.LENGTH_SHORT).show();
-                logout();
+                //logout();
+                homepageViewModel.logout();
                 return true;
             case R.id.settingsFragment:
                 Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.settingsFragment);
@@ -142,34 +143,18 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     /***********************************************************************************************
-     ** Firebase init
+     ** ViewModel
      **********************************************************************************************/
 
-    private void initFirebaseAuth(){
-        firebaseAuth = FirebaseAuth.getInstance();
-        authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null){
-                    onLogout();
-                }
-                else {
-                }
-            }
-        };
-        firebaseAuth.addAuthStateListener(authStateListener);
+    private void initViewModel() {
+        homepageViewModel = new ViewModelProvider(this).get(HomepageViewModel.class);
+        homepageViewModel.initFirebaseAuth(this::onLogout);
     }
 
     //If logged out, it takes us back to AuthenticationActivity
     private void onLogout(){
         startActivity(new Intent(this, AuthenticationActivity.class));
         finish();
-    }
-
-    //Logout the user
-    private void logout() {
-        firebaseServicesRepository.logout();
-
     }
 
     /***********************************************************************************************
