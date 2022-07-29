@@ -11,12 +11,14 @@ import androidx.navigation.ui.NavigationUI;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,6 +29,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.ActivityHomepageBinding;
 import fr.joudar.go4lunch.domain.core.LocationPermissionHandler;
+import fr.joudar.go4lunch.domain.models.User;
+import fr.joudar.go4lunch.repositories.FirebaseServicesRepository;
 import pub.devrel.easypermissions.EasyPermissions;
 
 @AndroidEntryPoint
@@ -40,7 +44,12 @@ public class HomepageActivity extends AppCompatActivity {
     BottomNavigationView bottomNav;
 
     // Domain
+    //TODO: Make FirebaseServicesRepository static ?
     @Inject public LocationPermissionHandler mLocationPermissionHandler;
+    @Inject FirebaseServicesRepository firebaseServicesRepository;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+
 
     /***********************************************************************************************
      ** The onCreate method
@@ -50,9 +59,8 @@ public class HomepageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityHomepageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         InitNavigation();
-
+        initFirebaseAuth();
     }
     /***********************************************************************************************
      ** Navigation
@@ -118,8 +126,8 @@ public class HomepageActivity extends AppCompatActivity {
                 //showCurrentUserChosenRestaurant();
                 return true;
             case R.id.logout:
-                Toast.makeText(this, "You signed out", Toast.LENGTH_SHORT).show();
-                signOut();
+                Toast.makeText(this, "You've signed out", Toast.LENGTH_SHORT).show();
+                logout();
                 return true;
             case R.id.settingsFragment:
                 Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.settingsFragment);
@@ -133,19 +141,35 @@ public class HomepageActivity extends AppCompatActivity {
         return true;
     }
 
+    /***********************************************************************************************
+     ** Firebase init
+     **********************************************************************************************/
 
-    // Logout the user and takes him to the login activity
-    private void signOut() {
-        FirebaseAuth.getInstance().signOut();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) { //TODO: Centralize currentUser in UserRepository
-            startAuthenticationActivity();
-        }
-        //FirebaseAuth.getInstance().signOut();
+    private void initFirebaseAuth(){
+        firebaseAuth = FirebaseAuth.getInstance();
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null){
+                    onLogout();
+                }
+                else {
+                }
+            }
+        };
+        firebaseAuth.addAuthStateListener(authStateListener);
     }
-    private void startAuthenticationActivity(){
+
+    //If logged out, it takes us back to AuthenticationActivity
+    private void onLogout(){
         startActivity(new Intent(this, AuthenticationActivity.class));
         finish();
+    }
+
+    //Logout the user
+    private void logout() {
+        firebaseServicesRepository.logout();
+
     }
 
     /***********************************************************************************************

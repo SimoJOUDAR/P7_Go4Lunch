@@ -1,7 +1,13 @@
 package fr.joudar.go4lunch.domain.core;
 
+import android.content.Context;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+
+import com.facebook.login.LoginManager;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.FirebaseUserMetadata;
@@ -65,7 +71,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     @Override
-    public void getUsersListByWorkplace(String workplaceId, Callback<User[]> callback) {
+    public void getColleagues(String workplaceId, Callback<User[]> callback) {
         firestore
                 .collection("users")
                 .whereEqualTo(WORKPLACE_ID, workplaceId)
@@ -76,7 +82,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     @Override
-    public void getUsersListByChosenRestaurant(String restaurantId, String usersWorkplaceId, Callback<User[]> callback) {
+    public void getColleaguesByRestaurant(String restaurantId, String usersWorkplaceId, Callback<User[]> callback) {
         firestore
                 .collection("users")
                 .whereEqualTo(WORKPLACE_ID, usersWorkplaceId)
@@ -123,10 +129,10 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     @Override
-    public void logout(Runnable onLogout) {
+    public void logout() {
         firebaseAuth.signOut();
-        onLogout.run();
     }
+
 
     @Override
     public void deleteCurrentUserAccount(Callback<Boolean> callback) {
