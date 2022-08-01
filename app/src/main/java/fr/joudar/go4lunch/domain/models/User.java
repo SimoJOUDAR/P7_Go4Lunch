@@ -5,14 +5,16 @@ import javax.annotation.Nullable;
 
 public class User {
 
-    private final String id;
-    private final String username;
-    private final String email;
+    private String id;
+    private String username;
+    private String email;
     @Nullable private String avatarUrl;
     @Nullable private List<String> likedRestaurantsIdList;
     @Nullable private String workplaceId ="";
     @Nullable private String chosenRestaurantId = "";
     @Nullable private String chosenRestaurantName = "";
+
+    public User(){}
 
     public User(String id, String username, String email, @Nullable String avatarUrl) {
         this.id = id;

@@ -86,4 +86,12 @@ public class CurrentLocationHandler implements CurrentLocationProvider {
             } else onResultListener = resultListener;
         };
     }
+
+    // TODO: Test - Location permission before entrance
+    @Override
+    public void hasLocationPermission(){
+        if (!locationPermissionHandler.hasPermission()) {
+            initLocationProvider();
+        }
+    }
 }
