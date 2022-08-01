@@ -9,7 +9,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,20 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
 import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.ActivityHomepageBinding;
 import fr.joudar.go4lunch.domain.core.LocationPermissionHandler;
-import fr.joudar.go4lunch.domain.models.User;
-import fr.joudar.go4lunch.repositories.FirebaseServicesRepository;
 import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -46,7 +38,6 @@ public class HomepageActivity extends AppCompatActivity {
     BottomNavigationView bottomNav;
 
     // Domain
-    //TODO: Make FirebaseServicesRepository static ?
     @Inject public LocationPermissionHandler mLocationPermissionHandler;
     private HomepageViewModel homepageViewModel;
 
@@ -60,7 +51,7 @@ public class HomepageActivity extends AppCompatActivity {
         binding = ActivityHomepageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         InitNavigation();
-        initViewModel();
+        //initViewModel();
     }
     /***********************************************************************************************
      ** Navigation
@@ -135,8 +126,8 @@ public class HomepageActivity extends AppCompatActivity {
                 binding.getRoot().closeDrawer(binding.drawerNav, false);
                 return true;
             case R.id.restaurantDetailsFragment: //TODO : This last case is just for testing... To be removed along with the xml menu item
-                Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.restaurantDetailsFragment);
-                binding.getRoot().closeDrawer(binding.drawerNav, false);
+//                Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.restaurantDetailsFragment);
+//                binding.getRoot().closeDrawer(binding.drawerNav, false);
                 return true;
         }
         return true;
@@ -147,14 +138,18 @@ public class HomepageActivity extends AppCompatActivity {
      **********************************************************************************************/
 
     private void initViewModel() {
+        Log.d("HomepageActivity", "initViewModel _Start_");
         homepageViewModel = new ViewModelProvider(this).get(HomepageViewModel.class);
+        Log.d("HomepageActivity", "initViewModel _homepageViewModel_Finish_");
         homepageViewModel.initFirebaseAuth(this::onLogout);
+        Log.d("HomepageActivity", "initViewModel _initFirebaseAuth_Finish_");
     }
 
     //If logged out, it takes us back to AuthenticationActivity
     private void onLogout(){
         startActivity(new Intent(this, AuthenticationActivity.class));
         finish();
+        Log.d("HomepageActivity", "onLogout");
     }
 
     /***********************************************************************************************

@@ -34,6 +34,7 @@ android {
         }
     }
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -75,8 +76,8 @@ dependencies {
 
     //FIREBASE
     implementation platform('com.google.firebase:firebase-bom:28.0.1')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-firestore'
+    //implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-firestore:24.2.1'
     implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
     implementation 'com.facebook.android:facebook-login:14.0.0'
     implementation 'com.facebook.android:facebook-android-sdk:14.0.0'
@@ -105,4 +106,7 @@ dependencies {
 
     //Stream utils (for API 21 compatibility)
     implementation 'com.annimon:stream:1.2.2'
+
+    //For Android Api 21 compatibility
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.9'
 }

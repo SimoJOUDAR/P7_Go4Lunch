@@ -11,7 +11,7 @@ import fr.joudar.go4lunch.domain.services.FirebaseServicesProvider;
 
 @Module
 @InstallIn(SingletonComponent.class)
-public abstract class AbstractSingletonModule {
+public abstract class SingletonModuleForBinding {
 
     @Binds
     @Singleton

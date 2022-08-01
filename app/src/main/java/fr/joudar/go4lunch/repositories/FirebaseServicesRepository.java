@@ -1,5 +1,7 @@
 package fr.joudar.go4lunch.repositories;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 
 import com.annimon.stream.Stream;
@@ -14,7 +16,7 @@ import fr.joudar.go4lunch.domain.utils.Callback;
 @Singleton
 public class FirebaseServicesRepository {
     private final FirebaseServicesProvider firebaseServicesProvider;
-    private MutableLiveData<User> currentUser = new MutableLiveData<>();
+    private static MutableLiveData<User> currentUser = new MutableLiveData<>();
 
     @Inject
     public FirebaseServicesRepository(FirebaseServicesProvider firebaseServicesProvider) {
@@ -28,7 +30,6 @@ public class FirebaseServicesRepository {
 
     public void getColleagues(Callback<User[]> callback) {
         firebaseServicesProvider.getColleagues(
-                firebaseServicesProvider.getCurrentUser().getWorkplaceId(),
                 new Callback<User[]>() {
                     @Override
                     public void onSuccess(User[] users) {
@@ -45,7 +46,7 @@ public class FirebaseServicesRepository {
     }
 
     public void getColleaguesByRestaurant(String restaurantId, String usersWorkplaceId, Callback<User[]> callback) {
-        firebaseServicesProvider.getColleaguesByRestaurant(restaurantId, usersWorkplaceId, callback);
+        firebaseServicesProvider.getColleaguesByRestaurant(restaurantId, callback);
     }
 
     public void resetChosenRestaurant(){
@@ -69,7 +70,12 @@ public class FirebaseServicesRepository {
         firebaseServicesProvider.deleteCurrentUserAccount(callback);
     }
 
-    public void getColleaguesDistributionOverRestaurants(String workplaceId, Callback<Map<String, Integer>> callback) {
-        firebaseServicesProvider.getColleaguesDistributionOverRestaurants(workplaceId, callback);
+    public void getColleaguesDistributionOverRestaurants(Callback<Map<String, Integer>> callback) {
+        Log.d("FirebaseServicesRepo", "getColleaguesDistributionOverRestaurants");
+        firebaseServicesProvider.getColleaguesDistributionOverRestaurants(callback);
+    }
+
+    public String getWorkplaceId(){
+        return firebaseServicesProvider.getWorkplaceId();
     }
 }

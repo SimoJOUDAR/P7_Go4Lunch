@@ -1,13 +1,17 @@
 package fr.joudar.go4lunch.domain.core;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.facebook.login.LoginManager;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.FirebaseUserMetadata;
@@ -46,23 +50,39 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                             firebaseUser.getDisplayName(),
                             firebaseUser.getEmail(),
                             userPhotoUrl != null ? userPhotoUrl.toString() : AVATAR_URL);
-            initUserData();
+            initUserInFirebase();
         } else currentUser = null;
+
+        // note
+
+    }
+
+    // TODO: Tentative to solve the Firestore problem :/
+    private void initUserInFirebase() {
+        if (isCurrentUserNew()) {
+            firestore.collection("users")
+                    .document(currentUser.getId())
+                    .set(currentUser);
+            // TODO: Ask user in HomepageActivity to enter his data (WORKPLACE_ID) (LIKED_RESTAURANTS_ID_LIST & CHOSEN_RESTAURANT data are going to be updated alongside app utilisation)
+        }
+        else {
+            initUserData();
+        }
     }
 
     private void initUserData() {
         firestore.collection("users")
                 .document(currentUser.getId())
                 .get()
-                .addOnSuccessListener(this::onUserDataLoaded);
-    }
-
-    private void onUserDataLoaded(DocumentSnapshot userDocument) {
-        currentUser.setLikedRestaurantsIdList((List<String>) userDocument.get(LIKED_RESTAURANTS_ID_LIST));
-        currentUser.setWorkplaceId(userDocument.getString(WORKPLACE_ID));
-        currentUser.setChosenRestaurantId(userDocument.getString(CHOSEN_RESTAURANT_ID));
-        currentUser.setChosenRestaurantName(userDocument.getString(CHOSEN_RESTAURANT_NAME));
-
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot userDocument) {
+                        currentUser.setLikedRestaurantsIdList((List<String>) userDocument.get(LIKED_RESTAURANTS_ID_LIST));
+                        currentUser.setWorkplaceId(userDocument.getString(WORKPLACE_ID));
+                        currentUser.setChosenRestaurantId(userDocument.getString(CHOSEN_RESTAURANT_ID));
+                        currentUser.setChosenRestaurantName(userDocument.getString(CHOSEN_RESTAURANT_NAME));
+                    }
+                });
     }
 
     @Override
@@ -71,10 +91,10 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     @Override
-    public void getColleagues(String workplaceId, Callback<User[]> callback) {
+    public void getColleagues(Callback<User[]> callback) {
         firestore
                 .collection("users")
-                .whereEqualTo(WORKPLACE_ID, workplaceId)
+                .whereEqualTo(WORKPLACE_ID, currentUser.getWorkplaceId())
                 .get()
                 .addOnSuccessListener(
                         snapshots -> callback.onSuccess(snapshotsToArrayConverter(snapshots.getDocuments())))
@@ -82,10 +102,10 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     @Override
-    public void getColleaguesByRestaurant(String restaurantId, String usersWorkplaceId, Callback<User[]> callback) {
+    public void getColleaguesByRestaurant(String restaurantId, Callback<User[]> callback) {
         firestore
                 .collection("users")
-                .whereEqualTo(WORKPLACE_ID, usersWorkplaceId)
+                .whereEqualTo(WORKPLACE_ID, currentUser.getWorkplaceId())
                 .whereEqualTo(CHOSEN_RESTAURANT_ID, restaurantId)
                 .get()
                 .addOnSuccessListener(
@@ -141,13 +161,16 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                 .delete()
                 .addOnSuccessListener(__ -> callback.onSuccess(true))
                 .addOnFailureListener(__ -> callback.onFailure());
+
+        // Or : AuthUI.getInstance().delete(context);   ?
     }
 
     @Override
-    public void getColleaguesDistributionOverRestaurants(String workplaceId, Callback<Map<String, Integer>> callback) {
+    public void getColleaguesDistributionOverRestaurants(Callback<Map<String, Integer>> callback) {
+        Log.d("FirebaseServicesHandler", "getColleaguesDistributionOverRestaurants");
         firestore
                 .collection("users")
-                .whereEqualTo(WORKPLACE_ID, workplaceId)
+                .whereEqualTo(WORKPLACE_ID, currentUser.getWorkplaceId())
                 .get()
                 .addOnSuccessListener(
                         usersSnapshot -> {
@@ -164,6 +187,11 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                             }
                             callback.onSuccess(colleaguesDistributionOverRestaurants);
                         });
+    }
+
+    @Override
+    public String getWorkplaceId() {
+        return currentUser.getWorkplaceId();
     }
 
     private User[] snapshotsToArrayConverter(List<DocumentSnapshot> usersDocuments) {

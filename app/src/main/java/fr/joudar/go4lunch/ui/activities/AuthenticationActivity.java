@@ -54,6 +54,7 @@ public class AuthenticationActivity extends AppCompatActivity {
     private void isAuth() {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
+        Log.d("AuthActivity", "isAuth");
         if (firebaseUser != null) {
             startHomepageActivity();
         }
@@ -66,6 +67,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         final Intent homepageActivityIntent = new Intent(this, HomepageActivity.class);
         startActivity(homepageActivityIntent);
         finish();
+        Log.d("AuthActivity", "startHomepageActivity");
     }
 
     // Create and launch sign-in intent
@@ -78,6 +80,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                 .setTheme(R.style.AuthTheme)
                 .build();
         signInLauncher.launch(signInIntent);
+        Log.d("AuthActivity", "startAuth");
     }
 
     // Provides the auth services (google, facebook)
@@ -102,6 +105,7 @@ public class AuthenticationActivity extends AppCompatActivity {
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
         Log.i("LOGING", "____ON_RESULT_LOGIN______");
         if (result.getResultCode() == Activity.RESULT_OK) {
+            Log.d("AuthActivity", "onSignInResult");
             startHomepageActivity();
         } else {
             binding.getRoot().setVisibility(View.VISIBLE);
