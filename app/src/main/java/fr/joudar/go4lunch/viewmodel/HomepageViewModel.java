@@ -2,6 +2,7 @@ package fr.joudar.go4lunch.viewmodel;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,10 +18,16 @@ import fr.joudar.go4lunch.repositories.FirebaseServicesRepository;
 @HiltViewModel
 public class HomepageViewModel extends ViewModel {
 
-    private FirebaseServicesRepository firebaseServicesRepository;
-    private MutableLiveData<User> currentUser = new MutableLiveData<>();
-    private FirebaseAuth firebaseAuth;
-    private FirebaseAuth.AuthStateListener authStateListener;
+    private final FirebaseServicesRepository firebaseServicesRepository;
+    private User currentUser;
+    private final Observer<User> observer = new Observer<User>() {
+        @Override
+        public void onChanged(User user) {
+            currentUser = user;
+        }
+    };
+
+    //TODO: To define search radius in SettingsFragment and store it in SharedPreferences
     public static int searchRadius = 0;
 
     @Inject
@@ -29,23 +36,21 @@ public class HomepageViewModel extends ViewModel {
         currentUser = this.firebaseServicesRepository.getCurrentUser();
     }
 
-    public MutableLiveData<User> getCurrentUser() {
-        return currentUser;
-    }
-
     /***********************************************************************************************
-     ** Firebase init
+     ** Firebase
      **********************************************************************************************/
 
-    public void initFirebaseAuth(Runnable runnable){
-        firebaseAuth = FirebaseAuth.getInstance();
-        authStateListener = new FirebaseAuth.AuthStateListener() {
+    public void initListener(Runnable runnable){
+        getLiveCurrentUser().observeForever(observer);
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        //Todo: ErrorMessage()?
+        FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null){
+                if (firebaseAuth.getCurrentUser() == null) {
                     runnable.run();
-                }
-                else {
+                } else {
+                    //Todo: ErrorMessage()?
                 }
             }
         };
@@ -55,7 +60,17 @@ public class HomepageViewModel extends ViewModel {
     //Logout the user
     public void logout() {
         firebaseServicesRepository.logout();
+    }
 
+    public User getCurrentUser() {
+        return currentUser;
+    }
+    public MutableLiveData<User> getLiveCurrentUser() {
+        return firebaseServicesRepository.getLiveCurrentUser();
+    }
+
+    public String getWorkplaceId(){
+        return firebaseServicesRepository.getWorkplaceId();
     }
 
     /***********************************************************************************************
@@ -78,4 +93,9 @@ public class HomepageViewModel extends ViewModel {
             return String.valueOf(defaultRadius);
     }
 
+    @Override
+    protected void onCleared() {
+        getLiveCurrentUser().removeObserver(observer);
+        super.onCleared();
+    }
 }

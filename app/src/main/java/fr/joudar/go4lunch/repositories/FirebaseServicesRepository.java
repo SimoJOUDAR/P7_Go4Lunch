@@ -2,6 +2,7 @@ package fr.joudar.go4lunch.repositories;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.annimon.stream.Stream;
@@ -16,17 +17,20 @@ import fr.joudar.go4lunch.domain.utils.Callback;
 @Singleton
 public class FirebaseServicesRepository {
     private final FirebaseServicesProvider firebaseServicesProvider;
-    private static MutableLiveData<User> currentUser = new MutableLiveData<>();
 
     @Inject
     public FirebaseServicesRepository(FirebaseServicesProvider firebaseServicesProvider) {
         this.firebaseServicesProvider = firebaseServicesProvider;
-        currentUser.postValue(this.firebaseServicesProvider.getCurrentUser());
     }
 
-    public MutableLiveData<User> getCurrentUser() {
-        return currentUser;
+    public User getCurrentUser() {
+        return firebaseServicesProvider.getCurrentUser();
     }
+
+    public MutableLiveData<User> getLiveCurrentUser() {
+        return firebaseServicesProvider.getLiveCurrentUser();
+    }
+
 
     public void getColleagues(Callback<User[]> callback) {
         firebaseServicesProvider.getColleagues(

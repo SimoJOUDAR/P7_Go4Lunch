@@ -1,12 +1,7 @@
 package fr.joudar.go4lunch.domain.services;
 
-import android.content.Context;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.auth.FirebaseAuth;
-
+import androidx.lifecycle.MutableLiveData;
 import java.util.Map;
-
 import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.utils.Callback;
 
@@ -20,6 +15,8 @@ public interface FirebaseServicesProvider {
 
     // The current location of the connected user
     User getCurrentUser();
+
+    MutableLiveData<User> getLiveCurrentUser();
 
     // Fetches a list of users working in the same place as the currently connected user, and passes it to the arg callback
     void getColleagues(Callback<User[]> callback);
