@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
@@ -51,7 +50,7 @@ public class HomepageActivity extends AppCompatActivity {
         binding = ActivityHomepageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         InitNavigation();
-        //initViewModel();
+        initViewModel();
     }
     /***********************************************************************************************
      ** Navigation
@@ -141,7 +140,7 @@ public class HomepageActivity extends AppCompatActivity {
         Log.d("HomepageActivity", "initViewModel _Start_");
         homepageViewModel = new ViewModelProvider(this).get(HomepageViewModel.class);
         Log.d("HomepageActivity", "initViewModel _homepageViewModel_Finish_");
-        homepageViewModel.initFirebaseAuth(this::onLogout);
+        homepageViewModel.initListener(this::onLogout);
         Log.d("HomepageActivity", "initViewModel _initFirebaseAuth_Finish_");
     }
 

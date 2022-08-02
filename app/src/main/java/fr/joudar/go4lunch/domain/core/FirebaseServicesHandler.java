@@ -1,16 +1,8 @@
 package fr.joudar.go4lunch.domain.core;
 
-import android.app.Activity;
-import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.facebook.login.LoginManager;
-import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.tasks.OnCompleteListener;
+import androidx.lifecycle.MutableLiveData;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,6 +24,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     private final FirebaseFirestore firestore;
     private final FirebaseAuth firebaseAuth;
     private User currentUser;
+    private MutableLiveData<User> liveCurrentUser;
 
     public FirebaseServicesHandler(FirebaseFirestore firestore, FirebaseAuth firebaseAuth) {
         this.firestore = firestore;
@@ -40,20 +33,20 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
         this.firebaseAuth.addAuthStateListener(this::initUser); // addAuthStateListener is triggered on authentication state change (user signed in, signed out, changed) and then executes the passed arg listener.
     }
 
-    private void initUser(FirebaseAuth firebaseAuth) {
+    public void initUser(FirebaseAuth firebaseAuth) {
         final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
             final Uri userPhotoUrl = firebaseUser.getPhotoUrl();
-            currentUser =
-                    new User(
+            currentUser = new User(
                             firebaseUser.getUid(),
                             firebaseUser.getDisplayName(),
                             firebaseUser.getEmail(),
                             userPhotoUrl != null ? userPhotoUrl.toString() : AVATAR_URL);
             initUserInFirebase();
+            liveCurrentUser.postValue(currentUser);
         } else currentUser = null;
 
-        // note
+        //Todo: ErrorMessage()?
 
     }
 
@@ -88,6 +81,11 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     @Override
     public User getCurrentUser() {
         return currentUser;
+    }
+
+    @Override
+    public MutableLiveData<User> getLiveCurrentUser() {
+        return liveCurrentUser;
     }
 
     @Override
@@ -128,6 +126,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
         currentUser.setChosenRestaurantId("");
         currentUser.setChosenRestaurantName("");
         updateCurrentUserData(CHOSEN_RESTAURANT_ID, "");
+        liveCurrentUser.postValue(currentUser);
     }
 
     @Override
@@ -163,6 +162,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                 .addOnFailureListener(__ -> callback.onFailure());
 
         // Or : AuthUI.getInstance().delete(context);   ?
+        //TODO: Logout()
     }
 
     @Override

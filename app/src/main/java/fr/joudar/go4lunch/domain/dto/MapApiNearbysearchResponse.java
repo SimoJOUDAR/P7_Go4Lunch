@@ -6,6 +6,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
+import fr.joudar.go4lunch.BuildConfig;
 import fr.joudar.go4lunch.domain.models.Place;
 
 
@@ -100,13 +101,20 @@ class Result {
         Place place;
         try{
             place = new Place(
-                    placeId, name, rating, vicinity, photos.get(0).photoReference,openingHours.openNow,
+                    placeId, name, rating, vicinity, photoReferenceConverter(photos.get(0).photoReference),openingHours.openNow,
                     new LatLng(geometry.location.lat, geometry.location.lng), icon);
         }
         catch (Exception e) {
             place = null;
         }
         return place;
+    }
+
+    public String photoReferenceConverter(String reference) {
+        return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=500&photoreference="
+                + reference
+                + "&key="
+                + BuildConfig.MAPS_API_KEY;
     }
 
 }

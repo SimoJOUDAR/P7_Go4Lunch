@@ -42,6 +42,7 @@ import fr.joudar.go4lunch.domain.services.CurrentLocationProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
 import fr.joudar.go4lunch.repositories.FirebaseServicesRepository;
 import fr.joudar.go4lunch.ui.activities.HomepageActivity;
+import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 import fr.joudar.go4lunch.viewmodel.PlacesViewModel;
 
 @AndroidEntryPoint
@@ -51,7 +52,7 @@ public class MapFragment extends Fragment {
     private GoogleMap map;
     @Inject public CurrentLocationProvider currentLocationProvider;
     private PlacesViewModel placesViewModel;
-    @Inject public FirebaseServicesRepository firebaseServicesRepository;
+    private HomepageViewModel homepageViewModel;
     private Map<String, Integer> distributionHashMap = new HashMap<>();
 
     public MapFragment() {}
@@ -61,12 +62,11 @@ public class MapFragment extends Fragment {
         View mapView = inflater.inflate(R.layout.fragment_map, container, false);
 
         initViewModel(container);
-        initMapUpdates();
 
         Log.d("MapFragment", "SupportMapFragment _stared_");
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         Log.d("MapFragment", "SupportMapFragment _finished_");
-        //mapFragment.getMapAsync(this::onMapResults);
+        mapFragment.getMapAsync(this::onMapResults);
         return mapView;
     }
 
@@ -75,11 +75,11 @@ public class MapFragment extends Fragment {
         Log.d("MapFragment", "initViewModel _started_");
         final NavController navController = Navigation.findNavController(fragmentContainer);
         final NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
-        placesViewModel =
-                new ViewModelProvider(
-                        backStackEntry,
-                        HiltViewModelFactory.createInternal(getActivity(), backStackEntry, null, null))
-                        .get(PlacesViewModel.class);
+        ViewModelProvider viewModelProvider = new ViewModelProvider(
+                backStackEntry,
+                HiltViewModelFactory.createInternal(getActivity(), backStackEntry, null, null));
+        placesViewModel = viewModelProvider.get(PlacesViewModel.class);
+        homepageViewModel = viewModelProvider.get(HomepageViewModel.class);
         Log.d("MapFragment", "initViewModel _finished_");
     }
 
@@ -87,19 +87,23 @@ public class MapFragment extends Fragment {
     private void onMapResults(GoogleMap map) {
         Log.d("MapFragment", "onMapResults");
         this.map = map;
+        initMapUpdates();
         map.setOnInfoWindowClickListener(this::displayPlaceDetails);
     }
 
     // Observes currentUser to keep "colleagues distribution overs nearby restaurant" updated
     private void initMapUpdates(){
         Log.d("MapFragment", "initMapUpdates");
-        firebaseServicesRepository.getCurrentUser().observe(getViewLifecycleOwner(), __ -> getColleaguesDistributionOverRestaurants());
+        //TODO : Use ViewModel abstraction
+        //homepageViewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), __ -> getColleaguesDistributionOverRestaurants());
+        getColleaguesDistributionOverRestaurants();
     }
 
     // a HashMap of colleagues distribution overs nearby restaurant
     private void getColleaguesDistributionOverRestaurants() {
         Log.d("MapFragment", "getColleaguesDistributionOverRestaurants");
-        if (firebaseServicesRepository.getWorkplaceId() != null) {
+        //TODO : Use ViewModel abstraction
+        if (homepageViewModel.getWorkplaceId() != null) {
             placesViewModel.getColleaguesDistributionOverRestaurants(new Callback<Map<String, Integer>>() {
                 @Override
                 public void onSuccess(Map<String, Integer> results) {
