@@ -3,11 +3,13 @@ package fr.joudar.go4lunch.repositories;
 import com.google.android.gms.maps.model.LatLng;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
+
 import fr.joudar.go4lunch.domain.models.Place;
 import fr.joudar.go4lunch.domain.services.NearbysearchProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
 
 @ParametersAreNonnullByDefault
+//@ViewModelScoped  //TODO: make it ViewModelScoped ?
 public class NearbysearchRepository {
 
     private final NearbysearchProvider nearbysearchProvider;
@@ -18,19 +20,18 @@ public class NearbysearchRepository {
     }
 
     public void getNearbyRestaurant(LatLng location, Callback<Place[]> callback) {
-        nearbysearchProvider.setQueryParameters(location);
-        nearbysearchProvider.getPlaces(
-                new Callback<Place[]>() {
-                    @Override
-                    public void onSuccess(Place[] places) {
-                        callback.onSuccess(places);
-                    }
-
-                    @Override
-                    public void onFailure() {
-
-                    }
-                }
+        nearbysearchProvider.getPlaces(location, callback
+//                new Callback<Place[]>() {  //We pass the callback strait away with no additional treatments
+//                    @Override
+//                    public void onSuccess(Place[] results) {
+//                        callback.onSuccess(results);
+//                    }
+//
+//                    @Override
+//                    public void onFailure() {
+//                        callback.onFailure();
+//                    }
+//                }
         );
     }
 }
