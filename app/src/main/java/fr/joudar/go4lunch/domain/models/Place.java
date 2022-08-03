@@ -4,6 +4,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Locale;
 
+import fr.joudar.go4lunch.BuildConfig;
+
 public class Place {
 
     private final String id;
@@ -41,7 +43,7 @@ public class Place {
     }
 
     /***********************************************************************************************
-     ** Details Place constructor
+     ** Place Details constructor
      **********************************************************************************************/
     public Place(
             String id,
@@ -124,5 +126,12 @@ public class Place {
         public String[] getAttributions() {
             return attributions;
         }
+    }
+
+    public static String photoReferenceConverter(String reference) {
+        return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=500&photoreference="
+                + reference
+                + "&key="
+                + BuildConfig.MAPS_API_KEY;
     }
 }

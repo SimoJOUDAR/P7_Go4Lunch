@@ -6,8 +6,6 @@ import fr.joudar.go4lunch.domain.utils.Callback;
 
 public interface NearbysearchProvider {
 
-    void setQueryParameters(LatLng location);
-
-    void getPlaces(Callback<Place[]> callback);
+    void getPlaces(LatLng location, Callback<Place[]> callback);
 
 }
