@@ -14,8 +14,9 @@ import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.services.FirebaseServicesProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
 
-@Singleton
+//@Singleton  TODO : use as singleton ?
 public class FirebaseServicesRepository {
+
     private final FirebaseServicesProvider firebaseServicesProvider;
 
     @Inject
@@ -51,6 +52,10 @@ public class FirebaseServicesRepository {
 
     public void getColleaguesByRestaurant(String restaurantId, String usersWorkplaceId, Callback<User[]> callback) {
         firebaseServicesProvider.getColleaguesByRestaurant(restaurantId, callback);
+    }
+
+    public void updateAllCurrentUserData() {
+        firebaseServicesProvider.updateAllCurrentUserData();
     }
 
     public void resetChosenRestaurant(){

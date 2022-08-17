@@ -9,7 +9,15 @@
         android:id="@+id/mapFragment"
         android:name="fr.joudar.go4lunch.ui.fragments.map.MapFragment"
         android:label="I'm Hungry!"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/action_mapFragment_to_restaurantDetailsFragment"
+            app:destination="@id/restaurantDetailsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
     <fragment
         android:id="@+id/restaurantsListFragment"
         android:name="fr.joudar.go4lunch.ui.fragments.restaurantsList.RestaurantsListFragment"
@@ -24,7 +32,11 @@
         android:id="@+id/restaurantDetailsFragment"
         android:name="fr.joudar.go4lunch.ui.fragments.restaurantDetails.RestaurantDetailsFragment"
         android:label="fragment_restaurant_details"
-        tools:layout="@layout/fragment_restaurant_details" />
+        tools:layout="@layout/fragment_restaurant_details" >
+        <argument
+            android:name="restaurantId"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/settingsFragment"
         android:name="fr.joudar.go4lunch.ui.fragments.settings.SettingsFragment"

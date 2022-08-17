@@ -3,11 +3,37 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/ic_list_24.xml" value="0.1405" />
+        <entry key="app/src/main/res/drawable-v24/ic_logout_24.xml" value="0.15" />
+        <entry key="app/src/main/res/drawable-v24/ic_retry.xml" value="0.1405" />
+        <entry key="app/src/main/res/drawable-v24/ic_search_24.xml" value="0.15" />
+        <entry key="app/src/main/res/drawable-v24/ic_utensils.xml" value="0.15" />
+        <entry key="app/src/main/res/drawable/ic_baseline_manage_accounts_24.xml" value="0.15" />
+        <entry key="app/src/main/res/drawable/ic_baseline_notifications_24.xml" value="0.15" />
+        <entry key="app/src/main/res/drawable/ic_call_24.xml" value="0.1405" />
+        <entry key="app/src/main/res/drawable/ic_distance_between.xml" value="0.1405" />
+        <entry key="app/src/main/res/drawable/ic_facebook_logo.xml" value="0.1405" />
         <entry key="app/src/main/res/drawable/ic_green_pin_24.xml" value="0.1405" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.1405" />
         <entry key="app/src/main/res/drawable/ic_public_24.xml" value="0.1405" />
         <entry key="app/src/main/res/drawable/ic_red_pin_24.xml" value="0.1405" />
+        <entry key="app/src/main/res/drawable/ic_search_24.xml" value="0.15" />
+        <entry key="app/src/main/res/drawable/ic_show_details_24.xml" value="0.1405" />
+        <entry key="app/src/main/res/drawable/ic_star_border_24.xml" value="0.1405" />
         <entry key="app/src/main/res/drawable/ic_user_circle_24.xml" value="0.2941688842773438" />
+        <entry key="app/src/main/res/layout/activity_homepage.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/auth_method_picker_layout.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/autocompelte_item.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/autocomplete_item.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/drawer_nav_header.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/fragment_restaurant_details.xml" value="0.21944444444444444" />
+        <entry key="app/src/main/res/layout/fragment_settings.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/settings_delete_account_btn_layout.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/workplace_dialog.xml" value="0.30885416666666665" />
+        <entry key="app/src/main/res/layout/workplace_dialog_autocomplete_item.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/menu/drawer_nav_layout.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/menu/toolbar_layout.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/xml/preferences.xml" value="0.30885416666666665" />
       </map>
     </option>
   </component>

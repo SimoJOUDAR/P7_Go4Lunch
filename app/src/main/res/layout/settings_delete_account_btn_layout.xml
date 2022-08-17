@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_delete_account_btn"
+    android:layout_marginHorizontal="50dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/settings_delete_my_account"
+    android:textColor="@android:color/holo_red_light"
+    app:backgroundTint="@color/white" />

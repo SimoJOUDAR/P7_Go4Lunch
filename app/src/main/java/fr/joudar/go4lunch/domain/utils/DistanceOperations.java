@@ -6,16 +6,17 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class DistanceOperations {
 
+  // TODO : Useless ? Remove?
   // Returns the meter distance between two LatLng locations
-  public static Float getLatLngDistance(LatLng start, LatLng end) {
+  public static Float getLatLngDistance(Location start, Location end) {
 
     Location startLoc = new Location("Location Provider");
-    startLoc.setLatitude(start.latitude);
-    startLoc.setLongitude(start.longitude);
+    startLoc.setLatitude(start.getLatitude());
+    startLoc.setLongitude(start.getLongitude());
 
     Location endLoc = new Location("Location Provider");
-    endLoc.setLatitude(end.latitude);
-    endLoc.setLongitude(end.longitude);
+    endLoc.setLatitude(end.getLatitude());
+    endLoc.setLongitude(end.getLongitude());
 
     return startLoc.distanceTo(endLoc);
   }

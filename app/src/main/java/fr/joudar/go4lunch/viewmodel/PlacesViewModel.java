@@ -1,5 +1,6 @@
 package fr.joudar.go4lunch.viewmodel;
 
+import android.location.Location;
 import android.os.Build;
 import android.util.Log;
 
@@ -24,7 +25,7 @@ import fr.joudar.go4lunch.repositories.NearbysearchRepository;
 public class PlacesViewModel extends ViewModel {
 
     private final NearbysearchRepository nearbysearchRepository;
-    private LatLng lastLocation;
+    private Location lastLocation;
     private static Place[] lastResults;
     private LocalDateTime timeOfLastRequest;;
     private final FirebaseServicesRepository firebaseServicesRepository;
@@ -36,12 +37,12 @@ public class PlacesViewModel extends ViewModel {
         this.firebaseServicesRepository = firebaseServicesRepository;
     }
 
-    public void getNearbyRestaurant(LatLng currentLocation, Callback<Place[]> callback) {
+    public void getNearbyRestaurant(Location currentLocation, String radius, Callback<Place[]> callback) {
         if (isCacheUpToDate(currentLocation)) {
             callback.onSuccess(lastResults);
         }
         else {
-            nearbysearchRepository.getNearbyRestaurant(currentLocation,
+            nearbysearchRepository.getNearbyRestaurant(currentLocation, radius,
                     new Callback<Place[]>() {
                         @Override
                         public void onSuccess(Place[] places) {
@@ -60,9 +61,9 @@ public class PlacesViewModel extends ViewModel {
     }
 
     // Returns true if cache has been update less than 5 min ago and less than 50 meters location distance
-    private boolean isCacheUpToDate(LatLng currentLocation) {
+    private boolean isCacheUpToDate(Location currentLocation) {
         return lastLocation != null
-                && DistanceOperations.getLatLngDistance(lastLocation, currentLocation) < 50
+                && lastLocation.distanceTo(currentLocation) < 50
                 && timeOfLastRequest.plusMinutes(5).isAfter(LocalDateTime.now());
     }
 

@@ -6,6 +6,7 @@ import fr.joudar.go4lunch.domain.models.Place;
 import fr.joudar.go4lunch.domain.services.PlaceDetailsProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
 
+
 public class PlaceDetailsRepository {
 
     private final PlaceDetailsProvider placeDetailsProvider;

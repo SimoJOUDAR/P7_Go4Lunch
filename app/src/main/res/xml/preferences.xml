@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:title="@string/settings_search"
+        app:icon="@drawable/ic_search_24">
+
+        <SeekBarPreference
+            app:key="search_radius"
+            app:title="@string/search_radius"
+            app:showSeekBarValue="true"
+            app:defaultValue="2"
+            android:max="10" />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory/>
+
+    <PreferenceCategory
+        app:title="@string/settings_notifications"
+        app:icon="@drawable/ic_notifications_24">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="notification_enabled"
+            app:title="@string/settings_enable_notifications"
+            app:summaryOn="@string/settings_notifications_summary_on"
+            app:summaryOff="@string/settings_notifications_summary_of"/>
+
+        <fr.joudar.go4lunch.ui.core.dialogs.TimeDialogPreference
+            app:defaultValue="true"
+            app:dependency="notification_enabled"
+            android:key="lunch_reminder"
+            app:title="@string/settings_set_lunch_reminder_at" />
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory/>
+
+    <PreferenceCategory
+        android:title="@string/settings_account"
+        android:icon="@drawable/ic_manage_accounts_24">
+
+        <Preference
+            app:key="workplace"
+            app:title="@string/settings_my_workplace"
+            android:defaultValue="Not set"
+            app:summary="Googleplex \nMountain View, California"/>
+
+        <Preference/>
+
+        <Preference
+            app:key="delete"
+            app:layout="@layout/settings_delete_account_btn_layout"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -10,7 +10,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,7 +42,6 @@ import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.domain.models.Place;
 import fr.joudar.go4lunch.domain.services.CurrentLocationProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
-import fr.joudar.go4lunch.repositories.FirebaseServicesRepository;
 import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 import fr.joudar.go4lunch.viewmodel.PlacesViewModel;
@@ -130,7 +131,7 @@ public class MapFragment extends Fragment {
             map.setMyLocationEnabled(true);
             map.getUiSettings().setMyLocationButtonEnabled(true);
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 14));
-            showNearbyPlaces(currentLocation);
+            showNearbyPlaces(currentLocation, getSearchRadius());
         } else {
             map.getUiSettings().setMyLocationButtonEnabled(false);
             showErrorMessage();
@@ -138,9 +139,9 @@ public class MapFragment extends Fragment {
     }
 
     //Shows nearby places and markers
-    private void showNearbyPlaces(Location currentLocation) {
+    private void showNearbyPlaces(Location currentLocation, String radius) {
         Log.d("MapFragment", "showNearbyPlaces");
-        placesViewModel.getNearbyRestaurant(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), new Callback<Place[]>() {
+        placesViewModel.getNearbyRestaurant(currentLocation, radius, new Callback<Place[]>() {
             @Override
             public void onSuccess(Place[] results) {
                 if (results != null)
@@ -180,7 +181,13 @@ public class MapFragment extends Fragment {
 
     private void displayPlaceDetails(Marker marker) {
         Log.d("MapFragment", "displayPlaceDetails");
-        //TODO : NavGraph actions towards RestaurantDetailsFragment
+        String restaurantId = marker.getTag().toString();
+//        NavDirections action = MapFragmentDirections.actionMapFragmentToRestaurantDetailsFragment(restaurantId);
+//        Navigation.findNavController(this.getView()).navigate(action);
+
+        Bundle bundle = new Bundle();
+        bundle.putString("placeId", restaurantId);
+        Navigation.findNavController(getView()).navigate(R.id.settingsFragment, bundle);
     }
 
     private void showErrorMessage() {
@@ -192,6 +199,10 @@ public class MapFragment extends Fragment {
     public void onResume() {
         super.onResume();
         ((HomepageActivity)getActivity()).mapFragmentDisplayOptions();
+    }
+
+    private String getSearchRadius() {
+        return ((HomepageActivity) getActivity()).getSearchRadius();
     }
 
 }
