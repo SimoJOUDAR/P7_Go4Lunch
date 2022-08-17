@@ -30,4 +30,32 @@
     <string name="location_permission_request_txt">Go4Lunch needs to access your Location in order to function</string>
     <string name="location_permission_request_negative_btn_txt">Skip</string>
     <string name="location_permission_request_positive_btn_txt">Continue</string>
+    <string name="homepage_search_field_hint">Search for a restaurant…</string>
+    <string name="empty_chosen_restaurant">You haven\'t chosen a restaurant yet! Please select one.</string>
+    <string name="empty_chosen_restaurant_snackbar_action">Learn more</string>
+    <string name="empty_chosen_restaurant_toast">Find a restaurant using the search bar, the map or the list view, and from there select a restaurant by clicking on the \"select\" button</string>
+    <string name="your_lunch_toast">You have selected this restaurant for lunch</string>
+    <string name="signed_out">You\'ve signed out</string>
+    <string name="settings_search">Search</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_enable_notifications">Enable notifications</string>
+    <string name="settings_notifications_summary_on">You will receive notifications</string>
+    <string name="settings_notifications_summary_of">You will no longer receive any notification</string>
+    <string name="settings_set_lunch_reminder_at">Set Lunch reminder at</string>
+    <string name="settings_my_workplace">My workplace</string>
+    <string name="settings_delete_my_account">Delete My Account</string>
+    <string name="search_radius">Search radius</string>
+    <string name="workplace_dialog_toast">Your workplace is saved</string>
+    <string name="workplace_dialog_search_hint">Enter your workplace name or address</string>
+    <string name="workplace_dialog_tag">Workplace Dialog</string>
+    <string name="account_successfully_deleted_msg">Account deleted successfully</string>
+    <string name="account_not_deleted_error_msg">Error! A problem occurred. Couldn\'t delete the account</string>
+    <string name="notification_channel_name">Lunch Reminder Notification</string>
+    <string name="notification_channel_description">This notification will display everyday at lunch time</string>
+    <string name="lunch_notification_title">It\'s lunch time</string>
+    <string name="lunch_time_notification_msg_restaurantless">" %1$s, it's lunch time."</string>
+    <string name="lunch_time_notification_msg_unaccompanied">" %1$s, it's lunch time, today's at %2$s (%3$s), enjoy your own company!"</string>
+    <string name="lunch_time_notification_msg">" %1$s, it's lunch time, today's at %2$s (%3$s), enjoy with %4$s."</string>
+
 </resources>

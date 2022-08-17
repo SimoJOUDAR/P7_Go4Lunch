@@ -1,11 +1,11 @@
 package fr.joudar.go4lunch.domain.core;
 
-import static fr.joudar.go4lunch.viewmodel.HomepageViewModel.getRadius;
-import static fr.joudar.go4lunch.viewmodel.HomepageViewModel.getSystemLanguage;
+import android.location.Location;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -34,6 +34,7 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
     private Map<String, String> autocompleteQueryParameters;
     private Map<String, String> placeDetailsQueryParameters;
     private final Token token;
+    public static int searchRadius = 0;
 
     // Hilt injected the PlaceHttpClient arg dependency we need here
 
@@ -51,17 +52,17 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
 //    String lang, int radius
 
     @Override
-    public void getPlaces(LatLng location, Callback<Place[]> callback) {
-        setNearbyQueryParameters(location);
+    public void getPlaces(Location location, String radius, Callback<Place[]> callback) {
+        setNearbyQueryParameters(location, radius);
         httpQueryProvider.placesQuery(nearbyQueryParameters).enqueue(catchHttpPlacesQueryResults(callback));
     }
 
-    private void setNearbyQueryParameters(LatLng location) {
+    private void setNearbyQueryParameters(Location location, String radius) {
         nearbyQueryParameters = new HashMap<>();
         nearbyQueryParameters.put("type", BUSINESS_STATUS);
-        nearbyQueryParameters.put("location", location.latitude + "%2C-" + location.longitude);
+        nearbyQueryParameters.put("location", location.getLatitude() + "%2C-" + location.getLongitude());
         nearbyQueryParameters.put("language", getSystemLanguage());
-        nearbyQueryParameters.put("radius", getRadius());
+        nearbyQueryParameters.put("radius", radius);
         nearbyQueryParameters.put("key", BuildConfig.MAPS_API_KEY);
     }
 
@@ -91,20 +92,20 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
 
 
     @Override
-    public void getAutocompletes(String input, LatLng location, boolean isFiltered, Callback<Autocomplete[]> callback) {
-        setAutocompleteQueryParameters(input, location);
+    public void getAutocompletes(String input, Location location, String searchRadius, boolean isFiltered, Callback<Autocomplete[]> callback) {
+        setAutocompleteQueryParameters(input, location, searchRadius);
         httpQueryProvider.getAutocompletes(autocompleteQueryParameters).enqueue(catchHttpAutocompleteQueryResults(isFiltered, callback));
 
     }
 
-    private void setAutocompleteQueryParameters(String input, LatLng location) {
+    private void setAutocompleteQueryParameters(String input, Location location, String searchRadius) {
         autocompleteQueryParameters = new HashMap<>();
         autocompleteQueryParameters.put("input", input);
         autocompleteQueryParameters.put("types", "establishment");
         autocompleteQueryParameters.put("language", getSystemLanguage());
-        autocompleteQueryParameters.put("origin", location.latitude + "%2C-" + location.longitude);
-        autocompleteQueryParameters.put("location", location.latitude + "%2C-" + location.longitude);
-        autocompleteQueryParameters.put("radius", getRadius());
+        autocompleteQueryParameters.put("origin", location.getLatitude() + "%2C-" + location.getLongitude());
+        autocompleteQueryParameters.put("location", location.getLatitude() + "%2C-" + location.getLongitude());
+        autocompleteQueryParameters.put("radius", searchRadius);
         autocompleteQueryParameters.put("key", BuildConfig.MAPS_API_KEY);
         autocompleteQueryParameters.put("sessiontoken", token.getToken());
     }
@@ -129,7 +130,7 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
     }
 
     /***********************************************************************************************
-     ** Autocomplete
+     ** PlaceDetails
      **********************************************************************************************/
 
     @Override
@@ -170,5 +171,17 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
                 callback.onFailure();
             }
         };
+    }
+
+    /***********************************************************************************************
+     ** Utils
+     **********************************************************************************************/
+    public static String getSystemLanguage() {
+        String lang;
+        if (Locale.getDefault().getLanguage().equals("fr"))
+            lang = "fr";
+        else
+            lang = "en";
+        return lang;
     }
 }

@@ -25,7 +25,7 @@ public interface FirebaseServicesProvider {
     void getColleaguesByRestaurant(String restaurantId, Callback<User[]> callback);
 
     // Updates all of the current user's data in the firestore
-    void uploadCurrentUserData();
+    void updateAllCurrentUserData();
 
     // Resets all related data to the "chosen restaurant" to empty fields (local & firestore updates)
     void resetChosenRestaurant();

@@ -1,28 +1,54 @@
 package fr.joudar.go4lunch.ui.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Calendar;
+
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.ActivityHomepageBinding;
 import fr.joudar.go4lunch.domain.core.LocationPermissionHandler;
+import fr.joudar.go4lunch.domain.core.notifications.LunchAlarmHandler;
+import fr.joudar.go4lunch.domain.core.notifications.LunchAlarmReceiver;
+import fr.joudar.go4lunch.domain.core.notifications.LunchNotificationJobHandler;
+import fr.joudar.go4lunch.domain.models.Autocomplete;
+import fr.joudar.go4lunch.domain.models.Place;
+import fr.joudar.go4lunch.domain.models.User;
+import fr.joudar.go4lunch.domain.services.CurrentLocationProvider;
+import fr.joudar.go4lunch.domain.utils.Callback;
+import fr.joudar.go4lunch.ui.core.adapters.AutocompleteListAdapter;
+import fr.joudar.go4lunch.ui.core.dialogs.TimeDialogPreference;
+import fr.joudar.go4lunch.ui.core.dialogs.WorkplaceDialogFragment;
 import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -35,10 +61,25 @@ public class HomepageActivity extends AppCompatActivity {
     NavController navController;
     Menu menu;
     BottomNavigationView bottomNav;
+    private final AutocompleteListAdapter autocompleteListAdapter = new AutocompleteListAdapter(new Callback<String>() {
+        @Override
+        public void onSuccess(String results) {
+            navigateToPlaceDetailsFragment(results);
+        }
+
+        @Override
+        public void onFailure() {
+
+        }
+    });
 
     // Domain
     @Inject public LocationPermissionHandler mLocationPermissionHandler;
+    @Inject public CurrentLocationProvider currentLocationProvider;
     private HomepageViewModel homepageViewModel;
+    private Location currentLocation;
+    private User currentUser;
+    private static WorkplaceDialogFragment workplaceDialog;
 
 
     /***********************************************************************************************
@@ -49,6 +90,7 @@ public class HomepageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityHomepageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        currentUser = homepageViewModel.getCurrentUser();
         InitNavigation();
         initViewModel();
     }
@@ -79,6 +121,15 @@ public class HomepageActivity extends AppCompatActivity {
         this.bottomNav = binding.bottomNav;
     }
 
+    // Initializes the DrawerNav data display
+    private void initDrawerNavDataDisplay() {
+        final View drawerNavHeader = binding.drawerNav.getHeaderView(0);
+        final ImageView userAvatar = drawerNavHeader.findViewById(R.id.drawer_nav_user_avatar);
+        Glide.with(this).load(currentUser.getAvatarUrl()).centerCrop().into(userAvatar);
+        ((TextView) drawerNavHeader.findViewById(R.id.drawer_nav_username)).setText(currentUser.getUsername());
+        ((TextView) drawerNavHeader.findViewById(R.id.drawer_nav_email)).setText(currentUser.getEmail());
+    }
+
     // Sets up the BottomNavigation components.
     private AppBarConfiguration getAppBarConfiguration() {
         return new AppBarConfiguration.Builder(
@@ -95,53 +146,151 @@ public class HomepageActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, getAppBarConfiguration()) || super.onSupportNavigateUp();
     }
 
+    // Sets up option menu items action (YOUR LUNCH, SETTINGS, LOGOUT).
+    private boolean onDrawerNavMenuItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.your_lunch:
+                displayChosenRestaurant();
+                return true;
+            case R.id.logout:
+                Toast.makeText(this, R.string.signed_out, Toast.LENGTH_SHORT).show();
+                homepageViewModel.logout();
+                return true;
+            case R.id.settingsFragment:
+                //Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.settingsFragment);
+                navController.navigate(R.id.settingsFragment);
+                binding.getRoot().closeDrawer(binding.drawerNav, false);
+                return true;
+        }
+        return true;
+    }
+
+    // Opens up the RestaurantDetailsFragment to display the chosen restaurant
+    private void displayChosenRestaurant() {
+        String id = currentUser.getChosenRestaurantId();
+        if (id != null && !id.isEmpty()) {
+            Toast.makeText(this, R.string.your_lunch_toast, Toast.LENGTH_SHORT).show();
+            navigateToPlaceDetailsFragment(id);
+        }
+        else {
+            Snackbar snackbar = Snackbar.make(binding.getRoot(), R.string.empty_chosen_restaurant, Snackbar.LENGTH_SHORT);
+            snackbar.setAction(R.string.empty_chosen_restaurant_snackbar_action, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(HomepageActivity.this, R.string.empty_chosen_restaurant_toast, Toast.LENGTH_SHORT).show();
+                }
+            });
+            snackbar.show();
+        }
+    }
+
+    // Opens up the RestaurantDetailsFragment to display the said restaurant
+    private void navigateToPlaceDetailsFragment(String placeId){
+        Bundle bundle = new Bundle();
+        bundle.putString("placeId", placeId);
+        //Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.settingsFragment, bundle);
+        navController.navigate(R.id.settingsFragment, bundle);
+        binding.getRoot().closeDrawer(binding.drawerNav, false);
+    }
+
+    /***********************************************************************************************
+     ** Searchbar
+     **********************************************************************************************/
     // To connect our option menu to the Navigation
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.toolbar_layout, menu);
         mapFragmentDisplayOptions();
-        final SearchView searchField = (SearchView) menu.findItem(R.id.search).getActionView();
-//        searchField.setOnQueryTextFocusChangeListener(this::onSearchFieldFocusChanged);
-//        searchField.setOnQueryTextListener(getQueryListener());
-//        searchField.setQueryHint(getString(R.string.search_restaurants_hint));
+        final SearchView searchbar = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchbar.setOnQueryTextFocusChangeListener(this::getSearchbarFocusListener);
+        searchbar.setOnQueryTextListener(getQueryTextListener());
+        searchbar.setQueryHint(getString(R.string.homepage_search_field_hint));
         return super.onCreateOptionsMenu(menu);
     }
 
-    // Sets up option menu items action (YOUR LUNCH, SETTINGS, LOGOUT).
-    private boolean onDrawerNavMenuItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.your_lunch:
-                Toast.makeText(this, "Your lunch", Toast.LENGTH_SHORT).show();
-                //showCurrentUserChosenRestaurant();
-                return true;
-            case R.id.logout:
-                Toast.makeText(this, "You've signed out", Toast.LENGTH_SHORT).show();
-                //logout();
-                homepageViewModel.logout();
-                return true;
-            case R.id.settingsFragment:
-                Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.settingsFragment);
-                binding.getRoot().closeDrawer(binding.drawerNav, false);
-                return true;
-            case R.id.restaurantDetailsFragment: //TODO : This last case is just for testing... To be removed along with the xml menu item
-//                Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.restaurantDetailsFragment);
-//                binding.getRoot().closeDrawer(binding.drawerNav, false);
-                return true;
+    private void getSearchbarFocusListener(View v, boolean hasFocus) {
+        if (hasFocus) {
+            currentLocationProvider.getCurrentCoordinates(new CurrentLocationProvider.OnCoordinatesResultListener() {
+                @Override
+                public void onResult(Location location) {
+                    currentLocation = location;
+                }
+            });
+            binding.autocompleteList.setLayoutManager(new LinearLayoutManager(this));
+            binding.autocompleteList.setAdapter(autocompleteListAdapter);
+            binding.searchView.setVisibility(View.VISIBLE);
+        } else {
+            binding.searchView.setVisibility(View.GONE);
         }
-        return true;
+    }
+
+    private SearchView.OnQueryTextListener getQueryTextListener() {
+        return new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                final InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE); //  The central point of the system that manages interaction between applications and the current accessing input method.
+                inputMethodManager.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);  // Hides the keyboard
+                //TODO: Config it to also show result in map ?
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (currentLocation != null && newText.length() >= 3) {
+
+                    homepageViewModel.getAutocompletes(newText, currentLocation, getSearchRadius(), true, new Callback<Autocomplete[]>() {
+                        @Override
+                        public void onSuccess(Autocomplete[] results) {
+                            autocompleteListAdapter.updateAutocompleteList(results);
+                        }
+
+                        @Override
+                        public void onFailure() {
+
+                        }
+                    });
+                }
+                return false;
+            }
+        };
     }
 
     /***********************************************************************************************
      ** ViewModel
      **********************************************************************************************/
 
+    // Initializes the HomepageViewModel, sets the onAuthStateChangedListener, sets the currentUser observer
     private void initViewModel() {
         Log.d("HomepageActivity", "initViewModel _Start_");
         homepageViewModel = new ViewModelProvider(this).get(HomepageViewModel.class);
-        Log.d("HomepageActivity", "initViewModel _homepageViewModel_Finish_");
-        homepageViewModel.initListener(this::onLogout);
+
+        FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null) {
+                    onLogout();
+                } else {
+                    initDrawerNavDataDisplay();
+                    initInitialUserData();
+                    initSharedPreferences();
+                    initLunchAlarm();
+                }
+            }
+        };
+
+        homepageViewModel.initListener(authStateListener);
+        currentUser = homepageViewModel.getCurrentUser();
+        homepageViewModel.getLiveCurrentUser().observe(this, new Observer<User>() {
+            @Override
+            public void onChanged(User user) {
+                currentUser = user;
+                initDrawerNavDataDisplay();
+            }
+        });
+
         Log.d("HomepageActivity", "initViewModel _initFirebaseAuth_Finish_");
+
     }
 
     //If logged out, it takes us back to AuthenticationActivity
@@ -149,6 +298,148 @@ public class HomepageActivity extends AppCompatActivity {
         startActivity(new Intent(this, AuthenticationActivity.class));
         finish();
         Log.d("HomepageActivity", "onLogout");
+    }
+
+    public void deleteCurrentUserAccount(){
+        homepageViewModel.deleteCurrentUserAccount(new Callback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean results) {
+                Toast.makeText(HomepageActivity.this, R.string.account_successfully_deleted_msg, Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(HomepageActivity.this, AuthenticationActivity.class));
+                finish();
+            }
+
+            @Override
+            public void onFailure() {
+                Toast.makeText(HomepageActivity.this, R.string.account_not_deleted_error_msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /***********************************************************************************************
+     ** Basic user data enquiries operations
+     **********************************************************************************************/
+
+    // Initializes the workplaceID
+    private void initInitialUserData() {
+        while (currentUser.getWorkplaceId() == null || currentUser.getWorkplaceId().isEmpty()) {
+
+            launchWorkplacePickerDialog(null);
+        }
+    }
+
+    // Calls the WorkplacePickerDialog and sends the selected result <Autocomplete> to the arg Callback
+    public void launchWorkplacePickerDialog(@Nullable Callback<String> innerCallback) {
+
+        if (workplaceDialog == null) {
+
+            // The WorkplacePickerDialog Callback to handle onTextChanged event
+            Callback<String> onTextChanged = new Callback<String>() {
+                @Override
+                public void onSuccess(String results) {
+                    homepageViewModel.getAutocompletes(
+                            results,
+                            currentLocation,
+                            getSearchRadius(),
+                            false,
+                            new Callback<Autocomplete[]>() {
+                                @Override
+                                public void onSuccess(Autocomplete[] results) {
+                                    workplaceDialog.updateWorkplaceDialogList(results);
+                                }
+
+                                @Override
+                                public void onFailure() {
+
+                                }
+                            });
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            };
+
+            // The WorkplacePickerDialog Callback to handle onItemClick action :
+            // updates currentUser' workplaceId  - updateCurrentUserData() - updates "workplace" and "workplaceId" sharedPreferences - dismisses the dialog - launches a informative an toast
+            Callback<Autocomplete> onItemSelected = new Callback<Autocomplete>() {
+                @Override
+                public void onSuccess(Autocomplete results) {
+                    // Updates currentUser workplaceId value
+                    currentUser.setWorkplaceId(results.getPlaceId());
+                    homepageViewModel.updateCurrentUserData("workplaceId", results.getPlaceId());
+
+                    // Updates sharedPreferences workplaceId, workplaceTitle & workplaceDetail values
+                    final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
+                    final SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+                    sharedPreferencesEditor.putString("workplaceId", results.getPlaceId());
+                    sharedPreferencesEditor.putString("workplace", results.getTitle()  + "\n" + results.getDetail());
+
+                    if (innerCallback != null) {
+                        innerCallback.onSuccess(results.getTitle()  + "\n" + results.getDetail());
+                    }
+
+                    sharedPreferencesEditor.apply();
+                    workplaceDialog.dismiss();
+                    Toast.makeText(HomepageActivity.this, R.string.workplace_dialog_toast, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            };
+
+            workplaceDialog = new WorkplaceDialogFragment(onTextChanged, onItemSelected);
+        }
+
+        workplaceDialog.show(getSupportFragmentManager(), getString(R.string.workplace_dialog_tag));
+
+    }
+
+    // Schedules the Alarm for Notifications
+    private void initLunchAlarm(){
+        if (homepageViewModel.isCurrentUserNew()) {
+            Calendar time = new TimeDialogPreference(this).getPersistedTime();
+            new LunchAlarmHandler(this).scheduleLunchAlarm(time, LunchAlarmReceiver.class);
+        }
+    }
+
+    public String getSearchRadius() {
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
+        return sharedPreferences.getString("search_radius", "2000");
+    }
+
+    /***********************************************************************************************
+     ** SharedPreferences
+     **********************************************************************************************/
+    // Manages the SharedPreferences (to save basic user info)
+    private void initSharedPreferences() {
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+        if ( !sharedPreferences.getString("owner", "").equals(currentUser.getId()) ) {
+            sharedPreferencesEditor.clear();
+            sharedPreferencesEditor.putString("owner", currentUser.getId());
+        }
+        if ( !sharedPreferences.getString("workplaceId", "0").equals(currentUser.getWorkplaceId()) ) {
+            sharedPreferencesEditor.putString("workplaceId", currentUser.getWorkplaceId());
+            homepageViewModel.getPlaceDetails(currentUser.getWorkplaceId(), new Callback<Place>() {
+                @Override
+                public void onSuccess(Place results) {
+                    sharedPreferencesEditor.putString("workplaceTitle", results.getName());
+                    sharedPreferencesEditor.putString("workplaceDetail", results.getVicinity());
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            });
+
+        }
+
+        sharedPreferencesEditor.apply();
     }
 
     /***********************************************************************************************

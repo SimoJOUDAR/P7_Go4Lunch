@@ -112,13 +112,14 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     @Override
-    public void uploadCurrentUserData() {
+    public void updateAllCurrentUserData() {
         final Map<String, Object> userData = new HashMap<>();
         userData.put(LIKED_RESTAURANTS_ID_LIST, currentUser.getLikedRestaurantsIdList());
         userData.put(WORKPLACE_ID, currentUser.getWorkplaceId());
         userData.put(CHOSEN_RESTAURANT_ID, currentUser.getChosenRestaurantId());
         userData.put(CHOSEN_RESTAURANT_NAME, currentUser.getChosenRestaurantName());
         firestore.collection("users").document(currentUser.getId()).update(userData);
+        liveCurrentUser.postValue(currentUser);
     }
 
     @Override
@@ -139,6 +140,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
             userData.put(CHOSEN_RESTAURANT_ID, currentUser.getChosenRestaurantId());
         }
         firestore.collection("users").document(currentUser.getId()).update(userData);
+        liveCurrentUser.postValue(currentUser);
     }
 
     @Override
@@ -196,18 +198,22 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     private User[] snapshotsToArrayConverter(List<DocumentSnapshot> usersDocuments) {
         final List<User> userList = new ArrayList<>();
+        String id = getCurrentUser().getId();
         for (DocumentSnapshot userDoc : usersDocuments) {
-            userList.add(
-                    new User(
-                            userDoc.getId(),
-                            userDoc.getString("name"),
-                            "",
-                            userDoc.getString("photoUrl"),
-                            (List<String>) userDoc.get(LIKED_RESTAURANTS_ID_LIST),
-                            userDoc.getString(WORKPLACE_ID),
-                            userDoc.getString(CHOSEN_RESTAURANT_ID),
-                            userDoc.getString(CHOSEN_RESTAURANT_NAME)));
+            if (userDoc.getId() != id) {
+                userList.add(
+                        new User(
+                                userDoc.getId(),
+                                userDoc.getString("name"),
+                                "",
+                                userDoc.getString("photoUrl"),
+                                (List<String>) userDoc.get(LIKED_RESTAURANTS_ID_LIST),
+                                userDoc.getString(WORKPLACE_ID),
+                                userDoc.getString(CHOSEN_RESTAURANT_ID),
+                                userDoc.getString(CHOSEN_RESTAURANT_NAME)));
+            }
         }
+
         return userList.toArray(new User[0]); //We added (new User[0]) as arg to avoid NullPointer exceptions
     }
 }

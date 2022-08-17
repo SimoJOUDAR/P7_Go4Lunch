@@ -1,5 +1,7 @@
 package fr.joudar.go4lunch.repositories;
 
+import android.location.Location;
+
 import com.google.android.gms.maps.model.LatLng;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
@@ -19,8 +21,8 @@ public class NearbysearchRepository {
         this.nearbysearchProvider = nearbysearchProvider;
     }
 
-    public void getNearbyRestaurant(LatLng location, Callback<Place[]> callback) {
-        nearbysearchProvider.getPlaces(location, callback
+    public void getNearbyRestaurant(Location location, String radius, Callback<Place[]> callback) {
+        nearbysearchProvider.getPlaces(location, radius, callback
 //                new Callback<Place[]>() {  //We pass the callback strait away with no additional treatments
 //                    @Override
 //                    public void onSuccess(Place[] results) {
