@@ -24,11 +24,9 @@ public class WorkplaceAutocompleteListAdapter extends RecyclerView.Adapter<Workp
     @NonNull
     @Override
     public WorkplaceAutocompleteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        WorkplaceDialogAutocompleteItemBinding workplaceDialogAutocompleteItemBinding = WorkplaceDialogAutocompleteItemBinding.inflate(
-                LayoutInflater.from(parent.getContext()),
-                parent,
-                false);
-        return new WorkplaceAutocompleteViewHolder(workplaceDialogAutocompleteItemBinding);
+        WorkplaceDialogAutocompleteItemBinding mBinding = WorkplaceDialogAutocompleteItemBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false);
+        return new WorkplaceAutocompleteViewHolder(mBinding);
     }
 
     @Override

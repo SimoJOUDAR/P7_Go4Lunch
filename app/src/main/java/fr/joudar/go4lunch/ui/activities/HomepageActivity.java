@@ -12,7 +12,13 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -32,15 +38,14 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.ActivityHomepageBinding;
 import fr.joudar.go4lunch.domain.core.LocationPermissionHandler;
-import fr.joudar.go4lunch.domain.core.notifications.LunchAlarmHandler;
-import fr.joudar.go4lunch.domain.core.notifications.LunchAlarmReceiver;
-import fr.joudar.go4lunch.domain.core.notifications.LunchNotificationJobHandler;
+import fr.joudar.go4lunch.domain.core.notification.NotificationDataFetching;
 import fr.joudar.go4lunch.domain.models.Autocomplete;
 import fr.joudar.go4lunch.domain.models.Place;
 import fr.joudar.go4lunch.domain.models.User;
@@ -90,7 +95,6 @@ public class HomepageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityHomepageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        currentUser = homepageViewModel.getCurrentUser();
         InitNavigation();
         initViewModel();
     }
@@ -171,6 +175,7 @@ public class HomepageActivity extends AppCompatActivity {
         if (id != null && !id.isEmpty()) {
             Toast.makeText(this, R.string.your_lunch_toast, Toast.LENGTH_SHORT).show();
             navigateToPlaceDetailsFragment(id);
+            binding.getRoot().closeDrawer(binding.drawerNav, false);
         }
         else {
             Snackbar snackbar = Snackbar.make(binding.getRoot(), R.string.empty_chosen_restaurant, Snackbar.LENGTH_SHORT);
@@ -185,12 +190,11 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     // Opens up the RestaurantDetailsFragment to display the said restaurant
-    private void navigateToPlaceDetailsFragment(String placeId){
+    public void navigateToPlaceDetailsFragment(String placeId){
         Bundle bundle = new Bundle();
         bundle.putString("placeId", placeId);
         //Navigation.findNavController(binding.navHostFragmentContainer).navigate(R.id.settingsFragment, bundle);
-        navController.navigate(R.id.settingsFragment, bundle);
-        binding.getRoot().closeDrawer(binding.drawerNav, false);
+        navController.navigate(R.id.restaurantDetailsFragment, bundle);
     }
 
     /***********************************************************************************************
@@ -274,7 +278,7 @@ public class HomepageActivity extends AppCompatActivity {
                     initDrawerNavDataDisplay();
                     initInitialUserData();
                     initSharedPreferences();
-                    initLunchAlarm();
+                    initLunchNotification();
                 }
             }
         };
@@ -398,12 +402,33 @@ public class HomepageActivity extends AppCompatActivity {
 
     }
 
+    /***********************************************************************************************
+     ** Notification
+     **********************************************************************************************/
     // Schedules the Alarm for Notifications
-    private void initLunchAlarm(){
+    private void initLunchNotification(){
         if (homepageViewModel.isCurrentUserNew()) {
-            Calendar time = new TimeDialogPreference(this).getPersistedTime();
-            new LunchAlarmHandler(this).scheduleLunchAlarm(time, LunchAlarmReceiver.class);
+            Calendar dueDate = new TimeDialogPreference(this).getPersistedTime();
+            //new LunchAlarmHandler(this).scheduleLunchAlarm(time, LunchAlarmReceiver.class);
+            scheduleNotificationJob(getApplicationContext(),dueDate);
         }
+    }
+
+    public void scheduleNotificationJob(Context context, @Nullable Calendar dueDate) {
+        final String JOB_TAG = "NOTIFICATION_DATA_FETCHING_JOB";
+        Calendar currentDate = Calendar.getInstance();
+        long timeDiff =  dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        final PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(NotificationDataFetching.class,24, TimeUnit.HOURS)
+                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                .addTag(JOB_TAG)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(JOB_TAG, ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest);
     }
 
     public String getSearchRadius() {

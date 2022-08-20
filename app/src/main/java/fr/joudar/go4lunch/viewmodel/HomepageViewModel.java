@@ -1,13 +1,18 @@
 package fr.joudar.go4lunch.viewmodel;
 
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -18,34 +23,32 @@ import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.utils.Callback;
 import fr.joudar.go4lunch.repositories.AutocompleteRepository;
 import fr.joudar.go4lunch.repositories.FirebaseServicesRepository;
+import fr.joudar.go4lunch.repositories.NearbysearchRepository;
 import fr.joudar.go4lunch.repositories.PlaceDetailsRepository;
 
 @HiltViewModel
 public class HomepageViewModel extends ViewModel {
 
-
-    //private User currentUser;
-//    private final Observer<User> observer = new Observer<User>() {
-//        @Override
-//        public void onChanged(User user) {
-//            currentUser = user;
-//        }
-//    };
-
     private final FirebaseServicesRepository firebaseServicesRepository;
+    private final NearbysearchRepository nearbysearchRepository;
     private final AutocompleteRepository autocompleteRepository;
     private final PlaceDetailsRepository placeDetailsRepository;
+
+    private Location lastLocation;
+    private static Place[] lastResults;
+    private LocalDateTime timeOfLastRequest;
 
     //TODO: To define search radius in SettingsFragment and store it in SharedPreferences
 
     @Inject
     public HomepageViewModel(FirebaseServicesRepository firebaseServicesRepository,
+                             NearbysearchRepository nearbysearchRepository,
                              AutocompleteRepository autocompleteRepository,
                              PlaceDetailsRepository placeDetailsRepository) {
         this.firebaseServicesRepository = firebaseServicesRepository;
+        this.nearbysearchRepository = nearbysearchRepository;
         this.autocompleteRepository = autocompleteRepository;
         this.placeDetailsRepository = placeDetailsRepository;
-        //currentUser = this.firebaseServicesRepository.getCurrentUser();
     }
 
     /***********************************************************************************************
@@ -53,21 +56,31 @@ public class HomepageViewModel extends ViewModel {
      **********************************************************************************************/
 
     public void initListener(FirebaseAuth.AuthStateListener authStateListener){
-        // getLiveCurrentUser().observeForever(observer);
-//        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-//        firebaseAuth.addAuthStateListener(authStateListener);
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
     }
 
     public User getCurrentUser() {
         return firebaseServicesRepository.getCurrentUser();
     }
+
     public MutableLiveData<User> getLiveCurrentUser() {
         return firebaseServicesRepository.getLiveCurrentUser();
     }
 
+    public void getColleagues(Callback<User[]> callback) {
+        firebaseServicesRepository.getColleagues(callback);
+    }
+
+    public void getColleaguesByRestaurant(String restaurantId, Callback<User[]> callback) {
+        firebaseServicesRepository.getColleaguesByRestaurant(restaurantId, callback);
+    }
+
     public void updateAllCurrentUserData() {
         firebaseServicesRepository.updateAllCurrentUserData();
+    }
+
+    public void resetChosenRestaurant(){
+        firebaseServicesRepository.resetChosenRestaurant();
     }
 
     public void updateCurrentUserData(String dataType, Object data){
@@ -91,6 +104,49 @@ public class HomepageViewModel extends ViewModel {
     }
 
 
+    /***********************************************************************************************
+     ** NearbySearch
+     **********************************************************************************************/
+
+    public void getNearbyRestaurant(Location currentLocation, String radius, Callback<Place[]> callback) {
+        if (isCacheUpToDate(currentLocation)) {
+            callback.onSuccess(lastResults);
+        }
+        else {
+            nearbysearchRepository.getNearbyRestaurant(currentLocation, radius,
+                    new Callback<Place[]>() {
+                        @Override
+                        public void onSuccess(Place[] places) {
+                            lastResults = places;
+                            lastLocation = currentLocation;
+                            timeOfLastRequest = LocalDateTime.now();
+                            callback.onSuccess(places);
+                        }
+
+                        @Override
+                        public void onFailure() {
+                            callback.onFailure();
+                        }
+                    });
+        }
+    }
+
+    // Returns true if cache has been update less than 5 min ago and less than 50 meters location distance
+    private boolean isCacheUpToDate(Location currentLocation) {
+        return lastLocation != null
+                && lastLocation.distanceTo(currentLocation) < 50
+                && timeOfLastRequest.plusMinutes(5).isAfter(LocalDateTime.now());
+    }
+
+    public void getColleaguesDistributionOverRestaurants(Callback<Map<String, Integer>> callback) {
+        Log.d("PlacesViewModel", "getColleaguesDistributionOverRestaurants");
+        firebaseServicesRepository.getColleaguesDistributionOverRestaurants(callback);
+    }
+
+    @VisibleForTesting
+    public static Place[] getLastRequestResult() {
+        return lastResults;
+    }
 
     /***********************************************************************************************
      ** Autocomplete
@@ -119,12 +175,4 @@ public class HomepageViewModel extends ViewModel {
     public void getPlaceDetails(String placeId, Callback<Place> callback) {
         placeDetailsRepository.getPlaceDetails(placeId, callback);
     }
-
-
-
-//    @Override
-//    protected void onCleared() {
-//        getLiveCurrentUser().removeObserver(observer);
-//        super.onCleared();
-//    }
 }

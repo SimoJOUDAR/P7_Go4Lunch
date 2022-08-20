@@ -24,7 +24,13 @@
     <string name="call_btn_text">CALL</string>
     <string name="like_btn_text">LIKE</string>
     <string name="website_btn_text">WEBSITE</string>
-    <string name="empty_list">No colleagues joining this restaurant yet</string>
+
+    <string name="error_fetching_place_details">Something went wrong while fetching the data</string>
+    <string name="no_colleagues_joining_message">No colleagues joining this restaurant yet</string>
+    <string name="no_workplace_selected_message">You haven\'t chosen a workplace yet, thus we can\'t provide the colleagues joining on</string>
+    <string name="error_fetching_colleagues_list_message">There has been an error while loading the joining colleagues</string>
+    <string name="default_empty_colleagues_list_message">Something went wrong, we couldn\'t provide this data</string>
+
     <string name="Restaurant_Name">Restaurant Name</string>
     <string name="chosen_restaurant">Chosen restaurant</string>
     <string name="location_permission_request_txt">Go4Lunch needs to access your Location in order to function</string>
@@ -54,8 +60,17 @@
     <string name="notification_channel_name">Lunch Reminder Notification</string>
     <string name="notification_channel_description">This notification will display everyday at lunch time</string>
     <string name="lunch_notification_title">It\'s lunch time</string>
-    <string name="lunch_time_notification_msg_restaurantless">" %1$s, it's lunch time."</string>
-    <string name="lunch_time_notification_msg_unaccompanied">" %1$s, it's lunch time, today's at %2$s (%3$s), enjoy your own company!"</string>
-    <string name="lunch_time_notification_msg">" %1$s, it's lunch time, today's at %2$s (%3$s), enjoy with %4$s."</string>
+    <string name="lunch_time_notification_msg_restaurantless">%1$s, it\'s lunch time.</string>
+    <string name="lunch_time_notification_msg_unaccompanied">%1$s, it\'s lunch time, today\'s at %2$s (%3$s), enjoy your own company!</string>
+    <string name="lunch_time_notification_msg">%1$s, it\'s lunch time, today\'s at %2$s (%3$s), enjoy with %4$s.</string>
+    <string name="colleague_is_joining">%1$s is joining!</string>
+    <string name="colleague_has_not_chosen">%1$s hasn\'t decided yet</string>
+    <string name="colleague_is_eating_at">%1$s is eating at %2$s</string>
+    <string name="restaurant_photo_description">restaurant\'s photo</string>
+    <string name="is_open_true">Open</string>
+    <string name="is_open_false">Closed</string>
+    <string name="restaurant_distance_unavailable">unavailable</string>
+    <string name="workplace_required_message">Selecting your workplace is required</string>
+    <string name="select_my_workplace_btn">Select my workplace</string>
 
 </resources>

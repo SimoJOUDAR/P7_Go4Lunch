@@ -95,13 +95,14 @@ dependencies {
     //implementation "androidx.hilt:hilt-navigation-fragment:1.0.0"   // Bugs the system : Duplicate class androidx.navigation.ActivityKt found in modules navigation-runtime-2.5.0-runtime (androidx.navigation:navigation-runtime:2.5.0) and navigation-runtime-ktx-2.3.2-runtime (androidx.navigation:navigation-runtime-ktx:2.3.2)
     androidTestImplementation "com.google.dagger:hilt-android-testing:2.36"
     androidTestAnnotationProcessor "com.google.dagger:hilt-android-compiler:2.40.5"
+    //Hilt-WorkerManager
+    implementation 'androidx.hilt:hilt-work:1.0.0'
+    annotationProcessor 'androidx.hilt:hilt-compiler:1.0.0'
 
     //Stream utils (for API 21 compatibility)
     implementation 'com.annimon:stream:1.2.2'
 
     //For Android Api 21 compatibility
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.0'
 
-    //WorkManager
-    implementation "androidx.work:work-runtime:2.7.1"
 }

@@ -29,17 +29,26 @@
                 android:background="@color/white"
                 android:fitsSystemWindows="true">
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/restaurant_photos_recyclerview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    tools:listitem="@layout/restaurant_details_photos_recyclerview_item"
+                    app:layout_collapseMode="parallax"/>
+
                 <ImageView
-                    android:id="@+id/restaurantPhoto"
+                    android:id="@+id/photo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fitsSystemWindows="true"
                     android:scaleType="centerCrop"
                     app:layout_collapseMode="parallax"
-                    tools:src="@drawable/main_image" />
+                    tools:src="@drawable/main_image"
+                    android:visibility="gone"/>
 
                 <com.facebook.shimmer.ShimmerFrameLayout
-                    android:id="@+id/restaurantPhotoShimmer"
+                    android:id="@+id/photo_shimmer_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:shimmer_auto_start="true"
@@ -87,7 +96,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/restaurantAddress"
+                android:id="@+id/address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/colorPrimary"
@@ -117,11 +126,11 @@
                     android:drawableTop="@drawable/ic_star_border_24"
                     android:text="@string/like_btn_text"
                     app:layout_constraintLeft_toRightOf="@id/callButton"
-                    app:layout_constraintRight_toLeftOf="@id/urlButton"
+                    app:layout_constraintRight_toLeftOf="@id/websiteButton"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
-                    android:id="@+id/urlButton"
+                    android:id="@+id/websiteButton"
                     style="@style/RestaurantDetailsMainButtons"
                     android:drawableTop="@drawable/ic_public_24"
                     android:text="@string/website_btn_text"
@@ -148,7 +157,7 @@
                     tools:listitem="@layout/colleague_item" />
 
                 <LinearLayout
-                    android:id="@+id/workplace_required_message"
+                    android:id="@+id/empty_colleagues_list_layout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/white"
@@ -158,10 +167,10 @@
                     android:visibility="gone">
 
                     <TextView
+                        android:id="@+id/empty_colleagues_list_textview"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="@string/empty_list"
                         android:textAlignment="center"
                         android:textSize="16sp" />
 
@@ -188,7 +197,7 @@
         app:layout_collapseMode="parallax">
 
         <TextView
-            android:id="@+id/restaurant_name"
+            android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="220dp"
@@ -198,7 +207,7 @@
             android:textSize="20sp" />
 
         <ImageView
-            android:id="@+id/restaurant_rate_star_N1"
+            android:id="@+id/rate_star_N1"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:scaleType="fitStart"
@@ -207,7 +216,7 @@
             android:src="@drawable/ic_star_full_24" />
 
         <ImageView
-            android:id="@+id/restaurant_rate_star_N2"
+            android:id="@+id/rate_star_N2"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:scaleType="fitStart"
@@ -216,7 +225,7 @@
             android:src="@drawable/ic_star_full_24" />
 
         <ImageView
-            android:id="@+id/restaurant_rate_star_N3"
+            android:id="@+id/rate_star_N3"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:scaleType="fitStart"
