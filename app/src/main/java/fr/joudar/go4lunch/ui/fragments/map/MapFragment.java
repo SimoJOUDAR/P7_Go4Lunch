@@ -44,7 +44,6 @@ import fr.joudar.go4lunch.domain.services.CurrentLocationProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
 import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
-import fr.joudar.go4lunch.viewmodel.PlacesViewModel;
 
 @AndroidEntryPoint
 public class MapFragment extends Fragment {
@@ -52,7 +51,6 @@ public class MapFragment extends Fragment {
     private static final String LOG_TAG = "MapFragment";
     private GoogleMap map;
     @Inject public CurrentLocationProvider currentLocationProvider;
-    private PlacesViewModel placesViewModel;
     private HomepageViewModel homepageViewModel;
     private Map<String, Integer> distributionHashMap = new HashMap<>();
 
@@ -79,7 +77,6 @@ public class MapFragment extends Fragment {
         ViewModelProvider viewModelProvider = new ViewModelProvider(
                 backStackEntry,
                 HiltViewModelFactory.createInternal(getActivity(), backStackEntry, null, null));
-        placesViewModel = viewModelProvider.get(PlacesViewModel.class);
         homepageViewModel = viewModelProvider.get(HomepageViewModel.class);
         Log.d("MapFragment", "initViewModel _finished_");
     }
@@ -105,7 +102,7 @@ public class MapFragment extends Fragment {
         Log.d("MapFragment", "getColleaguesDistributionOverRestaurants");
         //TODO : Use ViewModel abstraction
         if (homepageViewModel.getWorkplaceId() != null) {
-            placesViewModel.getColleaguesDistributionOverRestaurants(new Callback<Map<String, Integer>>() {
+            homepageViewModel.getColleaguesDistributionOverRestaurants(new Callback<Map<String, Integer>>() {
                 @Override
                 public void onSuccess(Map<String, Integer> results) {
                     distributionHashMap = results;
@@ -141,7 +138,7 @@ public class MapFragment extends Fragment {
     //Shows nearby places and markers
     private void showNearbyPlaces(Location currentLocation, String radius) {
         Log.d("MapFragment", "showNearbyPlaces");
-        placesViewModel.getNearbyRestaurant(currentLocation, radius, new Callback<Place[]>() {
+        homepageViewModel.getNearbyRestaurant(currentLocation, radius, new Callback<Place[]>() {
             @Override
             public void onSuccess(Place[] results) {
                 if (results != null)
@@ -187,7 +184,8 @@ public class MapFragment extends Fragment {
 
         Bundle bundle = new Bundle();
         bundle.putString("placeId", restaurantId);
-        Navigation.findNavController(getView()).navigate(R.id.settingsFragment, bundle);
+        Navigation.findNavController(getView()).navigate(R.id.restaurantDetailsFragment, bundle);
+        //((HomepageActivity)getActivity()).navigateToPlaceDetailsFragment(restaurantId); // TODO: Which one to use ?
     }
 
     private void showErrorMessage() {

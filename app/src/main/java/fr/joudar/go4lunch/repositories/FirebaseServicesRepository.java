@@ -50,7 +50,7 @@ public class FirebaseServicesRepository {
                 });
     }
 
-    public void getColleaguesByRestaurant(String restaurantId, String usersWorkplaceId, Callback<User[]> callback) {
+    public void getColleaguesByRestaurant(String restaurantId, Callback<User[]> callback) {
         firebaseServicesProvider.getColleaguesByRestaurant(restaurantId, callback);
     }
 

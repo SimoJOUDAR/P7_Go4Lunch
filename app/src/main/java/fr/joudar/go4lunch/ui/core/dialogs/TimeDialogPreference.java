@@ -47,6 +47,8 @@ public class TimeDialogPreference extends DialogPreference {
         final Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, getPersistedInt() / 60);
         calendar.set(Calendar.MINUTE, getPersistedInt() % 60);
+        if (calendar.before(Calendar.getInstance()))
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
         return calendar;
     }
 

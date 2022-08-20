@@ -127,7 +127,6 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
         currentUser.setChosenRestaurantId("");
         currentUser.setChosenRestaurantName("");
         updateCurrentUserData(CHOSEN_RESTAURANT_ID, "");
-        liveCurrentUser.postValue(currentUser);
     }
 
     @Override

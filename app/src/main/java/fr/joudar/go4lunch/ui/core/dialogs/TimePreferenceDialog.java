@@ -10,8 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceDialogFragmentCompat;
 
-import fr.joudar.go4lunch.domain.core.notifications.LunchAlarmHandler;
-import fr.joudar.go4lunch.domain.core.notifications.LunchAlarmReceiver;
+import java.util.Calendar;
+
+import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 
 public class TimePreferenceDialog extends PreferenceDialogFragmentCompat {
 
@@ -53,16 +54,13 @@ public class TimePreferenceDialog extends PreferenceDialogFragmentCompat {
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             int time;
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
                 time = (timePicker.getCurrentHour() * 60) + timePicker.getCurrentMinute();
-            } else {
+            else
                 time = (timePicker.getHour() * 60) + timePicker.getMinute();
-            }
-
             final TimeDialogPreference timeDialogPreference = (TimeDialogPreference) getPreference();
             timeDialogPreference.setPersistedTime(time);
-            new LunchAlarmHandler(getContext()).scheduleLunchAlarm(timeDialogPreference.getPersistedTime(), LunchAlarmReceiver.class);
+            ((HomepageActivity)getActivity()).scheduleNotificationJob(getContext(), timeDialogPreference.getPersistedTime());
         }
     }
 }
