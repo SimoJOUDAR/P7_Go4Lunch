@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -156,7 +157,7 @@ public class MapFragment extends Fragment {
     private void showRestaurantsMarkers(Place[] places) {
         Log.d("MapFragment", "showRestaurantsMarkers");
         map.clear();
-        int markerDrawable;
+        @DrawableRes int markerDrawable;
         String markerTitle;
         for (Place place : places) {
             if(distributionHashMap.containsKey(place.getId())){

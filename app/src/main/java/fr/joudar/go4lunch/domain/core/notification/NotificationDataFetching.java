@@ -41,8 +41,8 @@ public class NotificationDataFetching extends Worker {
     public NotificationDataFetching(
             @Assisted @NonNull Context context,
             @Assisted @NonNull WorkerParameters workerParams,
-            @Assisted FirebaseServicesRepository firebaseServicesRepository,
-            @Assisted PlaceDetailsRepository placeDetailsRepository) {
+            FirebaseServicesRepository firebaseServicesRepository,
+            PlaceDetailsRepository placeDetailsRepository) {
         super(context, workerParams);
         this.firebaseServicesRepository = firebaseServicesRepository;
         this.placeDetailsRepository = placeDetailsRepository;

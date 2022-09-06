@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,28 +26,41 @@ public class WorkplaceDialogFragment extends DialogFragment {
     public WorkplaceDialogFragment(Callback<String> onTextChanged, Callback<Autocomplete> onItemSelected) {
         this.onTextChanged = onTextChanged;
         workplaceAutocompleteListAdapter = new WorkplaceAutocompleteListAdapter(onItemSelected);
+        Log.d("WorkplaceDialogFragment", "WorkplaceDialogFragment_C");
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
+        Log.d("WorkplaceDialogFragment", "WorkplaceDialogFragment_0");
         final WorkplaceDialogBinding binding = WorkplaceDialogBinding.inflate(getLayoutInflater());
 
+        Log.d("WorkplaceDialogFragment", "WorkplaceDialogFragment_1");
         binding.workplaceAutocompleteList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        Log.d("WorkplaceDialogFragment", "WorkplaceDialogFragment_2");
         binding.workplaceAutocompleteList.setAdapter(workplaceAutocompleteListAdapter);
+        Log.d("WorkplaceDialogFragment", "WorkplaceDialogFragment_3");
         binding.workplaceSearchField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                onTextChanged.onSuccess(charSequence.toString());
+                if (charSequence.length() >= 3) {
+
+                    //TODO: test to delete -start
+                    Log.d("WorkplaceDialog", charSequence.toString());
+                    //TODO: Test to delete -end
+
+                    onTextChanged.onSuccess(charSequence.toString());
+                }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {}
         });
+        Log.d("WorkplaceDialogFragment", "WorkplaceDialogFragment_4");
 
         return new AlertDialog.Builder(getActivity())
                 .setView(binding.getRoot())
@@ -62,5 +76,6 @@ public class WorkplaceDialogFragment extends DialogFragment {
 
     public void updateWorkplaceDialogList(Autocomplete[] autocompleteList) {
         workplaceAutocompleteListAdapter.updateWorkplaceDialogList(autocompleteList);
+        Log.d("WorkplaceDialogFragment", "WorkplaceDialogFragment_U");
     }
 }

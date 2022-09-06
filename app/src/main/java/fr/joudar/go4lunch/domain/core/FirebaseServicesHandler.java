@@ -24,9 +24,10 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     private final FirebaseFirestore firestore;
     private final FirebaseAuth firebaseAuth;
     private User currentUser;
-    private MutableLiveData<User> liveCurrentUser;
+    private MutableLiveData<User> liveCurrentUser = new MutableLiveData<>();
 
     public FirebaseServicesHandler(FirebaseFirestore firestore, FirebaseAuth firebaseAuth) {
+        Log.d("FirebaseServicesHandler", "Constructor");
         this.firestore = firestore;
         this.firebaseAuth = firebaseAuth;
         initUser(this.firebaseAuth);
@@ -34,6 +35,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     public void initUser(FirebaseAuth firebaseAuth) {
+        Log.d("FirebaseServicesHandler", "initUser");
         final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
             final Uri userPhotoUrl = firebaseUser.getPhotoUrl();
@@ -52,7 +54,9 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     // TODO: Tentative to solve the Firestore problem :/
     private void initUserInFirebase() {
+        Log.d("FirebaseServicesHandler", "initUserInFirebase");
         if (isCurrentUserNew()) {
+            Log.d("FirebaseServicesHandler", "isCurrentUserNew : true");
             firestore.collection("users")
                     .document(currentUser.getId())
                     .set(currentUser);
@@ -64,6 +68,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     private void initUserData() {
+        Log.d("FirebaseServicesHandler", "initUserData");
         firestore.collection("users")
                 .document(currentUser.getId())
                 .get()
@@ -80,16 +85,19 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public User getCurrentUser() {
+        Log.d("FirebaseServicesHandler", "getCurrentUser");
         return currentUser;
     }
 
     @Override
     public MutableLiveData<User> getLiveCurrentUser() {
+        Log.d("FirebaseServicesHandler", "getLiveCurrentUser");
         return liveCurrentUser;
     }
 
     @Override
     public void getColleagues(Callback<User[]> callback) {
+        Log.d("FirebaseServicesHandler", "getColleagues");
         firestore
                 .collection("users")
                 .whereEqualTo(WORKPLACE_ID, currentUser.getWorkplaceId())
@@ -101,6 +109,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void getColleaguesByRestaurant(String restaurantId, Callback<User[]> callback) {
+        Log.d("FirebaseServicesHandler", "getColleaguesByRestaurant");
         firestore
                 .collection("users")
                 .whereEqualTo(WORKPLACE_ID, currentUser.getWorkplaceId())
@@ -113,6 +122,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void updateAllCurrentUserData() {
+        Log.d("FirebaseServicesHandler", "updateAllCurrentUserData");
         final Map<String, Object> userData = new HashMap<>();
         userData.put(LIKED_RESTAURANTS_ID_LIST, currentUser.getLikedRestaurantsIdList());
         userData.put(WORKPLACE_ID, currentUser.getWorkplaceId());
@@ -124,6 +134,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void resetChosenRestaurant() {
+        Log.d("FirebaseServicesHandler", "resetChosenRestaurant");
         currentUser.setChosenRestaurantId("");
         currentUser.setChosenRestaurantName("");
         updateCurrentUserData(CHOSEN_RESTAURANT_ID, "");
@@ -131,6 +142,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void updateCurrentUserData(String key, Object value) {
+        Log.d("FirebaseServicesHandler", "updateCurrentUserData");
         final Map<String, Object> userData = new HashMap<>();
         userData.put(key, value);
         if (key.equals(CHOSEN_RESTAURANT_ID)) {
@@ -144,18 +156,21 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public boolean isCurrentUserNew() {
+        Log.d("FirebaseServicesHandler", "isCurrentUserNew");
         final FirebaseUserMetadata userMetadata = firebaseAuth.getCurrentUser().getMetadata();
         return userMetadata.getCreationTimestamp() != userMetadata.getLastSignInTimestamp();
     }
 
     @Override
     public void logout() {
+        Log.d("FirebaseServicesHandler", "logout");
         firebaseAuth.signOut();
     }
 
 
     @Override
     public void deleteCurrentUserAccount(Callback<Boolean> callback) {
+        Log.d("FirebaseServicesHandler", "deleteCurrentUserAccount");
         firebaseAuth
                 .getCurrentUser()
                 .delete()
@@ -192,10 +207,12 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public String getWorkplaceId() {
+        Log.d("FirebaseServicesHandler", "getWorkplaceId");
         return currentUser.getWorkplaceId();
     }
 
     private User[] snapshotsToArrayConverter(List<DocumentSnapshot> usersDocuments) {
+        Log.d("FirebaseServicesHandler", "snapshotsToArrayConverter");
         final List<User> userList = new ArrayList<>();
         String id = getCurrentUser().getId();
         for (DocumentSnapshot userDoc : usersDocuments) {

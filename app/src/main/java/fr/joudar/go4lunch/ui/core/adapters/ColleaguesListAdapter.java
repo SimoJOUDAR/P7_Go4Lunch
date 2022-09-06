@@ -10,20 +10,21 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.ColleagueItemBinding;
+import fr.joudar.go4lunch.domain.models.Place;
 import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.utils.Callback;
 
 public class ColleaguesListAdapter extends RecyclerView.Adapter<ColleaguesListAdapter.ColleagueViewHolder> {
 
-    private User[] users;
+    private User[] users = new User[0];
     private final Callback<String> callback;
 
     // Null Callback indicates that the adapter is used in RestaurantDetailsFragment, the opposite is for ColleaguesListFragment
-    public ColleaguesListAdapter(@Nullable User[] users, @Nullable Callback<String> callback) {
-        this.users = users;
+    public ColleaguesListAdapter(@Nullable Callback<String> callback) {
         this.callback = callback;
     }
 
@@ -44,8 +45,11 @@ public class ColleaguesListAdapter extends RecyclerView.Adapter<ColleaguesListAd
         return users.length;
     }
 
-    public void updateList(User[] colleagues){
-        users = colleagues;
+    // Use case: Because we can't set up the RecyclerView and its Adapter from a background thread,
+    // we first init them from the main thread, then we call this method from the Call's onResponse
+    // background thread to update the data of the RecyclerView
+    public void updateData(User[] data) {
+        users = data;
         notifyDataSetChanged();
     }
 
@@ -63,8 +67,9 @@ public class ColleaguesListAdapter extends RecyclerView.Adapter<ColleaguesListAd
         }
 
         // Null Callback indicates that the adapter is used in RestaurantDetailsFragment, the opposite is for ColleaguesListFragment
-        private void updateViewHolder(User user) {
-            Glide.with(binding.getRoot()).load(user.getAvatarUrl()).centerCrop().into(binding.colleagueAvatar);
+        private void updateViewHolder(@NonNull User user) {
+            RequestOptions options = new RequestOptions().centerCrop().placeholder(R.drawable.avatar_placeholder).error(R.drawable.avatar_placeholder);
+            Glide.with(binding.getRoot()).load(user.getAvatarUrl()).apply(options).into(binding.colleagueAvatar);
             final Resources resources = binding.getRoot().getResources();
             String contentText;
             if (callback == null) {
