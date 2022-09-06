@@ -154,7 +154,7 @@ public class HomepageViewModel extends ViewModel {
 
     //Fetches the Autocomplete results and passes them to the callback.
     // The boolean isFiltered is "true" for Restaurants autocomplete, "false" for Workplace autocomplete.
-    public void getAutocompletes(String input, Location location, String searchRadius, boolean isFiltered, Callback<Autocomplete[]> callback) {
+    public void getAutocompletes(@NonNull String input, @NonNull Location location, @NonNull String searchRadius, boolean isFiltered, Callback<Autocomplete[]> callback) {
         autocompleteRepository.getAutocompletes(input, location, searchRadius, isFiltered, new Callback<Autocomplete[]>() {
             @Override
             public void onSuccess(Autocomplete[] results) {

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -96,6 +97,7 @@ public class HomepageActivity extends AppCompatActivity {
         binding = ActivityHomepageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         InitNavigation();
+        initCurrentLocation();
         initViewModel();
     }
     /***********************************************************************************************
@@ -215,12 +217,7 @@ public class HomepageActivity extends AppCompatActivity {
 
     private void getSearchbarFocusListener(View v, boolean hasFocus) {
         if (hasFocus) {
-            currentLocationProvider.getCurrentCoordinates(new CurrentLocationProvider.OnCoordinatesResultListener() {
-                @Override
-                public void onResult(Location location) {
-                    currentLocation = location;
-                }
-            });
+            initCurrentLocation();
             binding.autocompleteList.setLayoutManager(new LinearLayoutManager(this));
             binding.autocompleteList.setAdapter(autocompleteListAdapter);
             binding.searchView.setVisibility(View.VISIBLE);
@@ -261,14 +258,27 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     /***********************************************************************************************
-     ** ViewModel
+     ** Init currentLocation
      **********************************************************************************************/
+    // Initializes the currentLocation
+    private void initCurrentLocation() {
+        currentLocationProvider.getCurrentCoordinates(new CurrentLocationProvider.OnCoordinatesResultListener() {
+            @Override
+            public void onResult(Location location) {
+                currentLocation = location;
+            }
+        });
+    }
 
+    /***********************************************************************************************
+     ** Init ViewModel
+     **********************************************************************************************/
     // Initializes the HomepageViewModel, sets the onAuthStateChangedListener, sets the currentUser observer
     private void initViewModel() {
-        Log.d("HomepageActivity", "initViewModel _Start_");
+        Log.d("HomepageActivity", "initViewModel_1");
         homepageViewModel = new ViewModelProvider(this).get(HomepageViewModel.class);
 
+        Log.d("HomepageActivity", "initViewModel_2");
         FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -283,8 +293,11 @@ public class HomepageActivity extends AppCompatActivity {
             }
         };
 
+        Log.d("HomepageActivity", "initViewModel_3");
         homepageViewModel.initListener(authStateListener);
+        Log.d("HomepageActivity", "initViewModel_4");
         currentUser = homepageViewModel.getCurrentUser();
+        Log.d("HomepageActivity", "initViewModel_5");
         homepageViewModel.getLiveCurrentUser().observe(this, new Observer<User>() {
             @Override
             public void onChanged(User user) {
@@ -299,8 +312,14 @@ public class HomepageActivity extends AppCompatActivity {
 
     //If logged out, it takes us back to AuthenticationActivity
     private void onLogout(){
-        startActivity(new Intent(this, AuthenticationActivity.class));
+//        startActivity(new Intent(this, AuthenticationActivity.class));
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.commitAllowingStateLoss();   // To avoid "Can not perform this action after onSaveInstanceState" IllegalStateException, if we want to log back in.
+        Intent intent = new Intent(this, AuthenticationActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
         finish();
+
         Log.d("HomepageActivity", "onLogout");
     }
 
@@ -326,37 +345,63 @@ public class HomepageActivity extends AppCompatActivity {
 
     // Initializes the workplaceID
     private void initInitialUserData() {
-        while (currentUser.getWorkplaceId() == null || currentUser.getWorkplaceId().isEmpty()) {
+        Log.d("HomepageActivity", "initInitialUserData");
+        if (currentUser.getWorkplaceId() == null || currentUser.getWorkplaceId().isEmpty()) {
 
-            launchWorkplacePickerDialog(null);
+            launchWorkplacePickerDialog(new Callback<String>() {
+                @Override
+                public void onSuccess(String results) {
+                    //TODO : Refresh fragment here, to load newly saved workplaceId
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            });
         }
     }
 
     // Calls the WorkplacePickerDialog and sends the selected result <Autocomplete> to the arg Callback
-    public void launchWorkplacePickerDialog(@Nullable Callback<String> innerCallback) {
+    public void launchWorkplacePickerDialog(Callback<String> innerCallback) {
 
+        Log.d("HomepageActivity", "launchWorkplacePickerDialog_0");
         if (workplaceDialog == null) {
 
             // The WorkplacePickerDialog Callback to handle onTextChanged event
             Callback<String> onTextChanged = new Callback<String>() {
                 @Override
                 public void onSuccess(String results) {
-                    homepageViewModel.getAutocompletes(
-                            results,
-                            currentLocation,
-                            getSearchRadius(),
-                            false,
-                            new Callback<Autocomplete[]>() {
-                                @Override
-                                public void onSuccess(Autocomplete[] results) {
-                                    workplaceDialog.updateWorkplaceDialogList(results);
-                                }
+                    if (results.length() >= 3) {
+                        homepageViewModel.getAutocompletes(
+                                results,
+                                currentLocation,
+                                getSearchRadius(),
+                                false,
+                                new Callback<Autocomplete[]>() {
+                                    @Override
+                                    public void onSuccess(Autocomplete[] results) {
 
-                                @Override
-                                public void onFailure() {
+                                        //TODO: test to delete -start
+                                        int n = results.length;
+                                        String m = "Dialog number_" + n;
+                                        Log.d("HWDialogAutocomplete", m);
+                                        //TODO: Test to delete -end
 
-                                }
-                            });
+                                        workplaceDialog.updateWorkplaceDialogList(results);
+                                    }
+
+                                    @Override
+                                    public void onFailure() {
+
+                                        //TODO: test to delete -start
+                                        String m = "Dialog number_Null";
+                                        Log.d("HWDialogAutocomplete", m);
+                                        //TODO: Test to delete -end
+
+                                    }
+                                });
+                    }
                 }
 
                 @Override
@@ -364,6 +409,7 @@ public class HomepageActivity extends AppCompatActivity {
 
                 }
             };
+            Log.d("HomepageActivity", "launchWorkplacePickerDialog_1");
 
             // The WorkplacePickerDialog Callback to handle onItemClick action :
             // updates currentUser' workplaceId  - updateCurrentUserData() - updates "workplace" and "workplaceId" sharedPreferences - dismisses the dialog - launches a informative an toast
@@ -380,9 +426,7 @@ public class HomepageActivity extends AppCompatActivity {
                     sharedPreferencesEditor.putString("workplaceId", results.getPlaceId());
                     sharedPreferencesEditor.putString("workplace", results.getTitle()  + "\n" + results.getDetail());
 
-                    if (innerCallback != null) {
-                        innerCallback.onSuccess(results.getTitle()  + "\n" + results.getDetail());
-                    }
+                    innerCallback.onSuccess(results.getTitle()  + "\n" + results.getDetail());
 
                     sharedPreferencesEditor.apply();
                     workplaceDialog.dismiss();
@@ -394,11 +438,16 @@ public class HomepageActivity extends AppCompatActivity {
 
                 }
             };
+            Log.d("HomepageActivity", "launchWorkplacePickerDialog_2");
 
             workplaceDialog = new WorkplaceDialogFragment(onTextChanged, onItemSelected);
+            Log.d("HomepageActivity", "launchWorkplacePickerDialog_3");
         }
 
         workplaceDialog.show(getSupportFragmentManager(), getString(R.string.workplace_dialog_tag));
+        Log.d("HomepageActivity", "launchWorkplacePickerDialog_4");
+
+        // TODO: initInitialUserData(); // Relaunch the dialog in case the workplace hasn't been selected
 
     }
 
@@ -482,25 +531,33 @@ public class HomepageActivity extends AppCompatActivity {
     **********************************************************************************************/
     // Visibility setups for the toolbar, menu and bottomNav
 
+    //TODO: How to control these components straight from the fragments ? (to avoid calling the methods below from this parent activity, which might result in bugs)
+
     public void mapFragmentDisplayOptions(){
         actionbarVisibility(true);
         menuVisibility(false);
         bottomNavigationVisibility(true);
     }
+
+    //TODO: Check why search menu is displayed twice
     public void restaurantsListFragmentDisplayOptions(){
         actionbarVisibility(true);
         menuVisibility(true);
         bottomNavigationVisibility(true);
     }
+
     public void colleaguesListFragmentDisplayOptions(){
         actionbarVisibility(true);
         menuVisibility(false);
         bottomNavigationVisibility(true);
     }
+
+    //TODO: Display UpButton
     public void restaurantDetailsFragmentDisplayOptions(){
         actionbarVisibility(false);
         bottomNavigationVisibility(false);
     }
+    //TODO: Display UpButton
     public void settingsFragmentDisplayOptions(){
         actionbarVisibility(false);
         bottomNavigationVisibility(false);

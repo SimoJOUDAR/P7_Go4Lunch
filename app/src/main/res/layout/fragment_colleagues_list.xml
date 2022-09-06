@@ -17,7 +17,7 @@
         tools:listitem="@layout/colleague_item" />
 
     <LinearLayout
-        android:id="@+id/no_workplace_error_msg_layout"
+        android:id="@+id/empty_list_msg_layout"
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -27,17 +27,19 @@
         android:padding="40dp">
 
         <TextView
+            android:id="@+id/empty_list_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:layout_marginBottom="8dp"
-            android:text="@string/workplace_required_message"
+            tools:text="@string/default_empty_list_message"
             android:textSize="16sp" />
 
         <Button
             android:id="@+id/no_workplace_error_msg_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:text="@string/select_my_workplace_btn" />
 
     </LinearLayout>

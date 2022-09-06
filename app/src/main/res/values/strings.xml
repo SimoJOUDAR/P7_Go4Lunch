@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
 
-    <string name="facebook_application_id" translatable="false">596300901865228</string>
-    <string name="facebook_login_protocol_scheme" translatable="false">fb596300901865228</string>
+    <string name="facebook_application_id" translatable="false">519620606638895</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb519620606638895</string>
 
     <string name="logo_title">Find a nice restaurant and invite your co-workers for lunch</string>
     <string name="facebook_login_btn_txt">Sign in with Facebook</string>
@@ -29,7 +29,7 @@
     <string name="no_colleagues_joining_message">No colleagues joining this restaurant yet</string>
     <string name="no_workplace_selected_message">You haven\'t chosen a workplace yet, thus we can\'t provide the colleagues joining on</string>
     <string name="error_fetching_colleagues_list_message">There has been an error while loading the joining colleagues</string>
-    <string name="default_empty_colleagues_list_message">Something went wrong, we couldn\'t provide this data</string>
+    <string name="default_empty_list_message">Something went wrong, we couldn\'t provide this data</string>
 
     <string name="Restaurant_Name">Restaurant Name</string>
     <string name="chosen_restaurant">Chosen restaurant</string>
@@ -70,7 +70,14 @@
     <string name="is_open_true">Open</string>
     <string name="is_open_false">Closed</string>
     <string name="restaurant_distance_unavailable">unavailable</string>
-    <string name="workplace_required_message">Selecting your workplace is required</string>
+
+    <string name="NoColleagues_msg">Currently, you are the first in your workplace to use this app. Please, share this app with your colleagues to activate this functionality.</string>
+    <string name="NoWorkplaceSelected_msg">Please selected your workplace. This information is required in order to display the available list of your colleagues.</string>
+    <string name="ErrorFetchingColleagues_msg">An error has occurred while fetching the data, please report this bug.</string>
     <string name="select_my_workplace_btn">Select my workplace</string>
+
+    <string name="RestaurantsListFragment_CurrentLocationError_msg">An error occurred while proceeding your location.</string>
+    <string name="RestaurantsListFragment_FailFetchingNearbyRestaurant_msg">A problem occurred while trying to fetch nearby restaurants.</string>
+    <string name="RestaurantsListFragment_NoRestaurantFound_msg">No restaurant found around here.</string>
 
 </resources>

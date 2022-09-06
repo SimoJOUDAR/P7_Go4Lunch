@@ -45,4 +45,25 @@
 
     </com.facebook.shimmer.ShimmerFrameLayout>
 
+    <LinearLayout
+        android:id="@+id/restaurants_empty_list_msg_layout"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="40dp">
+
+        <TextView
+            android:id="@+id/restaurant_empty_list_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_marginBottom="8dp"
+            tools:text="@string/default_empty_list_message"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
 </FrameLayout>

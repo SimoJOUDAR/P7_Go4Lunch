@@ -2,6 +2,8 @@ package fr.joudar.go4lunch.repositories;
 
 import android.location.Location;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import javax.inject.Inject;
@@ -21,7 +23,7 @@ public class AutocompleteRepository {
         this.autocompleteProvider = autocompleteProvider;
     }
 
-    public void getAutocompletes(String input, Location location, String searchRadius, boolean isFiltered, Callback<Autocomplete[]> callback) {
+    public void getAutocompletes(@NonNull String input, @NonNull Location location, @NonNull String searchRadius, boolean isFiltered, Callback<Autocomplete[]> callback) {
         autocompleteProvider.getAutocompletes(input, location, searchRadius, isFiltered, callback
 //                new Callback<Autocomplete[]>() {   // Pass the callback straight away with no additional treatment
 //                    @Override

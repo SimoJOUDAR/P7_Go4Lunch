@@ -2,6 +2,7 @@ package fr.joudar.go4lunch.ui.core.adapters;
 
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+
+import java.util.Locale;
 import java.util.Map;
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.RestaurantListItemBinding;
@@ -30,6 +34,9 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
     private final Callback<String> onItemClicked;
     private Map<String, Integer> colleaguesDistribution;
 
+    public RestaurantListAdapter(@NonNull Callback<String> onItemClicked) {
+        this.onItemClicked = onItemClicked;
+    }
     public RestaurantListAdapter(Place[] places, Location currentLocation, Callback<String> onItemClicked, Map<String, Integer> colleaguesDistribution) {
         this.places = places;
         this.currentLocation = currentLocation;
@@ -59,9 +66,16 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
         notifyDataSetChanged();
     }
 
-    public void updateRestaurantList(Place[] results, Location currentLocation) {
+    public void updateRestaurantList(Place[] results, @NonNull Location location) {
         places = results;
-        this.currentLocation = currentLocation;
+        currentLocation = location;
+        notifyDataSetChanged();
+    }
+
+    public void updateData(Place[] results, @NonNull Location location, Map<String, Integer> map) {
+        places = results;
+        currentLocation = location;
+        colleaguesDistribution = map;
         notifyDataSetChanged();
     }
 
@@ -75,11 +89,21 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
         RequestListener<Drawable> listener = new RequestListener<Drawable>() {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+
+                //TODO: Test - Start
+                Log.d("RestaurantListAdapter", "Glide Listener - onLoadFailed - exception: " + e.getMessage());
+                //TODO: Test - End
+
                 return false;
             }
 
             @Override
             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+
+                //TODO: Test - Start
+                Log.d("RestaurantListAdapter", "Glide Listener - onResourceReady");
+                //TODO: Test - End
+
                 binding.photoShimmerLayout.stopShimmer();
                 binding.photoShimmerLayout.setVisibility(View.GONE);
                 return false;
@@ -91,7 +115,7 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
             this.binding = binding;
         }
 
-        public void updateView(Place place) {
+        public void updateView(@NonNull Place place) {
             binding.name.setText(place.getName());
             binding.address.setText(place.getVicinity());
             isOpen(place);
@@ -111,7 +135,7 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
          ** Utils
          **********************************************************************************************/
 
-        private void isOpen(Place place){
+        private void isOpen(@NonNull Place place){
             if (place.isOpen()) {
                 binding.isOpen.setText(R.string.is_open_true);
                 binding.isOpen.setTextColor(ResourcesCompat.getColor(binding.getRoot().getResources(), R.color.light_green, null));
@@ -121,26 +145,30 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
             }
         }
 
-        private void getDistance(Place place) {
+        private void getDistance(@NonNull Place place) {
             if (currentLocation == null)
                 binding.restaurantDistance.setText(R.string.restaurant_distance_unavailable);
             else {
-                binding.restaurantDistance.setText((int) Calculus.distanceBetween(currentLocation, place.getCoordinates()));
+                int distance = (int) Calculus.distanceBetween(currentLocation, place.getCoordinates());
+                binding.restaurantDistance.setText(String.format(Locale.getDefault(),"%d m", distance));
             }
         }
 
-        private void ColleaguesDistribution(Place place) {
+        private void ColleaguesDistribution(@NonNull Place place) {
             if (colleaguesDistribution != null) {
                 final Integer count = colleaguesDistribution.get(place.getId());
                 if (count != null && count != 0) {
                     String fc = "("+ count +")";
                     binding.joiningColleaguesSum.setText(fc);
+                    binding.joiningColleaguesSum.setVisibility(View.VISIBLE);
                 }
+                else
+                    binding.joiningColleaguesSum.setVisibility(View.INVISIBLE);
             }
         }
 
         // Update the rating stars
-        private void ratingStarsHandler(Place place) {
+        private void ratingStarsHandler(@NonNull Place place) {
             int rating = Calculus.ratingStarsCalculator(place.getRating());
             switch (rating) {
                 case 3:
@@ -165,10 +193,11 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
             }
         }
 
-        public void loadPhoto(Place place) {
+        public void loadPhoto(@NonNull Place place) {
+            RequestOptions options = new RequestOptions().centerCrop().placeholder(R.drawable.gray_gradient_design).error(R.drawable.gray_gradient_design);
             Glide.with(binding.getRoot().getContext())
                     .load(place.getMainPhotoUrl())
-                    .centerCrop()
+                    .apply(options)
                     .listener(listener)
                     .into(binding.photo);
         }

@@ -77,7 +77,7 @@ public class MapApiPlaceDetailsResponse {
         public String placeId;
         @SerializedName("rating")
         @Expose
-        public Integer rating;
+        public Double rating = 0.;
         @SerializedName("website")
         @Expose
         public String website;

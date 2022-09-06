@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
@@ -23,10 +22,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +35,6 @@ import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory;
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.FragmentRestaurantsListBinding;
 import fr.joudar.go4lunch.domain.models.Place;
-import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.services.CurrentLocationProvider;
 import fr.joudar.go4lunch.domain.utils.Calculus;
 import fr.joudar.go4lunch.domain.utils.Callback;
@@ -59,25 +55,51 @@ public class RestaurantsListFragment extends Fragment {
     private final Callback<Place[]> nearbyRestaurantsCallback = new Callback<Place[]>() {
         @Override
         public void onSuccess(Place[] results) {
-            places = results;
-            fetchingColleaguesDistribution();
+
+            //TODO: Test - Start
+            int n = results.length;
+            Log.d("RestaurantsListFragment", "nearbyRestaurantsCallback - onSuccess - results.length = " + n);
+            //TODO: Test - End
+
+            if (results.length == 0) {
+                emptyListMessage(NO_RESTAURANT_FOUND_CODE);
+            }
+            else {
+                places = results;
+                fetchingColleaguesDistribution();
+            }
         }
 
         @Override
         public void onFailure() {
-            fetchingNearbyRestaurantError();
+
+            //TODO: Test - Start
+            Log.d("RestaurantsListFragment", "nearbyRestaurantsCallback - onFailure");
+            //TODO: Test - End
+
+            emptyListMessage(FAIL_FETCHING_NEARBY_RESTAURANTS_CODE);
         }
     };
     private final Callback<Map<String, Integer>> fetchingColleaguesCallback = new Callback<Map<String, Integer>>() {
         @Override
         public void onSuccess(Map<String, Integer> results) {
+
+            //TODO: Test - Start
+            Log.d("RestaurantsListFragment", "fetchingColleaguesCallback - onSuccess");
+            //TODO: Test - End
+
             colleaguesDistribution = results;
             updateRecyclerView();
         }
 
         @Override
         public void onFailure() {
-            fetchingColleaguesError();
+
+            //TODO: Test - Start
+            Log.d("RestaurantsListFragment", "fetchingColleaguesCallback - onFailure");
+            //TODO: Test - End
+
+            emptyListMessage(FAIL_FETCHING_COLLEAGUES_CODE);
         }
     };
     private final Callback<String> onClickCallback = new Callback<String>() {
@@ -93,15 +115,16 @@ public class RestaurantsListFragment extends Fragment {
 
         }
     };
-    private RestaurantListAdapter listAdapter;
+
+    private final RestaurantListAdapter listAdapter = new RestaurantListAdapter(onClickCallback);
 
     public RestaurantsListFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentRestaurantsListBinding.inflate(LayoutInflater.from(container.getContext()), container, false);
+        initRecyclerView();
         initViewModel(container);
-        //viewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> getCurrentLocation()); // To re-actualize the whole fragment
         getCurrentLocation();
         return binding.getRoot();
     }
@@ -135,31 +158,40 @@ public class RestaurantsListFragment extends Fragment {
             @Override
             public void onResult(Location location) {
 
-                if (currentLocation != null) {
+                if (location != null) {
                     currentLocation = location;
                     viewModel.getNearbyRestaurant(currentLocation, getSearchRadius(), nearbyRestaurantsCallback);
                 }
                 else
-                    currentLocationError();
+                    emptyListMessage(CURRENT_LOCATION_ERROR_CODE);
             }
         });
     }
 
     private void fetchingColleaguesDistribution(){
-        viewModel.getColleaguesDistributionOverRestaurants(fetchingColleaguesCallback);
+        String workplaceId = viewModel.getCurrentUser().getWorkplaceId();
+        if (workplaceId == null || workplaceId.equals("")) {
+            emptyListMessage(NO_WORKPLACE_SELECTED_CODE);
+        }
+        else {
+            viewModel.getColleaguesDistributionOverRestaurants(fetchingColleaguesCallback);
+        }
     }
 
 
     /***********************************************************************************************
      ** RecyclerView
      **********************************************************************************************/
-    //
+
+    private void initRecyclerView() {
+        binding.recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerview.setAdapter(listAdapter);
+    }
     private void updateRecyclerView() {
+        listAdapter.updateData(places, currentLocation, colleaguesDistribution);
+        binding.recyclerview.setVisibility(View.VISIBLE);
         binding.shimmerListLayout.stopShimmer();
         binding.shimmerListLayout.setVisibility(View.GONE);
-        binding.recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
-        listAdapter = new RestaurantListAdapter(places, currentLocation, onClickCallback, colleaguesDistribution);
-        binding.recyclerview.setAdapter(listAdapter);
     }
 
     /***********************************************************************************************
@@ -226,16 +258,47 @@ public class RestaurantsListFragment extends Fragment {
      ** Error handling
      **********************************************************************************************/
 
-    private void currentLocationError(){
-        //TODO: handle here
-    }
+    // Error code for emptyListMessage method:
+    final int CURRENT_LOCATION_ERROR_CODE = 11;
+    final int FAIL_FETCHING_NEARBY_RESTAURANTS_CODE = 22;
+    final int NO_RESTAURANT_FOUND_CODE = 33;
+    final int NO_WORKPLACE_SELECTED_CODE = 44;
+    final int FAIL_FETCHING_COLLEAGUES_CODE = 55;
 
-    private void fetchingNearbyRestaurantError() {
-        // TODO: handle here
-    }
+    private void emptyListMessage(int errorCode) {
+        binding.recyclerview.setVisibility(View.GONE);
+        binding.restaurantsEmptyListMsgLayout.setVisibility(View.VISIBLE);
+        binding.shimmerListLayout.stopShimmer();
+        binding.shimmerListLayout.setVisibility(View.GONE);
 
-    private void fetchingColleaguesError() {
-        // TODO: handle here
+        switch (errorCode) {
+
+            case CURRENT_LOCATION_ERROR_CODE:
+                binding.restaurantEmptyListMsg.setText(R.string.RestaurantsListFragment_CurrentLocationError_msg);
+                break;
+
+            case FAIL_FETCHING_NEARBY_RESTAURANTS_CODE:
+                binding.restaurantEmptyListMsg.setText(R.string.RestaurantsListFragment_FailFetchingNearbyRestaurant_msg);
+                break;
+
+            case NO_RESTAURANT_FOUND_CODE:
+                binding.restaurantEmptyListMsg.setText(R.string.RestaurantsListFragment_NoRestaurantFound_msg);
+                break;
+
+            case NO_WORKPLACE_SELECTED_CODE:
+                binding.restaurantEmptyListMsg.setText(R.string.NoWorkplaceSelected_msg);
+                break;
+
+            case FAIL_FETCHING_COLLEAGUES_CODE:
+                binding.restaurantEmptyListMsg.setText(R.string.ErrorFetchingColleagues_msg);
+                break;
+
+            default:
+                binding.restaurantEmptyListMsg.setText(R.string.default_empty_list_message);
+                break;
+
+        }
+
     }
 
     /***********************************************************************************************

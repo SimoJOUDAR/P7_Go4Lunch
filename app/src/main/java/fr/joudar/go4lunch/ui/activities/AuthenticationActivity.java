@@ -36,6 +36,7 @@ public class AuthenticationActivity extends AppCompatActivity {
             new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
                 @Override
                 public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
+                    Log.d("AuthActivity", "signInLauncher");
                     onSignInResult(result);
                 }
             }
