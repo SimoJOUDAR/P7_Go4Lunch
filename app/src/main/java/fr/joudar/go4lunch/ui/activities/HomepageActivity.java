@@ -2,9 +2,9 @@ package fr.joudar.go4lunch.ui.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -20,15 +20,20 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,9 +89,9 @@ public class HomepageActivity extends AppCompatActivity {
     @Inject public CurrentLocationProvider currentLocationProvider;
     private HomepageViewModel homepageViewModel;
     private Location currentLocation;
-    private User currentUser;
+    private User currentUser = null;
     private static WorkplaceDialogFragment workplaceDialog;
-
+    boolean firstInit = true;
 
     /***********************************************************************************************
      ** The onCreate method
@@ -100,6 +105,7 @@ public class HomepageActivity extends AppCompatActivity {
         initCurrentLocation();
         initViewModel();
     }
+
     /***********************************************************************************************
      ** Navigation
      **********************************************************************************************/
@@ -131,9 +137,9 @@ public class HomepageActivity extends AppCompatActivity {
     private void initDrawerNavDataDisplay() {
         final View drawerNavHeader = binding.drawerNav.getHeaderView(0);
         final ImageView userAvatar = drawerNavHeader.findViewById(R.id.drawer_nav_user_avatar);
-        Glide.with(this).load(currentUser.getAvatarUrl()).centerCrop().into(userAvatar);
-        ((TextView) drawerNavHeader.findViewById(R.id.drawer_nav_username)).setText(currentUser.getUsername());
-        ((TextView) drawerNavHeader.findViewById(R.id.drawer_nav_email)).setText(currentUser.getEmail());
+        Glide.with(getApplicationContext()).load(homepageViewModel.getCurrentUser().getAvatarUrl()).centerCrop().into(userAvatar); // use of "applicationContext" instead of "activityContext" to avoid the error "You cannot start a load for a destroyed activity"
+        ((TextView) drawerNavHeader.findViewById(R.id.drawer_nav_username)).setText(homepageViewModel.getCurrentUser().getUsername());
+        ((TextView) drawerNavHeader.findViewById(R.id.drawer_nav_email)).setText(homepageViewModel.getCurrentUser().getEmail());
     }
 
     // Sets up the BottomNavigation components.
@@ -200,6 +206,61 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     /***********************************************************************************************
+     ** Current Location
+     **********************************************************************************************/
+    // Initializes the currentLocation
+    private void initCurrentLocation() {
+        currentLocationProvider.getCurrentCoordinates(new CurrentLocationProvider.OnCoordinatesResultListener() {
+            @Override
+            public void onResult(Location location) {
+                currentLocation = location;
+            }
+        });
+    }
+
+    /***********************************************************************************************
+     ** ViewModel and user data
+     **********************************************************************************************/
+    // Initializes the HomepageViewModel, sets the onAuthStateChangedListener, sets the currentUser observer
+    private void initViewModel() {
+        Log.d("HomepageActivity", "initViewModel_1");
+        homepageViewModel = new ViewModelProvider(this).get(HomepageViewModel.class);
+        homepageViewModel.getLiveCurrentUser().observe(this, user -> {
+            if (user != null) {
+                currentUser = user;
+                if (firstInit) {
+                    initSharedPreferences();
+//                    initUsername();
+                    initUserWorkplaceId();
+                    initLunchNotification();
+                    firstInit = false;
+                }
+            }
+        });
+
+        Log.d("HomepageActivity", "initViewModel_2");
+        FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null) {
+                    onLogout();
+                }
+                else {
+                    firstInit = true;
+                    initDrawerNavDataDisplay();
+                }
+            }
+        };
+
+        Log.d("HomepageActivity", "initViewModel_3");
+        homepageViewModel.initListener(authStateListener);
+        Log.d("HomepageActivity", "initViewModel_4");
+
+        Log.d("HomepageActivity", "initViewModel _initFirebaseAuth_Finish_");
+
+    }
+
+    /***********************************************************************************************
      ** Searchbar
      **********************************************************************************************/
     // To connect our option menu to the Navigation
@@ -258,66 +319,17 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     /***********************************************************************************************
-     ** Init currentLocation
+     ** Basic Account functionalities
      **********************************************************************************************/
-    // Initializes the currentLocation
-    private void initCurrentLocation() {
-        currentLocationProvider.getCurrentCoordinates(new CurrentLocationProvider.OnCoordinatesResultListener() {
-            @Override
-            public void onResult(Location location) {
-                currentLocation = location;
-            }
-        });
-    }
-
-    /***********************************************************************************************
-     ** Init ViewModel
-     **********************************************************************************************/
-    // Initializes the HomepageViewModel, sets the onAuthStateChangedListener, sets the currentUser observer
-    private void initViewModel() {
-        Log.d("HomepageActivity", "initViewModel_1");
-        homepageViewModel = new ViewModelProvider(this).get(HomepageViewModel.class);
-
-        Log.d("HomepageActivity", "initViewModel_2");
-        FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null) {
-                    onLogout();
-                } else {
-                    initDrawerNavDataDisplay();
-                    initInitialUserData();
-                    initSharedPreferences();
-                    initLunchNotification();
-                }
-            }
-        };
-
-        Log.d("HomepageActivity", "initViewModel_3");
-        homepageViewModel.initListener(authStateListener);
-        Log.d("HomepageActivity", "initViewModel_4");
-        currentUser = homepageViewModel.getCurrentUser();
-        Log.d("HomepageActivity", "initViewModel_5");
-        homepageViewModel.getLiveCurrentUser().observe(this, new Observer<User>() {
-            @Override
-            public void onChanged(User user) {
-                currentUser = user;
-                initDrawerNavDataDisplay();
-            }
-        });
-
-        Log.d("HomepageActivity", "initViewModel _initFirebaseAuth_Finish_");
-
-    }
 
     //If logged out, it takes us back to AuthenticationActivity
     private void onLogout(){
-//        startActivity(new Intent(this, AuthenticationActivity.class));
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.commitAllowingStateLoss();   // To avoid "Can not perform this action after onSaveInstanceState" IllegalStateException, if we want to log back in.
-        Intent intent = new Intent(this, AuthenticationActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        startActivity(new Intent(this, AuthenticationActivity.class));
+//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//        ft.commitAllowingStateLoss();   // To avoid "Can not perform this action after onSaveInstanceState" IllegalStateException, if we want to log back in.
+//        Intent intent = new Intent(this, AuthenticationActivity.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        startActivity(intent);
         finish();
 
         Log.d("HomepageActivity", "onLogout");
@@ -340,115 +352,157 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     /***********************************************************************************************
-     ** Basic user data enquiries operations
+     ** User data - Workplace - Username
      **********************************************************************************************/
 
     // Initializes the workplaceID
-    private void initInitialUserData() {
+    private void initUserWorkplaceId() {
         Log.d("HomepageActivity", "initInitialUserData");
         if (currentUser.getWorkplaceId() == null || currentUser.getWorkplaceId().isEmpty()) {
 
-            launchWorkplacePickerDialog(new Callback<String>() {
-                @Override
-                public void onSuccess(String results) {
-                    //TODO : Refresh fragment here, to load newly saved workplaceId
-                }
-
-                @Override
-                public void onFailure() {
-
-                }
-            });
+            launchWorkplacePickerDialog(null);
         }
     }
 
     // Calls the WorkplacePickerDialog and sends the selected result <Autocomplete> to the arg Callback
-    public void launchWorkplacePickerDialog(Callback<String> innerCallback) {
+    public void launchWorkplacePickerDialog(@Nullable Callback<String> innerCallback) {
 
         Log.d("HomepageActivity", "launchWorkplacePickerDialog_0");
-        if (workplaceDialog == null) {
 
-            // The WorkplacePickerDialog Callback to handle onTextChanged event
-            Callback<String> onTextChanged = new Callback<String>() {
-                @Override
-                public void onSuccess(String results) {
-                    if (results.length() >= 3) {
-                        homepageViewModel.getAutocompletes(
-                                results,
-                                currentLocation,
-                                getSearchRadius(),
-                                false,
-                                new Callback<Autocomplete[]>() {
-                                    @Override
-                                    public void onSuccess(Autocomplete[] results) {
+        // The WorkplacePickerDialog Callback to handle onTextChanged event
+        Callback<String> onTextChanged = new Callback<String>() {
+            @Override
+            public void onSuccess(String results) {
+                if (results.length() >= 3) {
+                    homepageViewModel.getAutocompletes(
+                            results,
+                            currentLocation,
+                            getSearchRadius(),
+                            false,
+                            new Callback<Autocomplete[]>() {
+                                @Override
+                                public void onSuccess(Autocomplete[] results) {
 
-                                        //TODO: test to delete -start
-                                        int n = results.length;
-                                        String m = "Dialog number_" + n;
-                                        Log.d("HWDialogAutocomplete", m);
-                                        //TODO: Test to delete -end
+                                    //TODO: test to delete -start
+                                    int n = results.length;
+                                    String m = "Dialog number_" + n;
+                                    Log.d("HWDialogAutocomplete", m);
+                                    //TODO: Test to delete -end
 
-                                        workplaceDialog.updateWorkplaceDialogList(results);
-                                    }
+                                    workplaceDialog.updateWorkplaceDialogList(results);
+                                }
 
-                                    @Override
-                                    public void onFailure() {
+                                @Override
+                                public void onFailure() {
 
-                                        //TODO: test to delete -start
-                                        String m = "Dialog number_Null";
-                                        Log.d("HWDialogAutocomplete", m);
-                                        //TODO: Test to delete -end
+                                    //TODO: test to delete -start
+                                    String m = "Dialog number_Null";
+                                    Log.d("HWDialogAutocomplete", m);
+                                    //TODO: Test to delete -end
 
-                                    }
-                                });
-                    }
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
+        Log.d("HomepageActivity", "launchWorkplacePickerDialog_1");
+
+        // The WorkplacePickerDialog Callback to handle onItemClick action :
+        // updates currentUser' workplaceId  - updateCurrentUserData() - updates "workplace" and "workplaceId" sharedPreferences - dismisses the dialog - launches a informative an toast
+        Callback<Autocomplete> onItemSelected = new Callback<Autocomplete>() {
+            @Override
+            public void onSuccess(Autocomplete result) {
+                // Updates currentUser workplaceId value
+                currentUser.setWorkplace(result);
+
+                // Updates sharedPreferences workplaceId, workplaceTitle & workplaceDetail values
+                final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
+                final SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+                sharedPreferencesEditor.putString("workplaceId", currentUser.getWorkplaceId());
+                sharedPreferencesEditor.putString("workplace", currentUser.getWorkplaceName() + "\n" + currentUser.getWorkplaceAddress());
+                sharedPreferencesEditor.apply();
+
+                if (innerCallback != null) {
+                    innerCallback.onSuccess(currentUser.getWorkplaceName() + "\n" + currentUser.getWorkplaceAddress());
                 }
 
-                @Override
-                public void onFailure() {
+                homepageViewModel.updateAllCurrentUserData(currentUser);
 
-                }
-            };
-            Log.d("HomepageActivity", "launchWorkplacePickerDialog_1");
+                workplaceDialog.dismiss();
+                Toast.makeText(HomepageActivity.this, R.string.workplace_dialog_toast, Toast.LENGTH_SHORT).show();
+            }
 
-            // The WorkplacePickerDialog Callback to handle onItemClick action :
-            // updates currentUser' workplaceId  - updateCurrentUserData() - updates "workplace" and "workplaceId" sharedPreferences - dismisses the dialog - launches a informative an toast
-            Callback<Autocomplete> onItemSelected = new Callback<Autocomplete>() {
-                @Override
-                public void onSuccess(Autocomplete results) {
-                    // Updates currentUser workplaceId value
-                    currentUser.setWorkplaceId(results.getPlaceId());
-                    homepageViewModel.updateCurrentUserData("workplaceId", results.getPlaceId());
+            @Override
+            public void onFailure() {
 
-                    // Updates sharedPreferences workplaceId, workplaceTitle & workplaceDetail values
-                    final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
-                    final SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
-                    sharedPreferencesEditor.putString("workplaceId", results.getPlaceId());
-                    sharedPreferencesEditor.putString("workplace", results.getTitle()  + "\n" + results.getDetail());
+            }
+        };
+        Log.d("HomepageActivity", "launchWorkplacePickerDialog_2");
 
-                    innerCallback.onSuccess(results.getTitle()  + "\n" + results.getDetail());
-
-                    sharedPreferencesEditor.apply();
-                    workplaceDialog.dismiss();
-                    Toast.makeText(HomepageActivity.this, R.string.workplace_dialog_toast, Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onFailure() {
-
-                }
-            };
-            Log.d("HomepageActivity", "launchWorkplacePickerDialog_2");
-
-            workplaceDialog = new WorkplaceDialogFragment(onTextChanged, onItemSelected);
-            Log.d("HomepageActivity", "launchWorkplacePickerDialog_3");
-        }
+        workplaceDialog = new WorkplaceDialogFragment(onTextChanged, onItemSelected);
+        Log.d("HomepageActivity", "launchWorkplacePickerDialog_3");
 
         workplaceDialog.show(getSupportFragmentManager(), getString(R.string.workplace_dialog_tag));
         Log.d("HomepageActivity", "launchWorkplacePickerDialog_4");
 
         // TODO: initInitialUserData(); // Relaunch the dialog in case the workplace hasn't been selected
 
+    }
+
+//    public void initUsername() {
+//        Log.d("HomepageActivity", "initUsername - username = " + currentUser.getUsername());
+//        if (currentUser.getUsername() == null || currentUser.getUsername().isEmpty()) {
+//            launchUsernamePickerDialog();
+//        }
+//    }
+//
+//    // Displays a PickerDialog to ask for the username
+//    public void launchUsernamePickerDialog() {
+//        Log.d("HomepageActivity", "launchUsernamePickerDialog");
+//        final EditText usernameInput = new EditText(this);
+//        usernameInput.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+//
+//        AlertDialog.Builder usernameDialog = new AlertDialog.Builder(this);
+//        usernameDialog.setTitle(R.string.usernameDialog_title);
+//        usernameDialog.setView(usernameInput);
+//        usernameDialog.setPositiveButton(R.string.usernameDialog_positiveBtn, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//                String input = usernameInput.getText().toString();
+//                if (input.length() > 2) {
+//                    homepageViewModel.setUsername(input);
+//                    dialogInterface.dismiss();
+//                }
+//                else
+//                    Toast.makeText(HomepageActivity.this, R.string.usernameDialog_Toast_invalidInput, Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//        usernameDialog.setNegativeButton(R.string.usernameDialog_negativeBtn, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//                Snackbar snackbar = Snackbar.make(binding.getRoot(), R.string.usernameDialog_snackbar, Snackbar.LENGTH_LONG);
+//                snackbar.setAction(R.string.usernameDialog_snackbar_actionBtn, new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        launchUsernamePickerDialog();
+//                    }
+//                });
+//                snackbar.show();
+//                dialogInterface.dismiss();
+//            }
+//        });
+//        usernameDialog.show();
+//
+//    }
+
+    public String getSearchRadius() {
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
+        return sharedPreferences.getString("search_radius", "2000");
     }
 
     /***********************************************************************************************
@@ -480,37 +534,26 @@ public class HomepageActivity extends AppCompatActivity {
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(JOB_TAG, ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest);
     }
 
-    public String getSearchRadius() {
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
-        return sharedPreferences.getString("search_radius", "2000");
-    }
-
     /***********************************************************************************************
      ** SharedPreferences
      **********************************************************************************************/
     // Manages the SharedPreferences (to save basic user info)
     private void initSharedPreferences() {
+        Log.d("initSharedPreferences", "currentUser.getId() = " + currentUser.getId());
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         final SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
         if ( !sharedPreferences.getString("owner", "").equals(currentUser.getId()) ) {
             sharedPreferencesEditor.clear();
             sharedPreferencesEditor.putString("owner", currentUser.getId());
+            //save the rest of the data
         }
         if ( !sharedPreferences.getString("workplaceId", "0").equals(currentUser.getWorkplaceId()) ) {
-            sharedPreferencesEditor.putString("workplaceId", currentUser.getWorkplaceId());
-            homepageViewModel.getPlaceDetails(currentUser.getWorkplaceId(), new Callback<Place>() {
-                @Override
-                public void onSuccess(Place results) {
-                    sharedPreferencesEditor.putString("workplaceTitle", results.getName());
-                    sharedPreferencesEditor.putString("workplaceDetail", results.getVicinity());
-                }
-
-                @Override
-                public void onFailure() {
-
-                }
-            });
-
+            String workplaceId = homepageViewModel.getWorkplaceId();
+            if (workplaceId != null || !workplaceId.isEmpty()) {
+                sharedPreferencesEditor.putString("workplaceId", workplaceId);
+                sharedPreferencesEditor.putString("workplace", homepageViewModel.getWorkplaceName() + "\n" + homepageViewModel.getWorkplaceAddress());
+                Log.d("initSharedPreferences", "done");
+            }
         }
 
         sharedPreferencesEditor.apply();

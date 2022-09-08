@@ -114,14 +114,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
-//        setPreferencesFromResource(R.xml.preferences, rootKey);
-//        viewsBinding();
-//        searchRadius.setOnPreferenceChangeListener(searchRadiusListener);
-//        notificationEnabled.setOnPreferenceChangeListener(notificationSwitchListener);
-//        lunchReminder.setOnPreferenceClickListener(lunchReminderListener);
-//        workplaceField.setSummary(workplaceField.getSharedPreferences().getString("workplace", "N/A"));
-//        workplaceField.setOnPreferenceClickListener(workplaceClickListener);
-//        deleteButton.setOnPreferenceClickListener(deleteBtnClickListener);
+        setPreferencesFromResource(R.xml.preferences, rootKey);
+        viewsBinding();
+        searchRadius.setOnPreferenceChangeListener(searchRadiusListener);
+        notificationEnabled.setOnPreferenceChangeListener(notificationSwitchListener);
+        lunchReminder.setOnPreferenceClickListener(lunchReminderListener);
+        workplaceField.setSummary(workplaceField.getSharedPreferences().getString("workplace", "N/A"));
+        workplaceField.setOnPreferenceClickListener(workplaceClickListener);
+        deleteButton.setOnPreferenceClickListener(deleteBtnClickListener);
     }
 
     private void viewsBinding(){

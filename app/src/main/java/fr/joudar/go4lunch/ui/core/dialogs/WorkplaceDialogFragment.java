@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.databinding.WorkplaceDialogBinding;
 import fr.joudar.go4lunch.domain.models.Autocomplete;
 import fr.joudar.go4lunch.domain.utils.Callback;
@@ -64,8 +65,8 @@ public class WorkplaceDialogFragment extends DialogFragment {
 
         return new AlertDialog.Builder(getActivity())
                 .setView(binding.getRoot())
-                .setTitle("Select your actual workplace")
-                .setNegativeButton("Later", new DialogInterface.OnClickListener() {
+                .setTitle(R.string.workplaceDialog_title)
+                .setNegativeButton(R.string.workplaceDialog_negativeBtn, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.cancel();

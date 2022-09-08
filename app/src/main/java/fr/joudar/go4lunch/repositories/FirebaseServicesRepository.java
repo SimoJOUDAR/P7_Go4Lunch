@@ -54,8 +54,8 @@ public class FirebaseServicesRepository {
         firebaseServicesProvider.getColleaguesByRestaurant(restaurantId, callback);
     }
 
-    public void updateAllCurrentUserData() {
-        firebaseServicesProvider.updateAllCurrentUserData();
+    public void updateAllCurrentUserData(User user) {
+        firebaseServicesProvider.updateAllCurrentUserData(user);
     }
 
     public void resetChosenRestaurant(){
@@ -86,5 +86,17 @@ public class FirebaseServicesRepository {
 
     public String getWorkplaceId(){
         return firebaseServicesProvider.getWorkplaceId();
+    }
+
+    public String getWorkplaceName() {
+        return firebaseServicesProvider.getWorkplaceName();
+    }
+
+    public String getWorkplaceAddress() {
+        return firebaseServicesProvider.getWorkplaceAddress();
+    }
+
+    public void setUsername(String username) {
+        firebaseServicesProvider.setUsername(username);
     }
 }

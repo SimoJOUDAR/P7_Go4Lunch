@@ -75,8 +75,8 @@ public class HomepageViewModel extends ViewModel {
         firebaseServicesRepository.getColleaguesByRestaurant(restaurantId, callback);
     }
 
-    public void updateAllCurrentUserData() {
-        firebaseServicesRepository.updateAllCurrentUserData();
+    public void updateAllCurrentUserData(User user) {
+        firebaseServicesRepository.updateAllCurrentUserData(user);
     }
 
     public void resetChosenRestaurant(){
@@ -103,6 +103,17 @@ public class HomepageViewModel extends ViewModel {
         return firebaseServicesRepository.getWorkplaceId();
     }
 
+    public String getWorkplaceName() {
+        return firebaseServicesRepository.getWorkplaceName();
+    }
+
+    public String getWorkplaceAddress() {
+        return firebaseServicesRepository.getWorkplaceAddress();
+    }
+
+    public void setUsername(String username) {
+        firebaseServicesRepository.setUsername(username);
+    }
 
     /***********************************************************************************************
      ** NearbySearch

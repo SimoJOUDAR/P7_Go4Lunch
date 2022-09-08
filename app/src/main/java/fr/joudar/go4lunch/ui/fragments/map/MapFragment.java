@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
@@ -41,6 +42,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory;
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.domain.models.Place;
+import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.services.CurrentLocationProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
 import fr.joudar.go4lunch.ui.activities.HomepageActivity;
@@ -54,6 +56,7 @@ public class MapFragment extends Fragment {
     @Inject public CurrentLocationProvider currentLocationProvider;
     private HomepageViewModel homepageViewModel;
     private Map<String, Integer> distributionHashMap = new HashMap<>();
+    boolean firstInit = true;
 
     public MapFragment() {}
 
@@ -63,10 +66,7 @@ public class MapFragment extends Fragment {
 
         initViewModel(container);
 
-        Log.d("MapFragment", "SupportMapFragment _stared_");
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        Log.d("MapFragment", "SupportMapFragment _finished_");
-        mapFragment.getMapAsync(this::onMapResults);
+
         return mapView;
     }
 
@@ -79,6 +79,20 @@ public class MapFragment extends Fragment {
                 backStackEntry,
                 HiltViewModelFactory.createInternal(getActivity(), backStackEntry, null, null));
         homepageViewModel = viewModelProvider.get(HomepageViewModel.class);
+        homepageViewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                if (firstInit) {
+                    Log.d("MapFragment", "SupportMapFragment _stared_");
+                    SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+                    Log.d("MapFragment", "SupportMapFragment _finished_");
+                    mapFragment.getMapAsync(this::onMapResults);
+                    firstInit = false;
+                }
+                else {
+                    getColleaguesDistributionOverRestaurants();
+                }
+            }
+        });
         Log.d("MapFragment", "initViewModel _finished_");
     }
 

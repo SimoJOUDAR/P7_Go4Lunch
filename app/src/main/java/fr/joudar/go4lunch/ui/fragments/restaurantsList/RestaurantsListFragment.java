@@ -125,7 +125,7 @@ public class RestaurantsListFragment extends Fragment {
         binding = FragmentRestaurantsListBinding.inflate(LayoutInflater.from(container.getContext()), container, false);
         initRecyclerView();
         initViewModel(container);
-        getCurrentLocation();
+//        checkWorkplaceAvailable();
         return binding.getRoot();
     }
 
@@ -147,12 +147,37 @@ public class RestaurantsListFragment extends Fragment {
                 backStackEntry,
                 HiltViewModelFactory.createInternal(getActivity(), backStackEntry, null, null));
         viewModel = viewModelProvider.get(HomepageViewModel.class);
+        viewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                checkWorkplaceAvailable();
+            }
+        });
         Log.d("RestaurantsListFragment", "initViewModel _finished_");
     }
 
     /***********************************************************************************************
      ** Current location and fetching data
      **********************************************************************************************/
+
+    private void checkWorkplaceAvailable() {
+        if (viewModel.getWorkplaceId() == null || viewModel.getWorkplaceId().isEmpty()) {
+
+            //TODO: test to delete -start
+            Log.d("ColleaguesListFragment", "checkWorkplaceAvailable - workplaceId = null");
+            //TODO: Test to delete -end
+
+            emptyListMessage(NO_WORKPLACE_SELECTED_CODE);
+        }
+        else {
+
+            //TODO: test to delete -start
+            Log.d("ColleaguesListFragment", "checkWorkplaceAvailable - workplaceId not null");
+            //TODO: Test to delete -end
+
+            getCurrentLocation();
+        }
+    }
+
     private void getCurrentLocation() {
         currentLocationProvider.getCurrentCoordinates(new CurrentLocationProvider.OnCoordinatesResultListener() {
             @Override
@@ -192,6 +217,9 @@ public class RestaurantsListFragment extends Fragment {
         binding.recyclerview.setVisibility(View.VISIBLE);
         binding.shimmerListLayout.stopShimmer();
         binding.shimmerListLayout.setVisibility(View.GONE);
+        binding.restaurantListWorkplaceBtn.setVisibility(View.GONE);
+        binding.restaurantsEmptyListMsgLayout.setVisibility(View.GONE);
+        binding.recyclerview.setVisibility(View.VISIBLE);
     }
 
     /***********************************************************************************************
@@ -287,6 +315,31 @@ public class RestaurantsListFragment extends Fragment {
 
             case NO_WORKPLACE_SELECTED_CODE:
                 binding.restaurantEmptyListMsg.setText(R.string.NoWorkplaceSelected_msg);
+                binding.restaurantListWorkplaceBtn.setVisibility(View.VISIBLE);
+                binding.restaurantListWorkplaceBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ((HomepageActivity)getActivity()).launchWorkplacePickerDialog(new Callback<String>() {
+                            @Override
+                            public void onSuccess(String results) {
+                                binding.restaurantListWorkplaceBtn.setVisibility(View.GONE);
+                                binding.restaurantsEmptyListMsgLayout.setVisibility(View.GONE);
+                                binding.recyclerview.setVisibility(View.VISIBLE);
+
+                                //TODO: test to delete -start
+                                Log.d("ColleaguesListFragment", "workPlace dialog - choice pressed - is refreshFragment() working?");
+                                //TODO: Test to delete -end
+
+                                // TODO: Refresh Fragment : use livedata
+                            }
+
+                            @Override
+                            public void onFailure() {
+
+                            }
+                        });
+                    }
+                });
                 break;
 
             case FAIL_FETCHING_COLLEAGUES_CODE:

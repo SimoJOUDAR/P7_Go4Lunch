@@ -10,7 +10,7 @@
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/light_gray"
+        android:background="@color/white"
         android:name="fr.joudar.go4lunch.ColleaguesListFragment"
         tools:context=".ui.fragments.colleaguesList.ColleaguesListFragment"
         app:layoutManager="LinearLayoutManager"
