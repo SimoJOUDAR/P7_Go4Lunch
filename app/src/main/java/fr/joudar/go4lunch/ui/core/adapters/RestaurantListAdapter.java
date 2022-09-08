@@ -29,7 +29,7 @@ import fr.joudar.go4lunch.domain.utils.Callback;
 
 public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAdapter.RestaurantListViewHolder> {
 
-    private Place[] places;
+    private Place[] places = new Place[0];
     private Location currentLocation;
     private final Callback<String> onItemClicked;
     private Map<String, Integer> colleaguesDistribution;

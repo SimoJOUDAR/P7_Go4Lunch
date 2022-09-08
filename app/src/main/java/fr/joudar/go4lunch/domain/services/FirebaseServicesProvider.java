@@ -7,11 +7,13 @@ import fr.joudar.go4lunch.domain.utils.Callback;
 
 public interface FirebaseServicesProvider {
 
+    String AVATAR_URL = "https://raw.githubusercontent.com/SimoJOUDAR/default_avatar/main/user_avatar_v2.png";
+    String WORKPLACE_ID = "workplaceId";
+    String WORKPLACE_NAME = "workplaceName";
+    String WORKPLACE_ADDRESS = "workplaceAddress";
     String CHOSEN_RESTAURANT_ID = "chosenRestaurantId";
     String CHOSEN_RESTAURANT_NAME = "chosenRestaurantName";
-    String WORKPLACE_ID = "workplaceId";
     String LIKED_RESTAURANTS_ID_LIST = "likedRestaurantsIdList";
-    String AVATAR_URL = "https://raw.githubusercontent.com/SimoJOUDAR/default_avatar/main/user_avatar_v2.png";
 
     // The current location of the connected user
     User getCurrentUser();
@@ -25,7 +27,7 @@ public interface FirebaseServicesProvider {
     void getColleaguesByRestaurant(String restaurantId, Callback<User[]> callback);
 
     // Updates all of the current user's data in the firestore
-    void updateAllCurrentUserData();
+    void updateAllCurrentUserData(User user);
 
     // Resets all related data to the "chosen restaurant" to empty fields (local & firestore updates)
     void resetChosenRestaurant();
@@ -47,4 +49,10 @@ public interface FirebaseServicesProvider {
 
     // Returns the Workplace id
     String getWorkplaceId();
+
+    String getWorkplaceName();
+
+    String getWorkplaceAddress();
+
+    void setUsername(String username);
 }

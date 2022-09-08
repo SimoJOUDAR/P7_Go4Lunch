@@ -2,8 +2,13 @@ package fr.joudar.go4lunch.domain.core;
 
 import android.net.Uri;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
+
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.FirebaseUserMetadata;
@@ -28,12 +33,14 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     public FirebaseServicesHandler(FirebaseFirestore firestore, FirebaseAuth firebaseAuth) {
         Log.d("FirebaseServicesHandler", "Constructor");
+        liveCurrentUser.postValue(null);
         this.firestore = firestore;
         this.firebaseAuth = firebaseAuth;
         initUser(this.firebaseAuth);
         this.firebaseAuth.addAuthStateListener(this::initUser); // addAuthStateListener is triggered on authentication state change (user signed in, signed out, changed) and then executes the passed arg listener.
     }
 
+    // Creates currentUser based on Firebase
     public void initUser(FirebaseAuth firebaseAuth) {
         Log.d("FirebaseServicesHandler", "initUser");
         final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
@@ -44,43 +51,82 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                             firebaseUser.getDisplayName(),
                             firebaseUser.getEmail(),
                             userPhotoUrl != null ? userPhotoUrl.toString() : AVATAR_URL);
-            initUserInFirebase();
-            liveCurrentUser.postValue(currentUser);
+            initUserData();
         } else currentUser = null;
 
         //Todo: ErrorMessage()?
 
     }
 
-    // TODO: Tentative to solve the Firestore problem :/
-    private void initUserInFirebase() {
-        Log.d("FirebaseServicesHandler", "initUserInFirebase");
-        if (isCurrentUserNew()) {
-            Log.d("FirebaseServicesHandler", "isCurrentUserNew : true");
-            firestore.collection("users")
-                    .document(currentUser.getId())
-                    .set(currentUser);
-            // TODO: Ask user in HomepageActivity to enter his data (WORKPLACE_ID) (LIKED_RESTAURANTS_ID_LIST & CHOSEN_RESTAURANT data are going to be updated alongside app utilisation)
-        }
-        else {
-            initUserData();
-        }
+    private void initUserData() {
+        Log.d("FirebaseServicesHandler", "initFirebaseData");
+        firestore.collection("users")
+                .document(currentUser.getId())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                initUserDataFromFirestore();
+
+                            }
+                            else {
+                                initUserDataInFirestore();
+                            }
+                        }
+                        else {
+                            Log.d("FirebaseServicesHandler", "Task failed with: ", task.getException());
+                        }
+                    }
+                });
     }
 
-    private void initUserData() {
-        Log.d("FirebaseServicesHandler", "initUserData");
+//    // Not optimal because of the lack of accuracy of isCurrentUserNew().
+//    private void initUserDataInFirestore() {
+//        Log.d("FirebaseServicesHandler", "initUserDataInFirestore");
+//        if (isCurrentUserNew()) {
+//            Log.d("FirebaseServicesHandler", "isCurrentUserNew : true");
+//            firestore.collection("users")
+//                    .document(currentUser.getId())
+//                    .set(currentUser);
+//            liveCurrentUser.postValue(currentUser);
+//        }
+//        else {
+//            initUserDataFromFirestore();
+//        }
+//    }
+
+    // Updates currentUser from Firestore.
+    private void initUserDataFromFirestore() {
+        Log.d("FirebaseServicesHandler", "initUserDataFromFirestore");
         firestore.collection("users")
                 .document(currentUser.getId())
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot userDocument) {
-                        currentUser.setLikedRestaurantsIdList((List<String>) userDocument.get(LIKED_RESTAURANTS_ID_LIST));
                         currentUser.setWorkplaceId(userDocument.getString(WORKPLACE_ID));
+                        currentUser.setWorkplaceName(userDocument.getString(WORKPLACE_NAME));
+                        currentUser.setWorkplaceAddress(userDocument.getString(WORKPLACE_ADDRESS));
                         currentUser.setChosenRestaurantId(userDocument.getString(CHOSEN_RESTAURANT_ID));
                         currentUser.setChosenRestaurantName(userDocument.getString(CHOSEN_RESTAURANT_NAME));
+                        List<String> likedRestaurant = (List<String>) userDocument.get(LIKED_RESTAURANTS_ID_LIST);
+                        if (likedRestaurant == null) likedRestaurant = new ArrayList<>(); // To avoid null ArrayList
+                        currentUser.setLikedRestaurantsIdList(likedRestaurant);
+                        initUserDataInFirestore();
                     }
                 });
+    }
+
+    // Creates new user in Firestore.
+    private void initUserDataInFirestore() {
+        Log.d("FirebaseServicesHandler", "initUserDataInFirestore");
+        firestore.collection("users")
+                .document(currentUser.getId())
+                .set(currentUser);
+        liveCurrentUser.postValue(currentUser);
     }
 
     @Override
@@ -121,15 +167,19 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     @Override
-    public void updateAllCurrentUserData() {
+    public void updateAllCurrentUserData(User user) {
         Log.d("FirebaseServicesHandler", "updateAllCurrentUserData");
-        final Map<String, Object> userData = new HashMap<>();
-        userData.put(LIKED_RESTAURANTS_ID_LIST, currentUser.getLikedRestaurantsIdList());
-        userData.put(WORKPLACE_ID, currentUser.getWorkplaceId());
-        userData.put(CHOSEN_RESTAURANT_ID, currentUser.getChosenRestaurantId());
-        userData.put(CHOSEN_RESTAURANT_NAME, currentUser.getChosenRestaurantName());
-        firestore.collection("users").document(currentUser.getId()).update(userData);
-        liveCurrentUser.postValue(currentUser);
+//        final Map<String, Object> userData = new HashMap<>();
+//        userData.put(WORKPLACE_ID, currentUser.getWorkplaceId());
+//        userData.put(WORKPLACE_NAME, currentUser.getWorkplaceName());
+//        userData.put(WORKPLACE_ADDRESS, currentUser.getWorkplaceAddress());
+//        userData.put(CHOSEN_RESTAURANT_ID, currentUser.getChosenRestaurantId());
+//        userData.put(CHOSEN_RESTAURANT_NAME, currentUser.getChosenRestaurantName());
+//        userData.put(LIKED_RESTAURANTS_ID_LIST, currentUser.getLikedRestaurantsIdList());
+//        firestore.collection("users").document(currentUser.getId()).update(userData);
+        firestore.collection("users").document(currentUser.getId()).set(user);
+        currentUser = user;
+        liveCurrentUser.postValue(user);
     }
 
     @Override
@@ -137,6 +187,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
         Log.d("FirebaseServicesHandler", "resetChosenRestaurant");
         currentUser.setChosenRestaurantId("");
         currentUser.setChosenRestaurantName("");
+
         updateCurrentUserData(CHOSEN_RESTAURANT_ID, "");
     }
 
@@ -158,7 +209,8 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     public boolean isCurrentUserNew() {
         Log.d("FirebaseServicesHandler", "isCurrentUserNew");
         final FirebaseUserMetadata userMetadata = firebaseAuth.getCurrentUser().getMetadata();
-        return userMetadata.getCreationTimestamp() != userMetadata.getLastSignInTimestamp();
+        // getLastSignInTimestamp() is only accurate up to a granularity of 2 minutes for consecutive sign-in attempts, which might create confusion with getCreationTimestamp().
+        return userMetadata.getLastSignInTimestamp() == userMetadata.getCreationTimestamp();
     }
 
     @Override
@@ -211,22 +263,40 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
         return currentUser.getWorkplaceId();
     }
 
+    @Override
+    public String getWorkplaceName() {
+        return currentUser.getWorkplaceName();
+    }
+
+    @Override
+    public String getWorkplaceAddress() {
+        return currentUser.getWorkplaceAddress();
+    }
+
+    @Override
+    public void setUsername(String username) {
+        currentUser.setUsername(username);
+        updateCurrentUserData("username", username);
+    }
+
     private User[] snapshotsToArrayConverter(List<DocumentSnapshot> usersDocuments) {
         Log.d("FirebaseServicesHandler", "snapshotsToArrayConverter");
         final List<User> userList = new ArrayList<>();
         String id = getCurrentUser().getId();
         for (DocumentSnapshot userDoc : usersDocuments) {
-            if (userDoc.getId() != id) {
+            if (!userDoc.getId().equals(id)) {
                 userList.add(
                         new User(
                                 userDoc.getId(),
-                                userDoc.getString("name"),
+                                userDoc.getString("username"),
                                 "",
-                                userDoc.getString("photoUrl"),
-                                (List<String>) userDoc.get(LIKED_RESTAURANTS_ID_LIST),
+                                userDoc.getString("avatarUrl"),
                                 userDoc.getString(WORKPLACE_ID),
+                                userDoc.getString(WORKPLACE_NAME),
+                                userDoc.getString(WORKPLACE_ADDRESS),
                                 userDoc.getString(CHOSEN_RESTAURANT_ID),
-                                userDoc.getString(CHOSEN_RESTAURANT_NAME)));
+                                userDoc.getString(CHOSEN_RESTAURANT_NAME),
+                                (List<String>) userDoc.get(LIKED_RESTAURANTS_ID_LIST)));
             }
         }
 

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.util.Log;
@@ -36,7 +37,6 @@ public class ColleaguesListFragment extends Fragment {
 
     private FragmentColleaguesListBinding binding;
     private HomepageViewModel viewModel;
-    private User currentUser;
     private User[] colleagues = new User[0];
     private final Callback<String> onClickCallback = new Callback<String>() {
         @Override
@@ -59,10 +59,8 @@ public class ColleaguesListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentColleaguesListBinding.inflate(LayoutInflater.from(container.getContext()), container, false);
         initViewModel(container);
-        currentUser = viewModel.getCurrentUser();
-        viewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> currentUser = user);
         initRecyclerView();
-        checkWorkplaceAvailable();
+//        checkWorkplaceAvailable();
 
         return binding.getRoot();
     }
@@ -85,6 +83,11 @@ public class ColleaguesListFragment extends Fragment {
                 backStackEntry,
                 HiltViewModelFactory.createInternal(getActivity(), backStackEntry, null, null));
         viewModel = viewModelProvider.get(HomepageViewModel.class);
+        viewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                checkWorkplaceAvailable();
+            }
+        });
         Log.d("RestaurantsListFragment", "initViewModel _finished_");
     }
 
@@ -93,7 +96,7 @@ public class ColleaguesListFragment extends Fragment {
      **********************************************************************************************/
 
     private void checkWorkplaceAvailable() {
-        if (currentUser.getWorkplaceId() == null || currentUser.getWorkplaceId().isEmpty()) {
+        if (viewModel.getWorkplaceId() == null || viewModel.getWorkplaceId().isEmpty()) {
 
             //TODO: test to delete -start
             Log.d("ColleaguesListFragment", "checkWorkplaceAvailable - workplaceId = null");
@@ -148,6 +151,7 @@ public class ColleaguesListFragment extends Fragment {
         //TODO: Test to delete -end
 
         binding.recyclerview.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
+        binding.recyclerview.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
         binding.recyclerview.setAdapter(adapter);
     }
 
@@ -206,7 +210,7 @@ public class ColleaguesListFragment extends Fragment {
                                 Log.d("ColleaguesListFragment", "workPlace dialog - choice pressed - is refreshFragment() working?");
                                 //TODO: Test to delete -end
 
-                                refreshFragment();
+                                // TODO: Refresh Fragment : use livedata
                             }
 
                             @Override
@@ -223,13 +227,5 @@ public class ColleaguesListFragment extends Fragment {
                 break;
         }
 
-    }
-
-    private void refreshFragment(){
-        FragmentTransaction ft = getParentFragmentManager().beginTransaction();
-        if (Build.VERSION.SDK_INT >= 26) {
-            ft.setReorderingAllowed(false);
-        }
-        ft.detach(this).attach(this).commit();
     }
 }

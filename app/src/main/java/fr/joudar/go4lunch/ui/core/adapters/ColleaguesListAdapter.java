@@ -76,7 +76,7 @@ public class ColleaguesListAdapter extends RecyclerView.Adapter<ColleaguesListAd
                 contentText = resources.getString(R.string.colleague_is_joining, user.getUsername());
             }
             else {
-                if (user.getChosenRestaurantName() == null)
+                if (user.getChosenRestaurantName() == null || user.getChosenRestaurantName().isEmpty())
                     contentText = resources.getString(R.string.colleague_has_not_chosen, user.getUsername());
                 else {
                     contentText = resources.getString(R.string.colleague_is_eating_at, user.getUsername(), user.getChosenRestaurantName());

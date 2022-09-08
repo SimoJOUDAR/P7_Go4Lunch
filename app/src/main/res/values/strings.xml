@@ -79,5 +79,14 @@
     <string name="RestaurantsListFragment_CurrentLocationError_msg">An error occurred while proceeding your location.</string>
     <string name="RestaurantsListFragment_FailFetchingNearbyRestaurant_msg">A problem occurred while trying to fetch nearby restaurants.</string>
     <string name="RestaurantsListFragment_NoRestaurantFound_msg">No restaurant found around here.</string>
+    <string name="workplaceDialog_title">Select your actual workplace</string>
+    <string name="workplaceDialog_negativeBtn">Later</string>
+
+<!--    <string name="usernameDialog_title">Please select a username to help your colleagues identify you</string>-->
+<!--    <string name="usernameDialog_positiveBtn">Submit</string>-->
+<!--    <string name="usernameDialog_Toast_invalidInput">Username too short. Please enter a valid username</string>-->
+<!--    <string name="usernameDialog_negativeBtn">Cancel</string>-->
+<!--    <string name="usernameDialog_snackbar">Your username is set to Null. Your colleagues won\'t be able to know who you are!</string>-->
+<!--    <string name="usernameDialog_snackbar_actionBtn">Add a username</string>-->
 
 </resources>

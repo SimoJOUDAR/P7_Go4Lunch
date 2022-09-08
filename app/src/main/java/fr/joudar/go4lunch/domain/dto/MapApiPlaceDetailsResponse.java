@@ -27,7 +27,7 @@ public class MapApiPlaceDetailsResponse {
             resultPlace = new Place(
                     result.placeId,
                     result.name,
-                    result.rating.doubleValue(),
+                    result.rating,
                     result.formattedAddress,
                     toPhotos(),
                     result.website,

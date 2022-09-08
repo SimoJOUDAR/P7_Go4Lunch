@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -48,23 +50,21 @@ public class RestaurantDetailsFragment extends Fragment {
     FragmentRestaurantDetailsBinding binding;
     HomepageViewModel viewModel;
     Place place;
-    User currentUser;
-
-    Place.Photo[] photos = new Place.Photo[0];
+    List<String> likedPlaces = new ArrayList<>();
 
     User[] users = new User[0];
 
     View.OnClickListener favoriteRestaurantBtnListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            String id = currentUser.getChosenRestaurantId();
+            String id = viewModel.getCurrentUser().getChosenRestaurantId();
             if (id != null && id.equals(place.getId())) {
                 viewModel.resetChosenRestaurant();
                 favoriteRestaurantBtnHandler(false);
             }
             else {
-                currentUser.setChosenRestaurantId(place.getId());
-                currentUser.setChosenRestaurantName(place.getName());
+                viewModel.getCurrentUser().setChosenRestaurantId(place.getId());
+                viewModel.getCurrentUser().setChosenRestaurantName(place.getName());
                 viewModel.updateCurrentUserData(FirebaseServicesProvider.CHOSEN_RESTAURANT_ID, place.getId());
                 favoriteRestaurantBtnHandler(true);
             }
@@ -82,7 +82,6 @@ public class RestaurantDetailsFragment extends Fragment {
     View.OnClickListener likeBtnListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            final List<String> likedPlaces = currentUser.getLikedRestaurantsIdList();
             if (checkIfPlaceLiked()) {
                 likedPlaces.remove(place.getId());
                 likeBtnHandler(false);
@@ -111,8 +110,6 @@ public class RestaurantDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentRestaurantDetailsBinding.inflate(LayoutInflater.from(container.getContext()), container, false);
         initViewModel(container);
-        currentUser = viewModel.getCurrentUser();
-        viewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> currentUser = user);
         photosAdapter = new RestaurantDetailsPictureListAdapter(getContext());
         setupPhotosRecyclerView();
         setupColleaguesRecyclerView();
@@ -131,13 +128,20 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     // Init the PlacesViewModel
     private void initViewModel(View fragmentContainer) {
-        Log.d("DetailsFragment", "initViewModel _started_");
+        Log.d("DetailsFragment", "initViewModel _started_ | likedPlaces ArrayList = " + likedPlaces);
         final NavController navController = Navigation.findNavController(fragmentContainer);
         final NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
         ViewModelProvider viewModelProvider = new ViewModelProvider(
                 backStackEntry,
                 HiltViewModelFactory.createInternal(getActivity(), backStackEntry, null, null));
         viewModel = viewModelProvider.get(HomepageViewModel.class);
+
+        viewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                likedPlaces = viewModel.getCurrentUser().getLikedRestaurantsIdList();
+            }
+        });
+        Log.d("DetailsFragment", "likedPlaces ArrayList = " + likedPlaces);
         Log.d("DetailsFragment", "initViewModel _finished_");
     }
 
@@ -169,7 +173,7 @@ public class RestaurantDetailsFragment extends Fragment {
 
     // Fetches the joining colleagues
     private void fetchJoiningColleagues(String placeId) {
-        String workplaceID = currentUser.getWorkplaceId();
+        String workplaceID = viewModel.getWorkplaceId();
         if (workplaceID == null || workplaceID.isEmpty())
             emptyColleaguesListMessage(NO_WORKPLACE_SELECTED_CODE);
         else
@@ -262,7 +266,7 @@ public class RestaurantDetailsFragment extends Fragment {
         Log.d("PlaceDetails", "updateFavoriteRestaurantBtn");
         //TODO: Test to delete -end
 
-        String id = currentUser.getChosenRestaurantId();
+        String id = viewModel.getCurrentUser().getChosenRestaurantId();
         favoriteRestaurantBtnHandler(id != null && id.equals(place.getId()));
         binding.btnSelectFavoriteRestaurant.setOnClickListener(favoriteRestaurantBtnListener);
     }
@@ -305,7 +309,6 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     private boolean checkIfPlaceLiked(){
-        final List<String> likedPlaces = currentUser.getLikedRestaurantsIdList();
         return (likedPlaces != null && likedPlaces.contains(place.getId()));
     }
 
