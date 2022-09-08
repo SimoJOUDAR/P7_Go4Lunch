@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <PreferenceCategory
         app:title="@string/settings_search"
@@ -15,9 +16,6 @@
 
     </PreferenceCategory>
 
-
-    <PreferenceCategory/>
-
     <PreferenceCategory
         app:title="@string/settings_notifications"
         app:icon="@drawable/ic_notifications_24">
@@ -29,7 +27,7 @@
             app:summaryOn="@string/settings_notifications_summary_on"
             app:summaryOff="@string/settings_notifications_summary_of"/>
 
-        <fr.joudar.go4lunch.ui.core.dialogs.TimeDialogPreference
+        <fr.joudar.go4lunch.ui.core.dialogs.TimePreference
             app:defaultValue="true"
             app:dependency="notification_enabled"
             android:key="lunch_reminder"
@@ -37,8 +35,6 @@
 
 
     </PreferenceCategory>
-
-    <PreferenceCategory/>
 
     <PreferenceCategory
         android:title="@string/settings_account"
@@ -48,7 +44,7 @@
             app:key="workplace"
             app:title="@string/settings_my_workplace"
             android:defaultValue="Not set"
-            app:summary="Googleplex \nMountain View, California"/>
+            tools:summary="Googleplex \nMountain View, California"/>
 
         <Preference/>
 

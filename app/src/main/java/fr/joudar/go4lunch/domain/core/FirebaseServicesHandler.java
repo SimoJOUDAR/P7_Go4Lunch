@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -223,14 +224,23 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     @Override
     public void deleteCurrentUserAccount(Callback<Boolean> callback) {
         Log.d("FirebaseServicesHandler", "deleteCurrentUserAccount");
+        deleteUserFromFirestore(callback);
+    }
+
+    private void deleteUserFromFirestore(Callback<Boolean> callback){
+        Log.d("FirebaseServicesHandler", "deleteUserFromFirestore");
+        firestore.collection("users").document(currentUser.getId()).delete()
+                .addOnSuccessListener(__ -> deleteUserFromFirebase(callback))
+                .addOnFailureListener(__ -> callback.onFailure());
+    }
+
+    private void deleteUserFromFirebase(Callback<Boolean> callback) {
+        Log.d("FirebaseServicesHandler", "deleteUserFromFirebase");
         firebaseAuth
                 .getCurrentUser()
                 .delete()
                 .addOnSuccessListener(__ -> callback.onSuccess(true))
                 .addOnFailureListener(__ -> callback.onFailure());
-
-        // Or : AuthUI.getInstance().delete(context);   ?
-        //TODO: Logout()
     }
 
     @Override

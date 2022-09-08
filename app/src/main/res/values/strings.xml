@@ -51,7 +51,7 @@
     <string name="settings_set_lunch_reminder_at">Set Lunch reminder at</string>
     <string name="settings_my_workplace">My workplace</string>
     <string name="settings_delete_my_account">Delete My Account</string>
-    <string name="search_radius">Search radius</string>
+    <string name="search_radius">Search radius (km)</string>
     <string name="workplace_dialog_toast">Your workplace is saved</string>
     <string name="workplace_dialog_search_hint">Enter your workplace name or address</string>
     <string name="workplace_dialog_tag">Workplace Dialog</string>

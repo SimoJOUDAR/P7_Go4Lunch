@@ -2,10 +2,8 @@ package fr.joudar.go4lunch.ui.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -20,20 +18,15 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,12 +46,11 @@ import fr.joudar.go4lunch.databinding.ActivityHomepageBinding;
 import fr.joudar.go4lunch.domain.core.LocationPermissionHandler;
 import fr.joudar.go4lunch.domain.core.notification.NotificationDataFetching;
 import fr.joudar.go4lunch.domain.models.Autocomplete;
-import fr.joudar.go4lunch.domain.models.Place;
 import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.services.CurrentLocationProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
 import fr.joudar.go4lunch.ui.core.adapters.AutocompleteListAdapter;
-import fr.joudar.go4lunch.ui.core.dialogs.TimeDialogPreference;
+import fr.joudar.go4lunch.ui.core.dialogs.TimePreference;
 import fr.joudar.go4lunch.ui.core.dialogs.WorkplaceDialogFragment;
 import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -339,14 +331,13 @@ public class HomepageActivity extends AppCompatActivity {
         homepageViewModel.deleteCurrentUserAccount(new Callback<Boolean>() {
             @Override
             public void onSuccess(Boolean results) {
-                Toast.makeText(HomepageActivity.this, R.string.account_successfully_deleted_msg, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(HomepageActivity.this, AuthenticationActivity.class));
-                finish();
+                if (results == true)
+                    Toast.makeText(HomepageActivity.this, R.string.account_successfully_deleted_msg, Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure() {
-                Toast.makeText(HomepageActivity.this, R.string.account_not_deleted_error_msg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomepageActivity.this, R.string.account_not_deleted_error_msg, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -500,9 +491,17 @@ public class HomepageActivity extends AppCompatActivity {
 //
 //    }
 
+//    public String getSearchRadius() {
+//        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
+//        return sharedPreferences.getString("search_radius", "2000");
+//    }
+
     public String getSearchRadius() {
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
-        return sharedPreferences.getString("search_radius", "2000");
+        int val = sharedPreferences.getInt("search_radius", 2);
+        Log.d("HomepageActivity", "getSearchRadius - sharedPreferences.getInt(\"search_radius\", 0) = " + sharedPreferences.getInt("search_radius", 0));
+        Log.d("HomepageActivity", "getSearchRadius - String.valueOf(val*1000) = " + String.valueOf(val*1000));
+        return String.valueOf(val*1000);
     }
 
     /***********************************************************************************************
@@ -511,7 +510,7 @@ public class HomepageActivity extends AppCompatActivity {
     // Schedules the Alarm for Notifications
     private void initLunchNotification(){
         if (homepageViewModel.isCurrentUserNew()) {
-            Calendar dueDate = new TimeDialogPreference(this).getPersistedTime();
+            Calendar dueDate = new TimePreference(this).getPersistedTime();
             //new LunchAlarmHandler(this).scheduleLunchAlarm(time, LunchAlarmReceiver.class);
             scheduleNotificationJob(getApplicationContext(),dueDate);
         }
