@@ -65,6 +65,7 @@ public class RestaurantDetailsFragment extends Fragment {
             else {
                 viewModel.getCurrentUser().setChosenRestaurantId(place.getId());
                 viewModel.getCurrentUser().setChosenRestaurantName(place.getName());
+                viewModel.getCurrentUser().setChosenRestaurantAddress(place.getVicinity());
                 viewModel.updateCurrentUserData(FirebaseServicesProvider.CHOSEN_RESTAURANT_ID, place.getId());
                 favoriteRestaurantBtnHandler(true);
             }

@@ -31,11 +31,25 @@ public class NotificationDataFetching extends Worker {
 
     User currentUser;
 
-    String username;
+    String username = null;
+    String workplaceId = null;
     String chosenRestaurantId = null;
-    String chosenRestaurantName;
-    String chosenRestaurantAddress;
-    String joiningColleagues;
+    String chosenRestaurantName = null;
+    String chosenRestaurantAddress = null;
+    String joiningColleagues = null;
+
+    Callback<User[]> colleaguesByRestaurantCallback = new Callback<User[]>() {
+        @Override
+        public void onSuccess(User[] colleagues) {
+            Log.d("LunchNotificationWorker", "Colleagues fetched : " + Arrays.toString(colleagues));
+            UsersToStringConverter(colleagues);
+        }
+
+        @Override
+        public void onFailure() {
+            prepNextWork();
+        }
+    };
 
     @AssistedInject
     public NotificationDataFetching(
@@ -54,54 +68,23 @@ public class NotificationDataFetching extends Worker {
 
         currentUser = firebaseServicesRepository.getCurrentUser();
         username = currentUser.getUsername();
+        workplaceId = currentUser.getWorkplaceId();
         chosenRestaurantId = currentUser.getChosenRestaurantId();
+        chosenRestaurantName = currentUser.getChosenRestaurantName();
+        chosenRestaurantAddress = currentUser.getWorkplaceAddress();
 
-        if (!chosenRestaurantId.isEmpty()) {
-            if (!currentUser.getWorkplaceId().isEmpty()) {
+        if (chosenRestaurantId != null && !chosenRestaurantId.isEmpty()) {
+            if (workplaceId != null && !workplaceId.isEmpty()) {
                 firebaseServicesRepository.getColleaguesByRestaurant(chosenRestaurantId, colleaguesByRestaurantCallback);
             }
-            placeDetailsRepository.getPlaceDetails(chosenRestaurantId, placeDetailCallback);
+            else
+                prepNextWork();
         }
-
-        Data output = new Data.Builder().
-                putString("username", username).
-                putString("chosenRestaurantId", chosenRestaurantId).
-                putString("chosenRestaurantName", chosenRestaurantName).
-                putString("chosenRestaurantAddress", chosenRestaurantAddress).
-                putString("joiningColleagues", joiningColleagues).
-                build();
-
-        chainNextWork(getApplicationContext(), output);
+        else
+            prepNextWork();
 
         return Result.success();
     }
-
-    Callback<User[]> colleaguesByRestaurantCallback = new Callback<User[]>() {
-        @Override
-        public void onSuccess(User[] colleagues) {
-            Log.d("LunchNotificationWorker", "Colleagues fetched : " + Arrays.toString(colleagues));
-            UsersToStringConverter(colleagues);
-        }
-
-        @Override
-        public void onFailure() {
-            UsersToStringConverter(null);
-        }
-    };
-
-    Callback<Place> placeDetailCallback = new Callback<Place>() {
-        @Override
-        public void onSuccess(Place place) {
-            chosenRestaurantName = place.getName();
-            chosenRestaurantAddress = place.getVicinity();
-        }
-
-        @Override
-        public void onFailure() {
-            chosenRestaurantName = null;
-            chosenRestaurantAddress = null;
-        }
-    };
 
     private void UsersToStringConverter(User[] users) {
 
@@ -114,7 +97,21 @@ public class NotificationDataFetching extends Worker {
             }
             joiningColleagues = builder.toString();
         }
-        else joiningColleagues = null;
+        else
+            joiningColleagues = null;
+        prepNextWork();
+    }
+
+    private void prepNextWork() {
+        Data output = new Data.Builder().
+                putString("username", username).
+                putString("chosenRestaurantId", chosenRestaurantId).
+                putString("chosenRestaurantName", chosenRestaurantName).
+                putString("chosenRestaurantAddress", chosenRestaurantAddress).
+                putString("joiningColleagues", joiningColleagues).
+                build();
+
+        chainNextWork(getApplicationContext(), output);
     }
 
     private void chainNextWork(Context context,Data input) {

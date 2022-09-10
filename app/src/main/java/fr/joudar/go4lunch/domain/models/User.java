@@ -15,6 +15,7 @@ public class User {
     @Nullable private String workplaceAddress = "";
     @Nullable private String chosenRestaurantId = "";
     @Nullable private String chosenRestaurantName = "";
+    @Nullable private String chosenRestaurantAddress = "";
     @Nullable private List<String> likedRestaurantsIdList = new ArrayList<>();
 
     public User(){}
@@ -25,13 +26,14 @@ public class User {
         this.email = email;
         this.avatarUrl = avatarUrl;
     }
-    public User(String id, String username, String email, @Nullable String avatarUrl, @Nullable String workplaceId, @Nullable String workplaceName, @Nullable String workplaceAddress, @Nullable String chosenRestaurantId, @Nullable String chosenRestaurantName, @Nullable List<String> likedRestaurantsIdList) {
+    public User(String id, String username, String email, @Nullable String avatarUrl, @Nullable String workplaceId, @Nullable String workplaceName, @Nullable String workplaceAddress, @Nullable String chosenRestaurantId, @Nullable String chosenRestaurantName, @Nullable String chosenRestaurantAddress, @Nullable List<String> likedRestaurantsIdList) {
         this(id, username, email, avatarUrl);
         this.workplaceId = workplaceId;
         this.workplaceName = workplaceName;
         this.workplaceAddress = workplaceAddress;
         this.chosenRestaurantId = chosenRestaurantId;
         this.chosenRestaurantName = chosenRestaurantName;
+        this.chosenRestaurantAddress = chosenRestaurantAddress;
         this.likedRestaurantsIdList = likedRestaurantsIdList;
     }
 
@@ -78,6 +80,11 @@ public class User {
     }
 
     @Nullable
+    public String getChosenRestaurantAddress() {
+        return chosenRestaurantAddress;
+    }
+
+    @Nullable
     public List<String> getLikedRestaurantsIdList() {
         return likedRestaurantsIdList;
     }
@@ -108,6 +115,10 @@ public class User {
 
     public void setChosenRestaurantName(@Nullable String chosenRestaurantName) {
         this.chosenRestaurantName = chosenRestaurantName;
+    }
+
+    public void setChosenRestaurantAddress(@Nullable String chosenRestaurantAddress) {
+        this.chosenRestaurantAddress = chosenRestaurantAddress;
     }
 
     public void setLikedRestaurantsIdList(@Nullable List<String> likedRestaurantsIdList) {

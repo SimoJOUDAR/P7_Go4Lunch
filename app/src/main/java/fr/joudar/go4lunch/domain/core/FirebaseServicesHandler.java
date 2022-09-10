@@ -113,12 +113,23 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                         currentUser.setWorkplaceAddress(userDocument.getString(WORKPLACE_ADDRESS));
                         currentUser.setChosenRestaurantId(userDocument.getString(CHOSEN_RESTAURANT_ID));
                         currentUser.setChosenRestaurantName(userDocument.getString(CHOSEN_RESTAURANT_NAME));
+                        currentUser.setChosenRestaurantAddress(userDocument.getString(CHOSEN_RESTAURANT_ADDRESS));
                         List<String> likedRestaurant = (List<String>) userDocument.get(LIKED_RESTAURANTS_ID_LIST);
                         if (likedRestaurant == null) likedRestaurant = new ArrayList<>(); // To avoid null ArrayList
                         currentUser.setLikedRestaurantsIdList(likedRestaurant);
-                        initUserDataInFirestore();
+                        isUsernameNull(userDocument.getString(USERNAME));
+                        liveCurrentUser.postValue(currentUser);
                     }
                 });
+    }
+
+    // Because sometimes the user from FirebaseAuth isn't initiated successfully, therefore pushes the value "username = null" to firestore. The method below is to avoid is bug.
+    private void isUsernameNull(String username) {
+        Log.d("FirebaseServicesHandler", "isUsernameNull");
+        if (username == null || username.isEmpty()) {
+            Log.d("FirebaseServicesHandler", "isUsernameNull - true");
+            updateCurrentUserData(USERNAME, currentUser.getUsername());
+        }
     }
 
     // Creates new user in Firestore.
@@ -188,6 +199,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
         Log.d("FirebaseServicesHandler", "resetChosenRestaurant");
         currentUser.setChosenRestaurantId("");
         currentUser.setChosenRestaurantName("");
+        currentUser.setChosenRestaurantAddress("");
 
         updateCurrentUserData(CHOSEN_RESTAURANT_ID, "");
     }
@@ -199,8 +211,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
         userData.put(key, value);
         if (key.equals(CHOSEN_RESTAURANT_ID)) {
             userData.put(CHOSEN_RESTAURANT_NAME, currentUser.getChosenRestaurantName());
-        } else if (key.equals(CHOSEN_RESTAURANT_NAME)) {
-            userData.put(CHOSEN_RESTAURANT_ID, currentUser.getChosenRestaurantId());
+            userData.put(CHOSEN_RESTAURANT_ADDRESS, currentUser.getChosenRestaurantAddress());
         }
         firestore.collection("users").document(currentUser.getId()).update(userData);
         liveCurrentUser.postValue(currentUser);
@@ -286,7 +297,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     @Override
     public void setUsername(String username) {
         currentUser.setUsername(username);
-        updateCurrentUserData("username", username);
+        updateCurrentUserData(USERNAME, username);
     }
 
     private User[] snapshotsToArrayConverter(List<DocumentSnapshot> usersDocuments) {
@@ -298,15 +309,17 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                 userList.add(
                         new User(
                                 userDoc.getId(),
-                                userDoc.getString("username"),
+                                userDoc.getString(USERNAME),
                                 "",
                                 userDoc.getString("avatarUrl"),
                                 userDoc.getString(WORKPLACE_ID),
-                                userDoc.getString(WORKPLACE_NAME),
-                                userDoc.getString(WORKPLACE_ADDRESS),
+                                "", // userDoc.getString(WORKPLACE_NAME),
+                                "", // userDoc.getString(WORKPLACE_ADDRESS),
                                 userDoc.getString(CHOSEN_RESTAURANT_ID),
-                                userDoc.getString(CHOSEN_RESTAURANT_NAME),
-                                (List<String>) userDoc.get(LIKED_RESTAURANTS_ID_LIST)));
+                                "", // userDoc.getString(CHOSEN_RESTAURANT_NAME),
+                                "", // userDoc.getString(CHOSEN_RESTAURANT_ADDRESS),
+                                null //(List<String>) userDoc.get(LIKED_RESTAURANTS_ID_LIST)
+                        ));
             }
         }
 

@@ -57,6 +57,7 @@
     <string name="workplace_dialog_tag">Workplace Dialog</string>
     <string name="account_successfully_deleted_msg">Account deleted successfully</string>
     <string name="account_not_deleted_error_msg">Error! A problem occurred. Couldn\'t delete the account</string>
+
     <string name="notification_channel_name">Lunch Reminder Notification</string>
     <string name="notification_channel_description">This notification will display everyday at lunch time</string>
     <string name="lunch_notification_title">It\'s lunch time</string>
@@ -82,11 +83,11 @@
     <string name="workplaceDialog_title">Select your actual workplace</string>
     <string name="workplaceDialog_negativeBtn">Later</string>
 
-<!--    <string name="usernameDialog_title">Please select a username to help your colleagues identify you</string>-->
-<!--    <string name="usernameDialog_positiveBtn">Submit</string>-->
-<!--    <string name="usernameDialog_Toast_invalidInput">Username too short. Please enter a valid username</string>-->
-<!--    <string name="usernameDialog_negativeBtn">Cancel</string>-->
-<!--    <string name="usernameDialog_snackbar">Your username is set to Null. Your colleagues won\'t be able to know who you are!</string>-->
-<!--    <string name="usernameDialog_snackbar_actionBtn">Add a username</string>-->
+    <string name="usernameDialog_title">Enter your name:</string>
+    <string name="usernameDialog_positiveBtn">Submit</string>
+    <string name="usernameDialog_Toast_invalidInput">Username too short. Please enter a valid username</string>
+    <string name="usernameDialog_negativeBtn">Cancel</string>
+    <string name="usernameDialog_snackbar">New username canceled. Your current username is %1$s.</string>
+    <string name="usernameDialog_snackbar_actionBtn">Add a new username</string>
 
 </resources>

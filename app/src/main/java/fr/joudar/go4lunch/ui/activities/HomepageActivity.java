@@ -2,6 +2,7 @@ package fr.joudar.go4lunch.ui.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.ViewModelProvider;
@@ -18,15 +19,19 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -224,7 +229,6 @@ public class HomepageActivity extends AppCompatActivity {
                     initSharedPreferences();
 //                    initUsername();
                     initUserWorkplaceId();
-                    initLunchNotification();
                     firstInit = false;
                 }
             }
@@ -343,6 +347,61 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     /***********************************************************************************************
+     ** SharedPreferences
+     **********************************************************************************************/
+    // Manages the SharedPreferences (to save basic user info)
+    private void initSharedPreferences() {
+        Log.d("HomepageActivity", "initSharedPreferences - Start - currentUser.getId() = " + currentUser.getId());
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
+        if ( !sharedPreferences.getString("owner", "").equals(currentUser.getId()) ) {
+            sharedPreferencesEditor.clear();
+            sharedPreferencesEditor.putString("owner", currentUser.getId());
+            initLunchNotification(); //If the currentUser changed
+        }
+        if ( !sharedPreferences.getString("workplaceId", "0").equals(currentUser.getWorkplaceId()) ) {
+            String workplaceId = homepageViewModel.getWorkplaceId();
+            if (workplaceId != null || !workplaceId.isEmpty()) {
+                sharedPreferencesEditor.putString("workplaceId", workplaceId);
+                sharedPreferencesEditor.putString("workplace", homepageViewModel.getWorkplaceName() + "\n" + homepageViewModel.getWorkplaceAddress());
+                Log.d("HomepageActivity", "initSharedPreferences - done");
+            }
+        }
+
+        sharedPreferencesEditor.apply();
+    }
+
+
+    /***********************************************************************************************
+     ** Notification
+     **********************************************************************************************/
+    // Schedules the Alarm for Notifications
+    private void initLunchNotification(){
+        Log.d("HomepageActivity", "initLunchNotification - Start");
+        Calendar dueDate = new TimePreference(this).getPersistedTime();
+        //new LunchAlarmHandler(this).scheduleLunchAlarm(time, LunchAlarmReceiver.class);
+        scheduleNotificationJob(getApplicationContext(),dueDate);
+
+    }
+
+    public void scheduleNotificationJob(Context context, @Nullable Calendar dueDate) {
+        final String JOB_TAG = "NOTIFICATION_DATA_FETCHING_JOB";
+        Calendar currentDate = Calendar.getInstance();
+        long timeDiff =  dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        final PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(NotificationDataFetching.class,24, TimeUnit.HOURS)
+                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                .addTag(JOB_TAG)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(JOB_TAG, ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest);
+    }
+
+    /***********************************************************************************************
      ** User data - Workplace - Username
      **********************************************************************************************/
 
@@ -445,56 +504,52 @@ public class HomepageActivity extends AppCompatActivity {
 
     }
 
-//    public void initUsername() {
-//        Log.d("HomepageActivity", "initUsername - username = " + currentUser.getUsername());
-//        if (currentUser.getUsername() == null || currentUser.getUsername().isEmpty()) {
-//            launchUsernamePickerDialog();
-//        }
-//    }
-//
-//    // Displays a PickerDialog to ask for the username
-//    public void launchUsernamePickerDialog() {
-//        Log.d("HomepageActivity", "launchUsernamePickerDialog");
-//        final EditText usernameInput = new EditText(this);
-//        usernameInput.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
-//
-//        AlertDialog.Builder usernameDialog = new AlertDialog.Builder(this);
-//        usernameDialog.setTitle(R.string.usernameDialog_title);
-//        usernameDialog.setView(usernameInput);
-//        usernameDialog.setPositiveButton(R.string.usernameDialog_positiveBtn, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialogInterface, int i) {
-//                String input = usernameInput.getText().toString();
-//                if (input.length() > 2) {
-//                    homepageViewModel.setUsername(input);
-//                    dialogInterface.dismiss();
-//                }
-//                else
-//                    Toast.makeText(HomepageActivity.this, R.string.usernameDialog_Toast_invalidInput, Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//        usernameDialog.setNegativeButton(R.string.usernameDialog_negativeBtn, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialogInterface, int i) {
-//                Snackbar snackbar = Snackbar.make(binding.getRoot(), R.string.usernameDialog_snackbar, Snackbar.LENGTH_LONG);
-//                snackbar.setAction(R.string.usernameDialog_snackbar_actionBtn, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        launchUsernamePickerDialog();
-//                    }
-//                });
-//                snackbar.show();
-//                dialogInterface.dismiss();
-//            }
-//        });
-//        usernameDialog.show();
-//
-//    }
+    // Add to SettingsFragment "Change my username"
+    // Displays a PickerDialog to ask for the username
+    public void launchUsernamePickerDialog() {
+        Log.d("HomepageActivity", "launchUsernamePickerDialog");
+        final EditText usernameInput = new EditText(this);
+        usernameInput.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+
+        AlertDialog.Builder usernameDialog = new AlertDialog.Builder(this);
+        usernameDialog.setTitle(R.string.usernameDialog_title);
+        usernameDialog.setView(usernameInput);
+        usernameDialog.setPositiveButton(R.string.usernameDialog_positiveBtn, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String input = usernameInput.getText().toString();
+                if (input.length() > 2) {
+                    homepageViewModel.setUsername(input);
+                    dialogInterface.dismiss();
+                }
+                else
+                    Toast.makeText(HomepageActivity.this, R.string.usernameDialog_Toast_invalidInput, Toast.LENGTH_SHORT).show();
+            }
+        });
+        usernameDialog.setNegativeButton(R.string.usernameDialog_negativeBtn, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                final Resources resources = binding.getRoot().getResources();
+                String contentText = resources.getString(R.string.usernameDialog_snackbar, currentUser.getUsername());
+                Snackbar snackbar = Snackbar.make(binding.getRoot(), contentText, Snackbar.LENGTH_LONG);
+                snackbar.setAction(R.string.usernameDialog_snackbar_actionBtn, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        launchUsernamePickerDialog();
+                    }
+                });
+                snackbar.show();
+                dialogInterface.dismiss();
+            }
+        });
+        usernameDialog.show();
+
+    }
 
 //    public String getSearchRadius() {
 //        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
 //        return sharedPreferences.getString("search_radius", "2000");
-//    }
+//    }   // False logic
 
     public String getSearchRadius() {
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
@@ -502,60 +557,6 @@ public class HomepageActivity extends AppCompatActivity {
         Log.d("HomepageActivity", "getSearchRadius - sharedPreferences.getInt(\"search_radius\", 0) = " + sharedPreferences.getInt("search_radius", 0));
         Log.d("HomepageActivity", "getSearchRadius - String.valueOf(val*1000) = " + String.valueOf(val*1000));
         return String.valueOf(val*1000);
-    }
-
-    /***********************************************************************************************
-     ** Notification
-     **********************************************************************************************/
-    // Schedules the Alarm for Notifications
-    private void initLunchNotification(){
-        if (homepageViewModel.isCurrentUserNew()) {
-            Calendar dueDate = new TimePreference(this).getPersistedTime();
-            //new LunchAlarmHandler(this).scheduleLunchAlarm(time, LunchAlarmReceiver.class);
-            scheduleNotificationJob(getApplicationContext(),dueDate);
-        }
-    }
-
-    public void scheduleNotificationJob(Context context, @Nullable Calendar dueDate) {
-        final String JOB_TAG = "NOTIFICATION_DATA_FETCHING_JOB";
-        Calendar currentDate = Calendar.getInstance();
-        long timeDiff =  dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-        final PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(NotificationDataFetching.class,24, TimeUnit.HOURS)
-                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-                .addTag(JOB_TAG)
-                .setConstraints(constraints)
-                .build();
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(JOB_TAG, ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest);
-    }
-
-    /***********************************************************************************************
-     ** SharedPreferences
-     **********************************************************************************************/
-    // Manages the SharedPreferences (to save basic user info)
-    private void initSharedPreferences() {
-        Log.d("initSharedPreferences", "currentUser.getId() = " + currentUser.getId());
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        final SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
-        if ( !sharedPreferences.getString("owner", "").equals(currentUser.getId()) ) {
-            sharedPreferencesEditor.clear();
-            sharedPreferencesEditor.putString("owner", currentUser.getId());
-            //save the rest of the data
-        }
-        if ( !sharedPreferences.getString("workplaceId", "0").equals(currentUser.getWorkplaceId()) ) {
-            String workplaceId = homepageViewModel.getWorkplaceId();
-            if (workplaceId != null || !workplaceId.isEmpty()) {
-                sharedPreferencesEditor.putString("workplaceId", workplaceId);
-                sharedPreferencesEditor.putString("workplace", homepageViewModel.getWorkplaceName() + "\n" + homepageViewModel.getWorkplaceAddress());
-                Log.d("initSharedPreferences", "done");
-            }
-        }
-
-        sharedPreferencesEditor.apply();
     }
 
     /***********************************************************************************************

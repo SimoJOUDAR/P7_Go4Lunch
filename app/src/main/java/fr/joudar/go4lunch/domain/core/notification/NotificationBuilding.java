@@ -95,10 +95,10 @@ public class NotificationBuilding extends Worker {
     // Return the appropriate text to display on the Notification
     private String getContentText(Context context) {
         String contentText = null;
-        if (chosenRestaurantId == null) {
+        if (chosenRestaurantId == null || chosenRestaurantId.isEmpty()) {
             contentText = context.getString(R.string.lunch_time_notification_msg_restaurantless, username);
         }
-        else if (joiningColleagues == null) {
+        else if (joiningColleagues == null || joiningColleagues.isEmpty()) {
             contentText = context.getString(R.string.lunch_time_notification_msg_unaccompanied, username, chosenRestaurantName, chosenRestaurantAddress);
         }
 
