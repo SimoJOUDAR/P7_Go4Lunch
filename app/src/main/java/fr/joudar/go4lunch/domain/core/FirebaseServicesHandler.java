@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.FirebaseUserMetadata;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -296,8 +297,18 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void setUsername(String username) {
-        currentUser.setUsername(username);
-        updateCurrentUserData(USERNAME, username);
+//        currentUser.setUsername(username);
+        UserProfileChangeRequest usernameUpdater = new UserProfileChangeRequest.Builder()
+                .setDisplayName(username).build();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        firebaseUser.updateProfile(usernameUpdater).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    updateCurrentUserData(USERNAME, username);
+                }
+            }
+        });
     }
 
     private User[] snapshotsToArrayConverter(List<DocumentSnapshot> usersDocuments) {

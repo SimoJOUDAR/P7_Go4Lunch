@@ -89,5 +89,6 @@
     <string name="usernameDialog_negativeBtn">Cancel</string>
     <string name="usernameDialog_snackbar">New username canceled. Your current username is %1$s.</string>
     <string name="usernameDialog_snackbar_actionBtn">Add a new username</string>
+    <string name="settings_my_username">My username</string>
 
 </resources>

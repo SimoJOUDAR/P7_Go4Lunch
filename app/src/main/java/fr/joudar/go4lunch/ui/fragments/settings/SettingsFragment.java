@@ -31,6 +31,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     SwitchPreferenceCompat notificationEnabled;
     TimePreference lunchReminder;
     Preference workplaceField;
+    Preference username;
     Preference deleteButton;
 
     private final String JOB_TAG = "NOTIFICATION_DATA_FETCHING_JOB";
@@ -79,6 +80,28 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     };
 
+    Preference.OnPreferenceClickListener usernameClickListener = new Preference.OnPreferenceClickListener() {
+        @Override
+        public boolean onPreferenceClick(@NonNull Preference preference) {
+
+            // Updates "username" PreferenceSummary
+            Callback<String> summaryCallback = new Callback<String>() {
+                @Override
+                public void onSuccess(String username) {
+                    preference.setSummary(username);
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            };
+            ((HomepageActivity) getActivity()).launchUsernamePickerDialog(summaryCallback);
+
+            return true;
+        }
+    };
+
     Preference.OnPreferenceClickListener deleteBtnClickListener = new Preference.OnPreferenceClickListener() {
         @Override
         public boolean onPreferenceClick(@NonNull Preference preference) {
@@ -115,6 +138,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         workplaceField.setOnPreferenceClickListener(workplaceClickListener);
         Log.d(TAG, "workplaceField.setOnPreferenceClickListener _FINISH_");
 
+        Log.d(TAG, "username.setSummary _START_");
+        username.setSummary(username.getSharedPreferences().getString("username", "N/A"));
+        Log.d(TAG, "username.setSummary _FINISH_");
+
+        Log.d(TAG, "username.setOnPreferenceClickListener _START_");
+        username.setOnPreferenceClickListener(usernameClickListener);
+        Log.d(TAG, "username.setOnPreferenceClickListener _FINISH_");
+
         Log.d(TAG, "deleteButton.setOnPreferenceClickListener _START_");
         deleteButton.setOnPreferenceClickListener(deleteBtnClickListener);
         Log.d(TAG, "deleteButton.setOnPreferenceClickListener _FINISH_");
@@ -127,6 +158,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         notificationEnabled = findPreference("notification_enabled");
         lunchReminder = findPreference("lunch_reminder");  //TODO: Problem here - TimeDialogPreference
         workplaceField = findPreference("workplace");
+        username = findPreference("username");
         deleteButton = findPreference("delete");
         Log.d(TAG, "viewsBinding _FINISH_");
     }

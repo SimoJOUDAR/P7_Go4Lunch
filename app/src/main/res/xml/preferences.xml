@@ -43,8 +43,12 @@
         <Preference
             app:key="workplace"
             app:title="@string/settings_my_workplace"
-            android:defaultValue="Not set"
             tools:summary="Googleplex \nMountain View, California"/>
+
+        <Preference
+            app:key="username"
+            app:title="@string/settings_my_username"
+            tools:summary="username"/>
 
         <Preference/>
 

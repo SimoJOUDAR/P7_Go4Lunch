@@ -357,6 +357,7 @@ public class HomepageActivity extends AppCompatActivity {
         if ( !sharedPreferences.getString("owner", "").equals(currentUser.getId()) ) {
             sharedPreferencesEditor.clear();
             sharedPreferencesEditor.putString("owner", currentUser.getId());
+            sharedPreferencesEditor.putString("username", currentUser.getUsername());
             initLunchNotification(); //If the currentUser changed
         }
         if ( !sharedPreferences.getString("workplaceId", "0").equals(currentUser.getWorkplaceId()) ) {
@@ -364,11 +365,18 @@ public class HomepageActivity extends AppCompatActivity {
             if (workplaceId != null || !workplaceId.isEmpty()) {
                 sharedPreferencesEditor.putString("workplaceId", workplaceId);
                 sharedPreferencesEditor.putString("workplace", homepageViewModel.getWorkplaceName() + "\n" + homepageViewModel.getWorkplaceAddress());
-                Log.d("HomepageActivity", "initSharedPreferences - done");
+            }
+        }
+
+        if ( !sharedPreferences.getString("username", "null").equals(currentUser.getUsername()) ) {
+            String username = currentUser.getUsername();
+            if (username != null || !username.isEmpty()) {
+                sharedPreferencesEditor.putString("username", username);
             }
         }
 
         sharedPreferencesEditor.apply();
+        Log.d("HomepageActivity", "initSharedPreferences - done");
     }
 
 
@@ -506,7 +514,7 @@ public class HomepageActivity extends AppCompatActivity {
 
     // Add to SettingsFragment "Change my username"
     // Displays a PickerDialog to ask for the username
-    public void launchUsernamePickerDialog() {
+    public void launchUsernamePickerDialog(Callback<String> callback) {
         Log.d("HomepageActivity", "launchUsernamePickerDialog");
         final EditText usernameInput = new EditText(this);
         usernameInput.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
@@ -520,6 +528,7 @@ public class HomepageActivity extends AppCompatActivity {
                 String input = usernameInput.getText().toString();
                 if (input.length() > 2) {
                     homepageViewModel.setUsername(input);
+                    callback.onSuccess(input);
                     dialogInterface.dismiss();
                 }
                 else
@@ -535,7 +544,7 @@ public class HomepageActivity extends AppCompatActivity {
                 snackbar.setAction(R.string.usernameDialog_snackbar_actionBtn, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        launchUsernamePickerDialog();
+                        launchUsernamePickerDialog(callback);
                     }
                 });
                 snackbar.show();
