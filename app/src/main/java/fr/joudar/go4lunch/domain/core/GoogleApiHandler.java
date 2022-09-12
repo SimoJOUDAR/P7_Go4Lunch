@@ -1,13 +1,9 @@
 package fr.joudar.go4lunch.domain.core;
 
-import static java.lang.String.valueOf;
-
 import android.location.Location;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -32,6 +28,8 @@ import retrofit2.Response;
 
 public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvider, PlaceDetailsProvider {
 
+    private final String TAG = "GoogleApiHandler";
+
     public static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/";
     public static final String BUSINESS_STATUS = "restaurant";
     private final HttpQueryProvider httpQueryProvider;
@@ -45,6 +43,7 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
 
     @Inject
     public GoogleApiHandler(HttpQueryProvider httpQueryProvider, Token token) {
+        Log.d(TAG, "Constructor");
         this.httpQueryProvider = httpQueryProvider;
         this.token = token;
     }
@@ -58,11 +57,13 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
 
     @Override
     public void getPlaces(Location location, String radius, Callback<Place[]> callback) {
+        Log.d(TAG, "getPlaces");
         setNearbyQueryParameters(location, radius);
         httpQueryProvider.placesQuery(nearbyQueryParameters).enqueue(catchHttpPlacesQueryResults(callback));
     }
 
     private void setNearbyQueryParameters(Location location, String radius) {
+        Log.d(TAG, "setNearbyQueryParameters");
         nearbyQueryParameters = new HashMap<>();
         nearbyQueryParameters.put("type", BUSINESS_STATUS);
         nearbyQueryParameters.put("location", location.getLatitude() + "," + location.getLongitude());
@@ -73,14 +74,10 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
 
 
     private retrofit2.Callback<MapApiNearbysearchResponse> catchHttpPlacesQueryResults(Callback<Place[]> callback) {
+        Log.d(TAG, "catchHttpPlacesQueryResults");
         return new retrofit2.Callback<MapApiNearbysearchResponse>() {
             @Override
             public void onResponse(Call<MapApiNearbysearchResponse> call, Response<MapApiNearbysearchResponse> response) {
-
-                //TODO: test to delete -start
-                Log.d("Nearbysearch RespToStg", response.toString());
-                //TODO: test to delete -end
-
                 final MapApiNearbysearchResponse body = response.body();
                 if (body != null)
                     callback.onSuccess(body.getPlaces());
@@ -102,12 +99,14 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
 
     @Override
     public void getAutocompletes(@NonNull String input, @NonNull Location location, @NonNull String searchRadius, boolean isFiltered, Callback<Autocomplete[]> callback) {
+        Log.d(TAG, "getAutocompletes");
         setAutocompleteQueryParameters(input, location, searchRadius);
         httpQueryProvider.getAutocompletes(autocompleteQueryParameters).enqueue(catchHttpAutocompleteQueryResults(isFiltered, callback));
 
     }
 
     private void setAutocompleteQueryParameters(@NonNull String input, @NonNull Location location, @NonNull String searchRadius) {
+        Log.d(TAG, "setAutocompleteQueryParameters");
         autocompleteQueryParameters = new HashMap<>();
         autocompleteQueryParameters.put("input", input);
         autocompleteQueryParameters.put("types", "establishment");
@@ -121,43 +120,21 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
 
     private retrofit2.Callback<MapApiAutocompleteResponse> catchHttpAutocompleteQueryResults(
             boolean isFiltered, Callback<Autocomplete[]> callback) {
+        Log.d(TAG, "catchHttpAutocompleteQueryResults");
         return new retrofit2.Callback<MapApiAutocompleteResponse>() {
             @Override
             public void onResponse(Call<MapApiAutocompleteResponse> call, Response<MapApiAutocompleteResponse> response) {
                 final MapApiAutocompleteResponse body = response.body();
-
-                //TODO: test to delete -start
-                Log.d("Autocomplete RespToStg", response.toString());
-                //TODO: test to delete -end
-
                 if (body != null) {
-
-                    //TODO: test to delete -start
-                    Log.d("Autocomplete", "body != null");
-                    //TODO: Test to delete -end
-
                     callback.onSuccess(body.getAutocomplete(isFiltered));
                 }
                 else {
-
-                    // This is the case we fall in : we get a response, so the call is good, but the response is null !
-                    //TODO: test to delete -start
-                    String s2 = "body == null";
-                    Log.d("Autocomplete", s2);
-                    //TODO: Test to delete -end
-
                     callback.onFailure();
                 }
             }
 
             @Override
             public void onFailure(Call<MapApiAutocompleteResponse> call, Throwable t) {
-
-                //TODO: test to delete -start
-                String s3 = "onFailure";
-                Log.d("Autocomplete", s3);
-                //TODO: Test to delete -end
-
                 callback.onFailure();
             }
         };
@@ -169,11 +146,13 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
 
     @Override
     public void getPlaceDetails(String placeId, Callback<Place> callback) {
+        Log.d(TAG, "getPlaceDetails");
         setPlaceDetailsQueryParameters(placeId);
         httpQueryProvider.getPlaceDetails(placeDetailsQueryParameters).enqueue(catchHttpPlaceDetailsQueryResults(callback));
     }
 
     private void setPlaceDetailsQueryParameters(String placeId) {
+        Log.d(TAG, "setPlaceDetailsQueryParameters");
         String fields = "place_id,name,formatted_address,formatted_phone_number,website,rating,opening_hours,photos";
         placeDetailsQueryParameters = new HashMap<>();
         placeDetailsQueryParameters.put("place_id", placeId);
@@ -181,64 +160,27 @@ public class GoogleApiHandler implements NearbysearchProvider, AutocompleteProvi
         placeDetailsQueryParameters.put("fields", fields);
         placeDetailsQueryParameters.put("key", BuildConfig.MAPS_API_KEY);
         placeDetailsQueryParameters.put("sessiontoken", token.getToken());
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetailsHandler", "queryParam_built");
-        //TODO: test to delete -end
     }
 
     private retrofit2.Callback<MapApiPlaceDetailsResponse> catchHttpPlaceDetailsQueryResults(Callback<Place> callback) {
+        Log.d(TAG, "catchHttpPlaceDetailsQueryResults");
         return new retrofit2.Callback<MapApiPlaceDetailsResponse>() {
             @Override
             public void onResponse(Call<MapApiPlaceDetailsResponse> call, Response<MapApiPlaceDetailsResponse> response) {
                 final MapApiPlaceDetailsResponse body = response.body();
-
-                //TODO: test to delete -start
-                Log.d("PlaceDetailsHandler", "RespToStg : " + response.toString());
-                //TODO: test to delete -end
-
                 if (body != null) {
                     final Place resultPlace = body.getPlaceDetails();
-
-                    //TODO: test to delete -start
-                    String m1 = body.status;
-                    Log.d("PlaceDetailsHandler", "body.status = " + m1);
-                    //TODO: Test to delete -end
-
-                    if (resultPlace != null) {
-
-                        //TODO: test to delete -start
-                        Log.d("PlaceDetailsHandler", "resultPlace not null");
-                        //TODO: Test to delete -end
-
+                    if (resultPlace != null)
                         callback.onSuccess(resultPlace);
-                    }
-                    else {
-                        //TODO: test to delete -start
-                        Log.d("PlaceDetailsHandler", "resultPlace = Null");
-                        //TODO: Test to delete -end
-
+                    else
                         callback.onFailure();
-                    }
                 }
-                else {
-                    //TODO: test to delete -start
-                    Log.d("PlaceDetailsHandler", "body = Null");
-                    //TODO: Test to delete -end
-
+                else
                     callback.onFailure();
-                }
             }
 
             @Override
             public void onFailure(Call<MapApiPlaceDetailsResponse> call, Throwable t) {
-
-                //TODO: test to delete -start
-                Log.d("PlaceDetailsHandler", "Call Failure");
-                Log.d("PlaceDetailsHandler", call.toString());
-                Log.d("PlaceDetailsHandler", t.toString());
-                //TODO: Test to delete -end
-
                 callback.onFailure();
             }
         };

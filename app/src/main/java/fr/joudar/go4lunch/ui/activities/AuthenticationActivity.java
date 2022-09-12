@@ -25,9 +25,8 @@ import fr.joudar.go4lunch.databinding.ActivityAuthenticationBinding;
 
 public class AuthenticationActivity extends AppCompatActivity {
 
+    private final String TAG = "AuthenticationActivity";
     ActivityAuthenticationBinding binding;
-
-    //TODO : Create your own UserProvider interface implemented by FirebaseServices class and saved in the repo for less network requests and even offline work
     FirebaseUser firebaseUser;
     FirebaseAuth firebaseAuth;
 
@@ -36,7 +35,6 @@ public class AuthenticationActivity extends AppCompatActivity {
             new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
                 @Override
                 public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
-                    Log.d("AuthActivity", "signInLauncher");
                     onSignInResult(result);
                 }
             }
@@ -46,6 +44,7 @@ public class AuthenticationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         binding = ActivityAuthenticationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         isAuth();
@@ -53,9 +52,9 @@ public class AuthenticationActivity extends AppCompatActivity {
 
 
     private void isAuth() {
+        Log.d(TAG, "isAuth");
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
-        Log.d("AuthActivity", "isAuth");
         if (firebaseUser != null) {
             startHomepageActivity();
         }
@@ -65,14 +64,15 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     private void startHomepageActivity() {
+        Log.d(TAG, "startHomepageActivity");
         final Intent homepageActivityIntent = new Intent(this, HomepageActivity.class);
         startActivity(homepageActivityIntent);
         finish();
-        Log.d("AuthActivity", "startHomepageActivity");
     }
 
     // Create and launch sign-in intent
     private void startAuth() {
+        Log.d(TAG, "startAuth");
         Intent signInIntent = AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(getAuthProviders())
@@ -81,11 +81,11 @@ public class AuthenticationActivity extends AppCompatActivity {
                 .setTheme(R.style.AuthTheme)
                 .build();
         signInLauncher.launch(signInIntent);
-        Log.d("AuthActivity", "startAuth");
     }
 
     // Provides the auth services (google, facebook)
     private List<AuthUI.IdpConfig> getAuthProviders() {
+        Log.d(TAG, "getAuthProviders");
         return Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build(),
                 new AuthUI.IdpConfig.EmailBuilder().build() //TODO - Just a place filler for facebook Auth below
@@ -95,6 +95,7 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     //applies our custom theme to the login section
     private AuthMethodPickerLayout getCustomAuthMethodPickerLayout() {
+        Log.d(TAG, "getCustomAuthMethodPickerLayout");
         return new AuthMethodPickerLayout.Builder(R.layout.auth_method_picker_layout)
                 .setGoogleButtonId(R.id.google_login_btn)
                 .setEmailButtonId(R.id.fb_login_btn) //TODO - Just a place filler for facebook auth below
@@ -104,9 +105,8 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     // Handles login results (success/failure)
     private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
-        Log.i("LOGING", "____ON_RESULT_LOGIN______");
+        Log.d(TAG, "onSignInResult");
         if (result.getResultCode() == Activity.RESULT_OK) {
-            Log.d("AuthActivity", "onSignInResult");
             startHomepageActivity();
         } else {
             binding.getRoot().setVisibility(View.VISIBLE);

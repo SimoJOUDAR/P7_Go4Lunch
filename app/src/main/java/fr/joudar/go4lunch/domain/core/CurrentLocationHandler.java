@@ -21,6 +21,8 @@ import fr.joudar.go4lunch.domain.services.CurrentLocationProvider;
 
 public class CurrentLocationHandler implements CurrentLocationProvider {
 
+    private final String TAG = "CurrentLocationHandler";
+
     private final FusedLocationProviderClient fusedLocationProviderClient;
     private final LocationPermissionHandler locationPermissionHandler;
     private Location lastRecordedLocation;
@@ -29,6 +31,7 @@ public class CurrentLocationHandler implements CurrentLocationProvider {
     @Inject
     public CurrentLocationHandler(
             Activity activity, LocationPermissionHandler locationPermissionHandler) {
+        Log.d(TAG, "Constructor");
         this.locationPermissionHandler = locationPermissionHandler;
         this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
         initLocationProvider();
@@ -41,6 +44,7 @@ public class CurrentLocationHandler implements CurrentLocationProvider {
      */
     @SuppressLint("MissingPermission")
     private void initLocationProvider() {
+        Log.d(TAG, "initLocationProvider");
         final LocationRequest locationRequest =
                 LocationRequest.create()
                         .setInterval(100)
@@ -66,7 +70,7 @@ public class CurrentLocationHandler implements CurrentLocationProvider {
     @SuppressLint("MissingPermission")
     @Override
     public void getCurrentCoordinates(OnCoordinatesResultListener resultListener) {
-        Log.d("FusedLocationAdapter", "getCurrentCoordinates");
+        Log.d(TAG, "getCurrentCoordinates");
         if (locationPermissionHandler.hasPermission()) {
             Log.d("FusedLocationAdapter", "----HAS PRM----");
             fusedLocationProviderClient
@@ -76,6 +80,7 @@ public class CurrentLocationHandler implements CurrentLocationProvider {
     }
 
     private OnCompleteListener<Location> getOnCompleteResultListener(OnCoordinatesResultListener resultListener) {
+        Log.d(TAG, "getOnCompleteResultListener");
         return task -> {
             final Location location = task.getResult();
             if (task.isSuccessful() && location != null) {
@@ -90,6 +95,7 @@ public class CurrentLocationHandler implements CurrentLocationProvider {
     // TODO: Test - Location permission before entrance
     @Override
     public void hasLocationPermission(){
+        Log.d(TAG, "hasLocationPermission");
         if (!locationPermissionHandler.hasPermission()) {
             initLocationProvider();
         }

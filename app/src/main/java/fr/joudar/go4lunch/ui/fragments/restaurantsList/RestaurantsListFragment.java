@@ -45,6 +45,15 @@ import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 @AndroidEntryPoint
 public class RestaurantsListFragment extends Fragment {
 
+    private final String TAG = "RestaurantsListFrag";
+
+    // Error code for emptyListMessage method:
+    final int CURRENT_LOCATION_ERROR_CODE = 11;
+    final int FAIL_FETCHING_NEARBY_RESTAURANTS_CODE = 22;
+    final int NO_RESTAURANT_FOUND_CODE = 33;
+    final int NO_WORKPLACE_SELECTED_CODE = 44;
+    final int FAIL_FETCHING_COLLEAGUES_CODE = 55;
+
     private FragmentRestaurantsListBinding binding;
     public HomepageViewModel viewModel;
     @Inject public CurrentLocationProvider currentLocationProvider;
@@ -55,15 +64,8 @@ public class RestaurantsListFragment extends Fragment {
     private final Callback<Place[]> nearbyRestaurantsCallback = new Callback<Place[]>() {
         @Override
         public void onSuccess(Place[] results) {
-
-            //TODO: Test - Start
-            int n = results.length;
-            Log.d("RestaurantsListFragment", "nearbyRestaurantsCallback - onSuccess - results.length = " + n);
-            //TODO: Test - End
-
-            if (results.length == 0) {
+            if (results.length == 0)
                 emptyListMessage(NO_RESTAURANT_FOUND_CODE);
-            }
             else {
                 places = results;
                 fetchingColleaguesDistribution();
@@ -72,33 +74,18 @@ public class RestaurantsListFragment extends Fragment {
 
         @Override
         public void onFailure() {
-
-            //TODO: Test - Start
-            Log.d("RestaurantsListFragment", "nearbyRestaurantsCallback - onFailure");
-            //TODO: Test - End
-
             emptyListMessage(FAIL_FETCHING_NEARBY_RESTAURANTS_CODE);
         }
     };
     private final Callback<Map<String, Integer>> fetchingColleaguesCallback = new Callback<Map<String, Integer>>() {
         @Override
         public void onSuccess(Map<String, Integer> results) {
-
-            //TODO: Test - Start
-            Log.d("RestaurantsListFragment", "fetchingColleaguesCallback - onSuccess");
-            //TODO: Test - End
-
             colleaguesDistribution = results;
             updateRecyclerView();
         }
 
         @Override
         public void onFailure() {
-
-            //TODO: Test - Start
-            Log.d("RestaurantsListFragment", "fetchingColleaguesCallback - onFailure");
-            //TODO: Test - End
-
             emptyListMessage(FAIL_FETCHING_COLLEAGUES_CODE);
         }
     };
@@ -112,7 +99,6 @@ public class RestaurantsListFragment extends Fragment {
 
         @Override
         public void onFailure() {
-
         }
     };
 
@@ -122,10 +108,10 @@ public class RestaurantsListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView");
         binding = FragmentRestaurantsListBinding.inflate(LayoutInflater.from(container.getContext()), container, false);
         initRecyclerView();
         initViewModel(container);
-//        checkWorkplaceAvailable();
         return binding.getRoot();
     }
 
@@ -140,7 +126,7 @@ public class RestaurantsListFragment extends Fragment {
      **********************************************************************************************/
     // Init the PlacesViewModel
     private void initViewModel(View fragmentContainer) {
-        Log.d("RestaurantsListFragment", "initViewModel _started_");
+        Log.d(TAG, "initViewModel");
         final NavController navController = Navigation.findNavController(fragmentContainer);
         final NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
         ViewModelProvider viewModelProvider = new ViewModelProvider(
@@ -148,11 +134,9 @@ public class RestaurantsListFragment extends Fragment {
                 HiltViewModelFactory.createInternal(getActivity(), backStackEntry, null, null));
         viewModel = viewModelProvider.get(HomepageViewModel.class);
         viewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> {
-            if (user != null) {
+            if (user != null)
                 checkWorkplaceAvailable();
-            }
         });
-        Log.d("RestaurantsListFragment", "initViewModel _finished_");
     }
 
     /***********************************************************************************************
@@ -160,29 +144,18 @@ public class RestaurantsListFragment extends Fragment {
      **********************************************************************************************/
 
     private void checkWorkplaceAvailable() {
-        if (viewModel.getWorkplaceId() == null || viewModel.getWorkplaceId().isEmpty()) {
-
-            //TODO: test to delete -start
-            Log.d("ColleaguesListFragment", "checkWorkplaceAvailable - workplaceId = null");
-            //TODO: Test to delete -end
-
+        Log.d(TAG, "checkWorkplaceAvailable");
+        if (viewModel.getWorkplaceId() == null || viewModel.getWorkplaceId().isEmpty())
             emptyListMessage(NO_WORKPLACE_SELECTED_CODE);
-        }
-        else {
-
-            //TODO: test to delete -start
-            Log.d("ColleaguesListFragment", "checkWorkplaceAvailable - workplaceId not null");
-            //TODO: Test to delete -end
-
+        else
             getCurrentLocation();
-        }
     }
 
     private void getCurrentLocation() {
+        Log.d(TAG, "getCurrentLocation");
         currentLocationProvider.getCurrentCoordinates(new CurrentLocationProvider.OnCoordinatesResultListener() {
             @Override
             public void onResult(Location location) {
-
                 if (location != null) {
                     currentLocation = location;
                     viewModel.getNearbyRestaurant(currentLocation, getSearchRadius(), nearbyRestaurantsCallback);
@@ -194,13 +167,12 @@ public class RestaurantsListFragment extends Fragment {
     }
 
     private void fetchingColleaguesDistribution(){
+        Log.d(TAG, "fetchingColleaguesDistribution");
         String workplaceId = viewModel.getCurrentUser().getWorkplaceId();
-        if (workplaceId == null || workplaceId.equals("")) {
+        if (workplaceId == null || workplaceId.equals(""))
             emptyListMessage(NO_WORKPLACE_SELECTED_CODE);
-        }
-        else {
+        else
             viewModel.getColleaguesDistributionOverRestaurants(fetchingColleaguesCallback);
-        }
     }
 
 
@@ -209,10 +181,13 @@ public class RestaurantsListFragment extends Fragment {
      **********************************************************************************************/
 
     private void initRecyclerView() {
+        Log.d(TAG, "initRecyclerView");
         binding.recyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerview.setAdapter(listAdapter);
     }
+
     private void updateRecyclerView() {
+        Log.d(TAG, "updateRecyclerView");
         listAdapter.updateData(places, currentLocation, colleaguesDistribution);
         binding.recyclerview.setVisibility(View.VISIBLE);
         binding.shimmerListLayout.stopShimmer();
@@ -229,6 +204,7 @@ public class RestaurantsListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated");
 
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
@@ -265,16 +241,19 @@ public class RestaurantsListFragment extends Fragment {
      **********************************************************************************************/
 
     public int sortByRatings(Place place1, Place place2) {
+        Log.d(TAG, "sortByRatings");
         return (int) (place2.getRating() - place1.getRating());
     }
 
     private int sortByDistance(Place place1, Place place2) {
+        Log.d(TAG, "sortByDistance");
         final float distance1 = Calculus.distanceBetween(currentLocation, place1.getCoordinates());
         final float distance2 = Calculus.distanceBetween(currentLocation, place2.getCoordinates());
         return (int) (distance1 - distance2);
     }
 
     private int sortByColleaguesDistribution(Place place1, Place place2) {
+        Log.d(TAG, "sortByColleaguesDistribution");
         Integer count1 = colleaguesDistribution.get(place1.getId());
         if (count1 == null) count1 = 0;
         Integer count2 = colleaguesDistribution.get(place2.getId());
@@ -286,14 +265,8 @@ public class RestaurantsListFragment extends Fragment {
      ** Error handling
      **********************************************************************************************/
 
-    // Error code for emptyListMessage method:
-    final int CURRENT_LOCATION_ERROR_CODE = 11;
-    final int FAIL_FETCHING_NEARBY_RESTAURANTS_CODE = 22;
-    final int NO_RESTAURANT_FOUND_CODE = 33;
-    final int NO_WORKPLACE_SELECTED_CODE = 44;
-    final int FAIL_FETCHING_COLLEAGUES_CODE = 55;
-
     private void emptyListMessage(int errorCode) {
+        Log.d(TAG, "emptyListMessage");
         binding.recyclerview.setVisibility(View.GONE);
         binding.restaurantsEmptyListMsgLayout.setVisibility(View.VISIBLE);
         binding.shimmerListLayout.stopShimmer();
@@ -325,17 +298,10 @@ public class RestaurantsListFragment extends Fragment {
                                 binding.restaurantListWorkplaceBtn.setVisibility(View.GONE);
                                 binding.restaurantsEmptyListMsgLayout.setVisibility(View.GONE);
                                 binding.recyclerview.setVisibility(View.VISIBLE);
-
-                                //TODO: test to delete -start
-                                Log.d("ColleaguesListFragment", "workPlace dialog - choice pressed - is refreshFragment() working?");
-                                //TODO: Test to delete -end
-
-                                // TODO: Refresh Fragment : use livedata
                             }
 
                             @Override
                             public void onFailure() {
-
                             }
                         });
                     }
@@ -359,6 +325,7 @@ public class RestaurantsListFragment extends Fragment {
      **********************************************************************************************/
 
     private String getSearchRadius() {
+        Log.d(TAG, "getSearchRadius");
         return ((HomepageActivity) getActivity()).getSearchRadius();
     }
 }

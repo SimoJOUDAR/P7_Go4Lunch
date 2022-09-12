@@ -15,7 +15,7 @@ import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 
 public class TimePreferenceDialog extends PreferenceDialogFragmentCompat {
 
-    private String TAG = "TimePreferenceDialog";
+    private final String TAG = "TimePreferenceDialog";
     private TimePicker timePicker;
 
     public static TimePreferenceDialog getInstance(String preferenceKey) {
@@ -64,7 +64,7 @@ public class TimePreferenceDialog extends PreferenceDialogFragmentCompat {
                 time = (timePicker.getHour() * 60) + timePicker.getMinute();
             final TimePreference timePreference = (TimePreference) getPreference();
             timePreference.setPersistedTime(time);
-            ((HomepageActivity)getActivity()).scheduleNotificationJob(getContext(), timePreference.getPersistedTime());
+            ((HomepageActivity)getActivity()).scheduleNotification(getContext(), timePreference.getPersistedTime());
         }
     }
 }

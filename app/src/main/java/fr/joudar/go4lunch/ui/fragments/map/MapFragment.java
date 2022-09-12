@@ -51,7 +51,7 @@ import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 @AndroidEntryPoint
 public class MapFragment extends Fragment {
 
-    private static final String LOG_TAG = "MapFragment";
+    private final String TAG = "MapFragment";
     private GoogleMap map;
     @Inject public CurrentLocationProvider currentLocationProvider;
     private HomepageViewModel homepageViewModel;
@@ -62,17 +62,15 @@ public class MapFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView");
         View mapView = inflater.inflate(R.layout.fragment_map, container, false);
-
         initViewModel(container);
-
-
         return mapView;
     }
 
     // Init the PlacesViewModel
     private void initViewModel(View fragmentContainer) {
-        Log.d("MapFragment", "initViewModel _started_");
+        Log.d(TAG, "initViewModel");
         final NavController navController = Navigation.findNavController(fragmentContainer);
         final NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
         ViewModelProvider viewModelProvider = new ViewModelProvider(
@@ -82,53 +80,38 @@ public class MapFragment extends Fragment {
         homepageViewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
                 if (firstInit) {
-                    Log.d("MapFragment", "SupportMapFragment _stared_");
                     SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-                    Log.d("MapFragment", "SupportMapFragment _finished_");
                     mapFragment.getMapAsync(this::onMapResults);
                     firstInit = false;
                 }
-                else {
+                else
                     getColleaguesDistributionOverRestaurants();
-                }
             }
         });
-        Log.d("MapFragment", "initViewModel _finished_");
     }
 
     // Init the map, updateUI & onClickListeners()
     private void onMapResults(GoogleMap map) {
-        Log.d("MapFragment", "onMapResults");
+        Log.d(TAG, "onMapResults");
         this.map = map;
-        initMapUpdates();
-        map.setOnInfoWindowClickListener(this::displayPlaceDetails);
-    }
-
-    // Observes currentUser to keep "colleagues distribution overs nearby restaurant" updated
-    private void initMapUpdates(){
-        Log.d("MapFragment", "initMapUpdates");
-        //TODO : Use ViewModel abstraction
-        //homepageViewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), __ -> getColleaguesDistributionOverRestaurants());
         getColleaguesDistributionOverRestaurants();
+        map.setOnInfoWindowClickListener(this::displayPlaceDetails);
     }
 
     // a HashMap of colleagues distribution overs nearby restaurant
     private void getColleaguesDistributionOverRestaurants() {
-        Log.d("MapFragment", "getColleaguesDistributionOverRestaurants");
-        //TODO : Use ViewModel abstraction
+        Log.d(TAG, "getColleaguesDistributionOverRestaurants");
         if (homepageViewModel.getWorkplaceId() != null) {
             homepageViewModel.getColleaguesDistributionOverRestaurants(new Callback<Map<String, Integer>>() {
                 @Override
                 public void onSuccess(Map<String, Integer> results) {
                     distributionHashMap = results;
-                    Log.d("MapFragment", "getColleaguesDistributionOverRestaurants _onSuccess_");
                     currentLocationProvider.getCurrentCoordinates(MapFragment.this::updateMapUI);
                 }
 
                 @Override
                 public void onFailure() {
                     distributionHashMap = null;
-                    Log.d("MapFragment", "getColleaguesDistributionOverRestaurants _onFailure_");
                     showErrorMessage();
                 }
             });
@@ -138,7 +121,7 @@ public class MapFragment extends Fragment {
     // Updates the map with buttons, camera coordinates & showNearbyRestaurants().
     @SuppressLint("MissingPermission")
     private void updateMapUI(Location currentLocation) {
-        Log.d("MapFragment", "updateMapUI");
+        Log.d(TAG, "updateMapUI");
         if (currentLocation != null) {
             map.setMyLocationEnabled(true);
             map.getUiSettings().setMyLocationButtonEnabled(true);
@@ -152,7 +135,7 @@ public class MapFragment extends Fragment {
 
     //Shows nearby places and markers
     private void showNearbyPlaces(Location currentLocation, String radius) {
-        Log.d("MapFragment", "showNearbyPlaces");
+        Log.d(TAG, "showNearbyPlaces");
         homepageViewModel.getNearbyRestaurant(currentLocation, radius, new Callback<Place[]>() {
             @Override
             public void onSuccess(Place[] results) {
@@ -169,7 +152,7 @@ public class MapFragment extends Fragment {
 
     // Shows markers on map
     private void showRestaurantsMarkers(Place[] places) {
-        Log.d("MapFragment", "showRestaurantsMarkers");
+        Log.d(TAG, "showRestaurantsMarkers");
         map.clear();
         @DrawableRes int markerDrawable;
         String markerTitle;
@@ -192,7 +175,7 @@ public class MapFragment extends Fragment {
 
 
     private void displayPlaceDetails(Marker marker) {
-        Log.d("MapFragment", "displayPlaceDetails");
+        Log.d(TAG, "displayPlaceDetails");
         String restaurantId = marker.getTag().toString();
 //        NavDirections action = MapFragmentDirections.actionMapFragmentToRestaurantDetailsFragment(restaurantId);
 //        Navigation.findNavController(this.getView()).navigate(action);
@@ -204,8 +187,8 @@ public class MapFragment extends Fragment {
     }
 
     private void showErrorMessage() {
-        Log.d("MapFragment", "showErrorMessage");
-        //
+        Log.d(TAG, "showErrorMessage");
+        //TODO: Implement Error handling here (Hide view, display Error message)
     }
 
     @Override

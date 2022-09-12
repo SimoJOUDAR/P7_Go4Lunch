@@ -8,7 +8,7 @@ import fr.joudar.go4lunch.domain.utils.Callback;
 public interface FirebaseServicesProvider {
 
     String USERNAME = "username";
-    String AVATAR_URL = "https://raw.githubusercontent.com/SimoJOUDAR/default_avatar/main/user_avatar_v2.png";
+    String AVATAR_URL = "avatarUrl";
     String WORKPLACE_ID = "workplaceId";
     String WORKPLACE_NAME = "workplaceName";
     String WORKPLACE_ADDRESS = "workplaceAddress";
@@ -16,6 +16,7 @@ public interface FirebaseServicesProvider {
     String CHOSEN_RESTAURANT_NAME = "chosenRestaurantName";
     String CHOSEN_RESTAURANT_ADDRESS = "chosenRestaurantAddress";
     String LIKED_RESTAURANTS_ID_LIST = "likedRestaurantsIdList";
+    String DEFAULT_AVATAR_URL = "https://raw.githubusercontent.com/SimoJOUDAR/default_avatar/main/user_avatar_v2.png";
 
     // The current location of the connected user
     User getCurrentUser();

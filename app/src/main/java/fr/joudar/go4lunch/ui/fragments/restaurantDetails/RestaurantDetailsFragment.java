@@ -40,12 +40,13 @@ import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 @AndroidEntryPoint
 public class RestaurantDetailsFragment extends Fragment {
 
-    final String TAG = "RestaurantDetailsFragment";
+    private final String TAG = "RestaurantDetailsFrag";
 
     // Error code for emptyColleaguesListMessage method:
     final int NO_JOINING_COLLEAGUES_CODE = 1;
     final int NO_WORKPLACE_SELECTED_CODE = 2;
     final int ERROR_FETCHING_COLLEAGUES_LIST = 3;
+    final int ERROR_FETCHING_PLACE_DETAILS = 4;
 
     FragmentRestaurantDetailsBinding binding;
     HomepageViewModel viewModel;
@@ -109,6 +110,7 @@ public class RestaurantDetailsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView");
         binding = FragmentRestaurantDetailsBinding.inflate(LayoutInflater.from(container.getContext()), container, false);
         initViewModel(container);
         photosAdapter = new RestaurantDetailsPictureListAdapter(getContext());
@@ -129,7 +131,7 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     // Init the PlacesViewModel
     private void initViewModel(View fragmentContainer) {
-        Log.d("DetailsFragment", "initViewModel _started_ | likedPlaces ArrayList = " + likedPlaces);
+        Log.d(TAG, "initViewModel");
         final NavController navController = Navigation.findNavController(fragmentContainer);
         final NavBackStackEntry backStackEntry = navController.getBackStackEntry(R.id.nav_graph);
         ViewModelProvider viewModelProvider = new ViewModelProvider(
@@ -142,8 +144,6 @@ public class RestaurantDetailsFragment extends Fragment {
                 likedPlaces = viewModel.getCurrentUser().getLikedRestaurantsIdList();
             }
         });
-        Log.d("DetailsFragment", "likedPlaces ArrayList = " + likedPlaces);
-        Log.d("DetailsFragment", "initViewModel _finished_");
     }
 
     /***********************************************************************************************
@@ -151,12 +151,8 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     // Fetches the place details
     private void fetchRestaurantDetails() {
+        Log.d(TAG, "fetchRestaurantDetails");
         final String placeId = getArguments().getString("placeId");
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "Place Id: " + placeId);
-        //TODO: Test to delete -end
-
         viewModel.getPlaceDetails(placeId, new Callback<Place>() {
             @Override
             public void onSuccess(Place results) {
@@ -167,13 +163,14 @@ public class RestaurantDetailsFragment extends Fragment {
 
             @Override
             public void onFailure() {
-                errorFetchingPlaceDetails();
+                emptyColleaguesListMessage(ERROR_FETCHING_PLACE_DETAILS);
             }
         });
     }
 
     // Fetches the joining colleagues
     private void fetchJoiningColleagues(String placeId) {
+        Log.d(TAG, "fetchJoiningColleagues");
         String workplaceID = viewModel.getWorkplaceId();
         if (workplaceID == null || workplaceID.isEmpty())
             emptyColleaguesListMessage(NO_WORKPLACE_SELECTED_CODE);
@@ -197,11 +194,7 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     // Updates the fragment views
     private void updateRestaurantDetailsViews() {
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "updateRestaurantDetailsViews");
-        //TODO: Test to delete -end
-
+        Log.d(TAG, "updateRestaurantDetailsViews");
         updatePhotosRecyclerView();
         updateTextViews();
         ratingStarsHandler();
@@ -215,11 +208,7 @@ public class RestaurantDetailsFragment extends Fragment {
      ** Place's Name and Address
      **********************************************************************************************/
     public void updateTextViews(){
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "updateTextViews");
-        //TODO: Test to delete -end
-
+        Log.d(TAG, "updateTextViews");
         binding.name.setText(place.getName());
         binding.address.setText(place.getVicinity());
     }
@@ -228,11 +217,7 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     // Update the rating stars
     private void ratingStarsHandler() {
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "ratingStarsHandler");
-        //TODO: Test to delete -end
-
+        Log.d(TAG, "ratingStarsHandler");
         int rating = Calculus.ratingStarsCalculator(place.getRating());
         switch (rating) {
             case 3:
@@ -262,17 +247,14 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     // Updates favoriteRestaurant button
     private void updateFavoriteRestaurantBtn(){
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "updateFavoriteRestaurantBtn");
-        //TODO: Test to delete -end
-
+        Log.d(TAG, "updateFavoriteRestaurantBtn");
         String id = viewModel.getCurrentUser().getChosenRestaurantId();
         favoriteRestaurantBtnHandler(id != null && id.equals(place.getId()));
         binding.btnSelectFavoriteRestaurant.setOnClickListener(favoriteRestaurantBtnListener);
     }
 
     private void favoriteRestaurantBtnHandler(boolean isFavorite) {
+        Log.d(TAG, "favoriteRestaurantBtnHandler");
         if (isFavorite)
             binding.btnSelectFavoriteRestaurant.setImageResource(R.drawable.ic_check_circle_24_checked);
         else
@@ -284,11 +266,7 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     // Updates the callButton
     private void updateCallBtn() {
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "updateCallBtn");
-        //TODO: Test to delete -end
-
+        Log.d(TAG, "updateCallBtn");
         if (place.getPhoneNumber() == null)
             binding.callButton.setEnabled(false);
         else
@@ -300,20 +278,18 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     // Updates the likeButton
     private void updateLikeBtn() {
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "updateLikeBtn");
-        //TODO: Test to delete -end
-
+        Log.d(TAG, "updateLikeBtn");
         likeBtnHandler(checkIfPlaceLiked());
         binding.likeButton.setOnClickListener(likeBtnListener);
     }
 
     private boolean checkIfPlaceLiked(){
+        Log.d(TAG, "checkIfPlaceLiked");
         return (likedPlaces != null && likedPlaces.contains(place.getId()));
     }
 
     private void likeBtnHandler(boolean isLiked) {
+        Log.d(TAG, "likeBtnHandler");
         final Drawable likeBtnDrawable;
         if (isLiked)
             likeBtnDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_star_full_24, null);
@@ -328,11 +304,7 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     // Updates the websiteButton
     private void updateWebsiteBtn() {
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "updateWebsiteBtn");
-        //TODO: Test to delete -end
-
+        Log.d(TAG, "updateWebsiteBtn");
         if (place.getWebsiteUrl() == null)
             binding.websiteButton.setEnabled(false);
         else
@@ -344,39 +316,22 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     //Sets up the photos' horizontal recyclerView
     private void setupPhotosRecyclerView() {
+        Log.d(TAG, "setupPhotosRecyclerView");
         binding.restaurantPhotosRecyclerview.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.restaurantPhotosRecyclerview.setAdapter(photosAdapter);
     }
 
     // Updates recyclerView's adapter's data
     private void updatePhotosRecyclerView() {
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "updatePhotosRecyclerView - place.getAllPhotos().length = " + place.getAllPhotos().length);
-        for (Place.Photo photo : place.getAllPhotos()) {
-            Log.d("PlaceDetails", "updatePhotosRecyclerView - photo.reference = "+photo.getReference());
-        }
-        //TODO: Test to delete -end
-
-        if (place.getAllPhotos().length == 0) {
-
-            //TODO: test to delete -start
-            Log.d("PlaceDetails", "updatePhotosRecyclerView - place.getAllPhotos().length == 0");
-            //TODO: Test to delete -end
-
+        Log.d(TAG, "updatePhotosRecyclerView");
+        if (place.getAllPhotos().length == 0)
             onEmptyPhotosRecyclerView();
-        }
-        else {
-
-            //TODO: test to delete -start
-            Log.d("PlaceDetails", "updatePhotosRecyclerView - place.getAllPhotos().length != 0");
-            //TODO: Test to delete -end
-
-            //
+        else
             onLoadPhotosRecyclerView();
-        }
     }
 
     private void onEmptyPhotosRecyclerView() {
+        Log.d(TAG, "onEmptyPhotosRecyclerView");
         binding.photoShimmerLayout.stopShimmer();
         binding.photoShimmerLayout.setVisibility(View.GONE);
         binding.photo.setVisibility(View.VISIBLE);
@@ -384,6 +339,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     private void onLoadPhotosRecyclerView() {
+        Log.d(TAG, "onLoadPhotosRecyclerView");
         photosAdapter.updateData(place.getAllPhotos());
         binding.photoShimmerLayout.stopShimmer();
         binding.photoShimmerLayout.setVisibility(View.GONE);
@@ -397,40 +353,26 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
 
     private void setupColleaguesRecyclerView() {
+        Log.d(TAG, "setupColleaguesRecyclerView");
         binding.joiningColleagues.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.joiningColleagues.setAdapter(colleaguesAdapter);
     }
 
     // Updates colleagues' vertical recyclerView
     private void updateColleaguesRecyclerView() {
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "updateColleaguesRecyclerView");
-        //TODO: Test to delete -end
-
+        Log.d(TAG, "updateColleaguesRecyclerView");
         if (users.length == 0)
             emptyColleaguesListMessage(NO_JOINING_COLLEAGUES_CODE);
-        else {
+        else
             colleaguesAdapter.updateData(users);
-        }
     }
 
     /***********************************************************************************************
      ** Error handling
      **********************************************************************************************/
 
-    private void errorFetchingPlaceDetails(){
-        //TODO : case fetching place details when wrong
-        Toast.makeText(getContext(), R.string.error_fetching_place_details, Toast.LENGTH_SHORT).show();
-        getParentFragmentManager().popBackStackImmediate();
-    }
-
     private void emptyColleaguesListMessage(int errorCode) {
-
-        //TODO: test to delete -start
-        Log.d("PlaceDetails", "emptyColleaguesListMessage");
-        //TODO: Test to delete -end
-
+        Log.d(TAG, "emptyColleaguesListMessage");
         binding.joiningColleagues.setVisibility(View.GONE);
         binding.emptyColleaguesListLayout.setVisibility(View.VISIBLE);
         switch (errorCode) {
@@ -442,6 +384,10 @@ public class RestaurantDetailsFragment extends Fragment {
                 break;
             case ERROR_FETCHING_COLLEAGUES_LIST:
                 binding.emptyColleaguesListTextview.setText(R.string.error_fetching_colleagues_list_message);
+                break;
+            case ERROR_FETCHING_PLACE_DETAILS:
+                Toast.makeText(getContext(), R.string.error_fetching_place_details, Toast.LENGTH_LONG).show();
+                getParentFragmentManager().popBackStackImmediate();
                 break;
             default:
                 binding.emptyColleaguesListTextview.setText(R.string.default_empty_list_message);

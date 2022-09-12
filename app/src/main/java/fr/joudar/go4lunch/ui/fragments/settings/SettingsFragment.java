@@ -1,13 +1,24 @@
 package fr.joudar.go4lunch.ui.fragments.settings;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavBackStackEntry;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDeepLinkBuilder;
+import androidx.navigation.Navigation;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -15,18 +26,23 @@ import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreferenceCompat;
 import androidx.work.WorkManager;
 
+import com.google.android.gms.maps.SupportMapFragment;
+
+import java.util.Arrays;
 import java.util.Calendar;
+
+import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory;
 import fr.joudar.go4lunch.R;
+import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.utils.Callback;
 import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 import fr.joudar.go4lunch.ui.core.dialogs.TimePreference;
 import fr.joudar.go4lunch.ui.core.dialogs.TimePreferenceDialog;
+import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
-    private String TAG = "SettingsFragment";
-
-    public SettingsFragment() {} // TODO: Delete?
+    private final String TAG = "SettingsFragment";
 
     SwitchPreferenceCompat notificationEnabled;
     TimePreference lunchReminder;
@@ -34,15 +50,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     Preference username;
     Preference deleteButton;
 
-    private final String JOB_TAG = "NOTIFICATION_DATA_FETCHING_JOB";
+    public SettingsFragment() {}
 
     //Lunch notifications
     Preference.OnPreferenceChangeListener notificationSwitchListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
             final boolean enabled = (boolean) newValue;
-
-            //LunchNotificationJobHandler.setEnabled(getContext(), enabled, lunchReminder.getPersistedTime());  //Uses the deprecated JobIntentService
 
             // Uses WorkerManager
             if (enabled){
@@ -119,61 +133,37 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
-        Log.d(TAG, "onCreatePreferences _START_");
-
-        Log.d(TAG, "onCreatePreferences _setPreferencesFromResource_");
-        setPreferencesFromResource(R.xml.preferences, rootKey); // TODO: Bug ? Why?
-
+        Log.d(TAG, "onCreatePreferences");
+        setPreferencesFromResource(R.xml.preferences, rootKey);
         viewsBinding();
-
-        Log.d(TAG, "notificationEnabled.setOnPreferenceChangeListener _START_");
         notificationEnabled.setOnPreferenceChangeListener(notificationSwitchListener);
-        Log.d(TAG, "notificationEnabled.setOnPreferenceChangeListener _FINISH_");
-
-        Log.d(TAG, "workplaceField.setSummary _START_");
         workplaceField.setSummary(workplaceField.getSharedPreferences().getString("workplace", "N/A"));
-        Log.d(TAG, "workplaceField.setSummary _FINISH_");
-
-        Log.d(TAG, "workplaceField.setOnPreferenceClickListener _START_");
         workplaceField.setOnPreferenceClickListener(workplaceClickListener);
-        Log.d(TAG, "workplaceField.setOnPreferenceClickListener _FINISH_");
-
-        Log.d(TAG, "username.setSummary _START_");
         username.setSummary(username.getSharedPreferences().getString("username", "N/A"));
-        Log.d(TAG, "username.setSummary _FINISH_");
-
-        Log.d(TAG, "username.setOnPreferenceClickListener _START_");
         username.setOnPreferenceClickListener(usernameClickListener);
-        Log.d(TAG, "username.setOnPreferenceClickListener _FINISH_");
-
-        Log.d(TAG, "deleteButton.setOnPreferenceClickListener _START_");
         deleteButton.setOnPreferenceClickListener(deleteBtnClickListener);
-        Log.d(TAG, "deleteButton.setOnPreferenceClickListener _FINISH_");
-
-        Log.d(TAG, "onCreatePreferences _FINISH_");
     }
 
     private void viewsBinding(){
-        Log.d(TAG, "viewsBinding _START_");
+        Log.d(TAG, "viewsBinding");
         notificationEnabled = findPreference("notification_enabled");
-        lunchReminder = findPreference("lunch_reminder");  //TODO: Problem here - TimeDialogPreference
+        lunchReminder = findPreference("lunch_reminder");
         workplaceField = findPreference("workplace");
         username = findPreference("username");
         deleteButton = findPreference("delete");
-        Log.d(TAG, "viewsBinding _FINISH_");
     }
 
     @Override
     public void onResume() {
-        Log.d(TAG, "onResume _START_");
+        Log.d(TAG, "onResume");
         super.onResume();
         ((HomepageActivity)getActivity()).settingsFragmentDisplayOptions();
-        Log.d(TAG, "onResume _FINISH_");
     }
 
 
     @Override
     public void onDisplayPreferenceDialog(@NonNull Preference preference) {
+        Log.d(TAG, "onDisplayPreferenceDialog");
         if (preference instanceof TimePreference) {
             final TimePreferenceDialog dialog = TimePreferenceDialog.getInstance(preference.getKey());
             dialog.setTargetFragment(this, 1);
@@ -187,29 +177,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
      ** Notification Work
      **********************************************************************************************/
 
-    // To enable or disable notifications //Uses the deprecated JobIntentService
-//    private void enable(Context context, boolean enabled, @Nullable Calendar calendar) {
-//        final LunchAlarmHandler lunchAlarmHandler = new LunchAlarmHandler(context);
-//        if (enabled) {
-//            if (calendar == null) throw new IllegalArgumentException();
-//            OnBootReceiver.enableNotifications(context);
-//            lunchAlarmHandler.scheduleLunchAlarm(calendar, LunchAlarmReceiver.class);  // Re-program the Notification
-//        } else {
-//            OnBootReceiver.disableNotifications(context);
-//            lunchAlarmHandler.cancelLunchAlarm(LunchAlarmReceiver.class);
-//        }
-//    }
-
     private void scheduleNotificationJob(Context context, @Nullable Calendar dueDate) {
-        Log.d(TAG, "scheduleNotificationJob _START_");
-        ((HomepageActivity)getActivity()).scheduleNotificationJob(context, dueDate);
-        Log.d(TAG, "scheduleNotificationJob _FINISH_");
+        Log.d(TAG, "scheduleNotificationJob");
+        ((HomepageActivity)getActivity()).scheduleNotification(context, dueDate);
     }
 
     private void deleteNotificationJob(Context context) {
-        Log.d(TAG, "deleteNotificationJob _START_");
+        Log.d(TAG, "deleteNotificationJob");
+        String JOB_TAG = "GO4LUNCH_NOTIFICATION_WORKER";
         WorkManager.getInstance(context).cancelAllWorkByTag(JOB_TAG);
-        Log.d(TAG, "deleteNotificationJob _FINISH_");
     }
 
 }

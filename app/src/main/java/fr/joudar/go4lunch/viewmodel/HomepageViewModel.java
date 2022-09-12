@@ -1,22 +1,30 @@
 package fr.joudar.go4lunch.viewmodel;
 
+import android.content.Context;
 import android.location.Location;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import fr.joudar.go4lunch.domain.core.notification.NotificationWorker;
 import fr.joudar.go4lunch.domain.models.Autocomplete;
 import fr.joudar.go4lunch.domain.models.Place;
 import fr.joudar.go4lunch.domain.models.User;
@@ -33,22 +41,23 @@ public class HomepageViewModel extends ViewModel {
     private final NearbysearchRepository nearbysearchRepository;
     private final AutocompleteRepository autocompleteRepository;
     private final PlaceDetailsRepository placeDetailsRepository;
+    private final WorkManager workManager;
 
     private Location lastLocation;
     private static Place[] lastResults;
     private LocalDateTime timeOfLastRequest;
 
-    //TODO: To define search radius in SettingsFragment and store it in SharedPreferences
-
     @Inject
     public HomepageViewModel(FirebaseServicesRepository firebaseServicesRepository,
                              NearbysearchRepository nearbysearchRepository,
                              AutocompleteRepository autocompleteRepository,
-                             PlaceDetailsRepository placeDetailsRepository) {
+                             PlaceDetailsRepository placeDetailsRepository,
+                             WorkManager workManager) {
         this.firebaseServicesRepository = firebaseServicesRepository;
         this.nearbysearchRepository = nearbysearchRepository;
         this.autocompleteRepository = autocompleteRepository;
         this.placeDetailsRepository = placeDetailsRepository;
+        this.workManager = workManager;
     }
 
     /***********************************************************************************************
@@ -150,7 +159,6 @@ public class HomepageViewModel extends ViewModel {
     }
 
     public void getColleaguesDistributionOverRestaurants(Callback<Map<String, Integer>> callback) {
-        Log.d("PlacesViewModel", "getColleaguesDistributionOverRestaurants");
         firebaseServicesRepository.getColleaguesDistributionOverRestaurants(callback);
     }
 
@@ -185,5 +193,26 @@ public class HomepageViewModel extends ViewModel {
 
     public void getPlaceDetails(String placeId, Callback<Place> callback) {
         placeDetailsRepository.getPlaceDetails(placeId, callback);
+    }
+
+    /***********************************************************************************************
+     ** Notification
+     **********************************************************************************************/
+
+    public void scheduleNotificationJob(Context context, @Nullable Calendar dueDate) {
+        final String JOB_TAG = "GO4LUNCH_NOTIFICATION_WORKER";
+        Calendar currentDate = Calendar.getInstance();
+        long timeDiff =  dueDate.getTimeInMillis() - currentDate.getTimeInMillis();
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        final PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(NotificationWorker.class,24, TimeUnit.HOURS)
+                .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                .addTag(JOB_TAG)
+                .setConstraints(constraints)
+                .build();
+
+        workManager.getInstance(context).enqueueUniquePeriodicWork(JOB_TAG, ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest);
     }
 }

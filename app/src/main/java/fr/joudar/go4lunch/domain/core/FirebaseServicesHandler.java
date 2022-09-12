@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,13 +27,14 @@ import fr.joudar.go4lunch.domain.utils.Callback;
 
 public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
+    private final String TAG = "FirebaseServicesHandler";
     private final FirebaseFirestore firestore;
     private final FirebaseAuth firebaseAuth;
     private User currentUser;
     private MutableLiveData<User> liveCurrentUser = new MutableLiveData<>();
 
     public FirebaseServicesHandler(FirebaseFirestore firestore, FirebaseAuth firebaseAuth) {
-        Log.d("FirebaseServicesHandler", "Constructor");
+        Log.d(TAG, "Constructor");
         liveCurrentUser.postValue(null);
         this.firestore = firestore;
         this.firebaseAuth = firebaseAuth;
@@ -44,7 +44,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     // Creates currentUser based on Firebase
     public void initUser(FirebaseAuth firebaseAuth) {
-        Log.d("FirebaseServicesHandler", "initUser");
+        Log.d(TAG, "initUser");
         final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
             final Uri userPhotoUrl = firebaseUser.getPhotoUrl();
@@ -52,16 +52,14 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                             firebaseUser.getUid(),
                             firebaseUser.getDisplayName(),
                             firebaseUser.getEmail(),
-                            userPhotoUrl != null ? userPhotoUrl.toString() : AVATAR_URL);
+                            userPhotoUrl != null ? userPhotoUrl.toString() : DEFAULT_AVATAR_URL);
             initUserData();
-        } else currentUser = null;
-
-        //Todo: ErrorMessage()?
-
+        } else
+            currentUser = null;
     }
 
     private void initUserData() {
-        Log.d("FirebaseServicesHandler", "initFirebaseData");
+        Log.d(TAG, "initUserData");
         firestore.collection("users")
                 .document(currentUser.getId())
                 .get()
@@ -79,7 +77,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                             }
                         }
                         else {
-                            Log.d("FirebaseServicesHandler", "Task failed with: ", task.getException());
+                            Log.d(TAG, "Task failed with: ", task.getException());
                         }
                     }
                 });
@@ -87,7 +85,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
 //    // Not optimal because of the lack of accuracy of isCurrentUserNew().
 //    private void initUserDataInFirestore() {
-//        Log.d("FirebaseServicesHandler", "initUserDataInFirestore");
+//        Log.d(TAG, "initUserDataInFirestore");
 //        if (isCurrentUserNew()) {
 //            Log.d("FirebaseServicesHandler", "isCurrentUserNew : true");
 //            firestore.collection("users")
@@ -102,7 +100,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     // Updates currentUser from Firestore.
     private void initUserDataFromFirestore() {
-        Log.d("FirebaseServicesHandler", "initUserDataFromFirestore");
+        Log.d(TAG, "initUserDataFromFirestore");
         firestore.collection("users")
                 .document(currentUser.getId())
                 .get()
@@ -126,16 +124,15 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     // Because sometimes the user from FirebaseAuth isn't initiated successfully, therefore pushes the value "username = null" to firestore. The method below is to avoid is bug.
     private void isUsernameNull(String username) {
-        Log.d("FirebaseServicesHandler", "isUsernameNull");
+        Log.d(TAG, "isUsernameNull");
         if (username == null || username.isEmpty()) {
-            Log.d("FirebaseServicesHandler", "isUsernameNull - true");
             updateCurrentUserData(USERNAME, currentUser.getUsername());
         }
     }
 
     // Creates new user in Firestore.
     private void initUserDataInFirestore() {
-        Log.d("FirebaseServicesHandler", "initUserDataInFirestore");
+        Log.d(TAG, "initUserDataInFirestore");
         firestore.collection("users")
                 .document(currentUser.getId())
                 .set(currentUser);
@@ -144,19 +141,19 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public User getCurrentUser() {
-        Log.d("FirebaseServicesHandler", "getCurrentUser");
+        Log.d(TAG, "getCurrentUser");
         return currentUser;
     }
 
     @Override
     public MutableLiveData<User> getLiveCurrentUser() {
-        Log.d("FirebaseServicesHandler", "getLiveCurrentUser");
+        Log.d(TAG, "getLiveCurrentUser");
         return liveCurrentUser;
     }
 
     @Override
     public void getColleagues(Callback<User[]> callback) {
-        Log.d("FirebaseServicesHandler", "getColleagues");
+        Log.d(TAG, "getColleagues");
         firestore
                 .collection("users")
                 .whereEqualTo(WORKPLACE_ID, currentUser.getWorkplaceId())
@@ -168,7 +165,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void getColleaguesByRestaurant(String restaurantId, Callback<User[]> callback) {
-        Log.d("FirebaseServicesHandler", "getColleaguesByRestaurant");
+        Log.d(TAG, "getColleaguesByRestaurant");
         firestore
                 .collection("users")
                 .whereEqualTo(WORKPLACE_ID, currentUser.getWorkplaceId())
@@ -181,15 +178,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void updateAllCurrentUserData(User user) {
-        Log.d("FirebaseServicesHandler", "updateAllCurrentUserData");
-//        final Map<String, Object> userData = new HashMap<>();
-//        userData.put(WORKPLACE_ID, currentUser.getWorkplaceId());
-//        userData.put(WORKPLACE_NAME, currentUser.getWorkplaceName());
-//        userData.put(WORKPLACE_ADDRESS, currentUser.getWorkplaceAddress());
-//        userData.put(CHOSEN_RESTAURANT_ID, currentUser.getChosenRestaurantId());
-//        userData.put(CHOSEN_RESTAURANT_NAME, currentUser.getChosenRestaurantName());
-//        userData.put(LIKED_RESTAURANTS_ID_LIST, currentUser.getLikedRestaurantsIdList());
-//        firestore.collection("users").document(currentUser.getId()).update(userData);
+        Log.d(TAG, "updateAllCurrentUserData");
         firestore.collection("users").document(currentUser.getId()).set(user);
         currentUser = user;
         liveCurrentUser.postValue(user);
@@ -197,7 +186,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void resetChosenRestaurant() {
-        Log.d("FirebaseServicesHandler", "resetChosenRestaurant");
+        Log.d(TAG, "resetChosenRestaurant");
         currentUser.setChosenRestaurantId("");
         currentUser.setChosenRestaurantName("");
         currentUser.setChosenRestaurantAddress("");
@@ -207,7 +196,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void updateCurrentUserData(String key, Object value) {
-        Log.d("FirebaseServicesHandler", "updateCurrentUserData");
+        Log.d(TAG, "updateCurrentUserData");
         final Map<String, Object> userData = new HashMap<>();
         userData.put(key, value);
         if (key.equals(CHOSEN_RESTAURANT_ID)) {
@@ -220,7 +209,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public boolean isCurrentUserNew() {
-        Log.d("FirebaseServicesHandler", "isCurrentUserNew");
+        Log.d(TAG, "isCurrentUserNew");
         final FirebaseUserMetadata userMetadata = firebaseAuth.getCurrentUser().getMetadata();
         // getLastSignInTimestamp() is only accurate up to a granularity of 2 minutes for consecutive sign-in attempts, which might create confusion with getCreationTimestamp().
         return userMetadata.getLastSignInTimestamp() == userMetadata.getCreationTimestamp();
@@ -228,26 +217,26 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void logout() {
-        Log.d("FirebaseServicesHandler", "logout");
+        Log.d(TAG, "logout");
         firebaseAuth.signOut();
     }
 
 
     @Override
     public void deleteCurrentUserAccount(Callback<Boolean> callback) {
-        Log.d("FirebaseServicesHandler", "deleteCurrentUserAccount");
+        Log.d(TAG, "deleteCurrentUserAccount");
         deleteUserFromFirestore(callback);
     }
 
     private void deleteUserFromFirestore(Callback<Boolean> callback){
-        Log.d("FirebaseServicesHandler", "deleteUserFromFirestore");
+        Log.d(TAG, "deleteUserFromFirestore");
         firestore.collection("users").document(currentUser.getId()).delete()
                 .addOnSuccessListener(__ -> deleteUserFromFirebase(callback))
                 .addOnFailureListener(__ -> callback.onFailure());
     }
 
     private void deleteUserFromFirebase(Callback<Boolean> callback) {
-        Log.d("FirebaseServicesHandler", "deleteUserFromFirebase");
+        Log.d(TAG, "deleteUserFromFirebase");
         firebaseAuth
                 .getCurrentUser()
                 .delete()
@@ -257,7 +246,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public void getColleaguesDistributionOverRestaurants(Callback<Map<String, Integer>> callback) {
-        Log.d("FirebaseServicesHandler", "getColleaguesDistributionOverRestaurants");
+        Log.d(TAG, "getColleaguesDistributionOverRestaurants");
         firestore
                 .collection("users")
                 .whereEqualTo(WORKPLACE_ID, currentUser.getWorkplaceId())
@@ -281,23 +270,25 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
 
     @Override
     public String getWorkplaceId() {
-        Log.d("FirebaseServicesHandler", "getWorkplaceId");
+        Log.d(TAG, "getWorkplaceId");
         return currentUser.getWorkplaceId();
     }
 
     @Override
     public String getWorkplaceName() {
+        Log.d(TAG, "getWorkplaceName");
         return currentUser.getWorkplaceName();
     }
 
     @Override
     public String getWorkplaceAddress() {
+        Log.d(TAG, "getWorkplaceAddress");
         return currentUser.getWorkplaceAddress();
     }
 
     @Override
     public void setUsername(String username) {
-//        currentUser.setUsername(username);
+        Log.d(TAG, "setUsername");
         UserProfileChangeRequest usernameUpdater = new UserProfileChangeRequest.Builder()
                 .setDisplayName(username).build();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
@@ -312,7 +303,7 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     }
 
     private User[] snapshotsToArrayConverter(List<DocumentSnapshot> usersDocuments) {
-        Log.d("FirebaseServicesHandler", "snapshotsToArrayConverter");
+        Log.d(TAG, "snapshotsToArrayConverter");
         final List<User> userList = new ArrayList<>();
         String id = getCurrentUser().getId();
         for (DocumentSnapshot userDoc : usersDocuments) {
@@ -322,12 +313,12 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                                 userDoc.getId(),
                                 userDoc.getString(USERNAME),
                                 "",
-                                userDoc.getString("avatarUrl"),
+                                userDoc.getString(AVATAR_URL),
                                 userDoc.getString(WORKPLACE_ID),
                                 "", // userDoc.getString(WORKPLACE_NAME),
                                 "", // userDoc.getString(WORKPLACE_ADDRESS),
                                 userDoc.getString(CHOSEN_RESTAURANT_ID),
-                                "", // userDoc.getString(CHOSEN_RESTAURANT_NAME),
+                                userDoc.getString(CHOSEN_RESTAURANT_NAME),
                                 "", // userDoc.getString(CHOSEN_RESTAURANT_ADDRESS),
                                 null //(List<String>) userDoc.get(LIKED_RESTAURANTS_ID_LIST)
                         ));
