@@ -29,7 +29,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 @Module
 @InstallIn(SingletonComponent.class) // lives throughout the app's lifecycle
-public class SingletonModule implements Initializer<WorkManager> {
+public class SingletonModule {
 
     @Provides
     @Singleton // Insures instance singleness
@@ -47,21 +47,4 @@ public class SingletonModule implements Initializer<WorkManager> {
                 .create(HttpQueryProvider.class);
     }
 
-    @Provides
-    @Singleton
-    @NonNull
-    @Override
-    public WorkManager create(@ApplicationContext @NonNull Context context) {
-        Configuration configuration = new Configuration.Builder().build();
-        WorkManager.initialize(context, configuration);
-        Log.d("Hilt Init", "WorkManager initialized by Hilt this time");
-        return WorkManager.getInstance(context);
-    }
-
-
-    @NonNull
-    @Override
-    public List<Class<? extends Initializer<?>>> dependencies() {
-        return emptyList();
-    }
 }

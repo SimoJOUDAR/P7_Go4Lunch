@@ -61,6 +61,7 @@
     <string name="notification_channel_name">Lunch Reminder Notification</string>
     <string name="notification_channel_description">This notification will display everyday at lunch time</string>
     <string name="lunch_notification_title">It\'s lunch time</string>
+    <string name="lunch_time_notification_msg_userless">It\'s lunch time, enjoy!</string>
     <string name="lunch_time_notification_msg_restaurantless">%1$s, it\'s lunch time.</string>
     <string name="lunch_time_notification_msg_unaccompanied">%1$s, it\'s lunch time, today\'s at %2$s (%3$s), enjoy your own company!</string>
     <string name="lunch_time_notification_msg">%1$s, it\'s lunch time, today\'s at %2$s (%3$s), enjoy with %4$s.</string>

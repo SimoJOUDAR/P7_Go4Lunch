@@ -10,40 +10,41 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.hilt.work.HiltWorker;
 import androidx.navigation.NavDeepLinkBuilder;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
 
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedInject;
 import fr.joudar.go4lunch.R;
-import fr.joudar.go4lunch.domain.models.Place;
-import fr.joudar.go4lunch.domain.models.User;
-import fr.joudar.go4lunch.domain.services.FirebaseServicesProvider;
-import fr.joudar.go4lunch.domain.utils.Callback;
-import fr.joudar.go4lunch.repositories.FirebaseServicesRepository;
-import fr.joudar.go4lunch.repositories.PlaceDetailsRepository;
 import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 
-@HiltWorker
 public class NotificationWorker extends Worker {
 
     private final String TAG = "NotificationWorker";
     private static final int NOTIFICATION_ID = 11;
-    private String NOTIFICATION_CHANNEL_ID = "Lunch_Time_Notification_Channel_Id";
+    private final String NOTIFICATION_CHANNEL_ID = "Lunch_Time_Notification_Channel_Id";
 
-    private final FirebaseServicesProvider firebaseServicesProvider;
+    private final Context context;
+    private final FirebaseFirestore firestore;
+    private final FirebaseAuth firebaseAuth;
 
-    User currentUser;
+    String USERNAME = "username";
+    String WORKPLACE_ID = "workplaceId";
+    String CHOSEN_RESTAURANT_ID = "chosenRestaurantId";
+    String CHOSEN_RESTAURANT_NAME = "chosenRestaurantName";
+    String CHOSEN_RESTAURANT_ADDRESS = "chosenRestaurantAddress";
+
+    String userId = null;
     String username = null;
     String workplaceId = null;
     String chosenRestaurantId = null;
@@ -52,96 +53,117 @@ public class NotificationWorker extends Worker {
     String joiningColleagues = null;
     String contentText = null;
 
-    Callback<User[]> colleaguesByRestaurantCallback = new Callback<User[]>() {
-        @Override
-        public void onSuccess(User[] colleagues) {
-            Log.d(TAG, "colleaguesByRestaurantCallback - onSuccess : Colleagues fetched : " + Arrays.toString(colleagues));
-            UsersToStringConverter(colleagues);
-        }
-
-        @Override
-        public void onFailure() {
-            Log.d(TAG, "colleaguesByRestaurantCallback - onFailure");
-            getContentText(getApplicationContext());
-        }
-    };
-
-    @AssistedInject
-    public NotificationWorker(
-            @Assisted @NonNull Context context,
-            @Assisted @NonNull WorkerParameters workerParams,
-            FirebaseServicesProvider firebaseServicesProvider) {
+    public NotificationWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         Log.d(TAG, "Constructor");
-        this.firebaseServicesProvider = firebaseServicesProvider;
+        this.context = context;
+        firestore = FirebaseFirestore.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
     }
 
     @NonNull
     @Override
     public Result doWork() {
         Log.d(TAG, "doWork");
-        initData();
+        final FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            userId = firebaseUser.getUid();
+            initUserDataFromFirestore();
+        } else
+            getContentText();
+
+
         return Result.success();
     }
 
-    private void initData() {
+    /***********************************************************************************************
+     ** Data fetching
+     **********************************************************************************************/
+
+    private void initUserDataFromFirestore() {
+        Log.d(TAG, "initUserDataFromFirestore");
+        firestore.collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot userDocument) {
+                        initData(userDocument);
+                    }
+                });
+    }
+
+    private void initData(DocumentSnapshot userDocument) {
         Log.d(TAG, "initData");
-        currentUser = firebaseServicesProvider.getCurrentUser();
-        username = currentUser.getUsername();
-        workplaceId = currentUser.getWorkplaceId();
-        chosenRestaurantId = currentUser.getChosenRestaurantId();
-        chosenRestaurantName = currentUser.getChosenRestaurantName();
-        chosenRestaurantAddress = currentUser.getWorkplaceAddress();
+        username = userDocument.getString(USERNAME);
+        workplaceId = userDocument.getString(WORKPLACE_ID);
+        chosenRestaurantId = userDocument.getString(CHOSEN_RESTAURANT_ID);
+        chosenRestaurantName = userDocument.getString(CHOSEN_RESTAURANT_NAME);
+        chosenRestaurantAddress = userDocument.getString(CHOSEN_RESTAURANT_ADDRESS);
 
         if (chosenRestaurantId != null && !chosenRestaurantId.isEmpty()) {
             if (workplaceId != null && !workplaceId.isEmpty()) {
-                firebaseServicesProvider.getColleaguesByRestaurant(chosenRestaurantId, colleaguesByRestaurantCallback);
+                getColleaguesByRestaurant();
             }
             else
-                getContentText(getApplicationContext());
+                getContentText();
         }
         else
-            getContentText(getApplicationContext());
+            getContentText();
     }
 
-    private void UsersToStringConverter(User[] users) {
-        Log.d(TAG, "UsersToStringConverter");
-        if (users != null) {
-            StringBuilder builder = new StringBuilder();
-            for (User user : users) {
-                builder.append(user.getUsername()).append(", ");
+    public void getColleaguesByRestaurant() {
+        Log.d(TAG, "getColleaguesByRestaurant");
+        firestore.collection("users")
+                .whereEqualTo(WORKPLACE_ID, workplaceId)
+                .whereEqualTo(CHOSEN_RESTAURANT_ID, chosenRestaurantId)
+                .get()
+                .addOnSuccessListener(
+                        snapshots -> joiningColleaguesBuilder(snapshots.getDocuments()))
+                .addOnFailureListener(__ -> getContentText());
+    }
+
+    private void joiningColleaguesBuilder(List<DocumentSnapshot> usersDocuments) {
+        Log.d(TAG, "snapshotsToArrayConverter");
+        StringBuilder builder = new StringBuilder();
+        for (DocumentSnapshot userDoc : usersDocuments) {
+            if (!userDoc.getId().equals(userId)) {
+                builder.append(userDoc.getString(USERNAME)).append(", ");
             }
-            final int length = builder.length();
-            builder.delete(length - 2, length);  // To remove the last comma-space
-            joiningColleagues = builder.toString();
         }
-        else
-            joiningColleagues = null;
-        getContentText(getApplicationContext());
+        final int length = builder.length();
+        builder.delete(length - 2, length);  // To remove the last comma-space
+        joiningColleagues = builder.toString();
+
+        getContentText();
     }
 
     // Return the appropriate text to display on the Notification
-    private void getContentText(Context context) {
+    private void getContentText() {
         Log.d(TAG, "getContentText");
-        if (chosenRestaurantId == null || chosenRestaurantId.isEmpty()) {
+
+        if (userId == null || userId.isEmpty())
+            contentText = context.getString(R.string.lunch_time_notification_msg_userless);
+        else if (chosenRestaurantId == null || chosenRestaurantId.isEmpty())
             contentText = context.getString(R.string.lunch_time_notification_msg_restaurantless, username);
-        }
-        else if (joiningColleagues == null || joiningColleagues.isEmpty()) {
+        else if (joiningColleagues == null || joiningColleagues.isEmpty())
             contentText = context.getString(R.string.lunch_time_notification_msg_unaccompanied, username, chosenRestaurantName, chosenRestaurantAddress);
-        }
 
-        else {
+        else
             contentText = context.getString(R.string.lunch_time_notification_msg, username, chosenRestaurantName, chosenRestaurantAddress, joiningColleagues);
-        }
 
-        launchNotification(getApplicationContext());
+        launchNotification();
     }
 
+    /***********************************************************************************************
+     ** Notification
+     **********************************************************************************************/
+
     // Builds and displays the notification
-    private void launchNotification(Context context) {
+    private void launchNotification() {
         Log.d(TAG, "launchNotification");
         final NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        createNotificationChanel(context, notificationManager);
+        createNotificationChanel(notificationManager);
 
         Bundle bundle = new Bundle();
         bundle.putString("placeId", chosenRestaurantId);
@@ -168,7 +190,7 @@ public class NotificationWorker extends Worker {
 
 
     // Creates a Notification Channel for Android version 26 or higher
-    private void createNotificationChanel(Context context, NotificationManager notificationManager) {
+    private void createNotificationChanel(NotificationManager notificationManager) {
         Log.d(TAG, "createNotificationChanel");
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             final String notificationChannelName = context.getString(R.string.notification_channel_name);

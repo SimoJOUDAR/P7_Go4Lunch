@@ -116,7 +116,6 @@ public class RestaurantDetailsFragment extends Fragment {
         photosAdapter = new RestaurantDetailsPictureListAdapter(getContext());
         setupPhotosRecyclerView();
         setupColleaguesRecyclerView();
-        fetchRestaurantDetails();
         return binding.getRoot();
     }
 
@@ -142,6 +141,7 @@ public class RestaurantDetailsFragment extends Fragment {
         viewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
                 likedPlaces = viewModel.getCurrentUser().getLikedRestaurantsIdList();
+                fetchRestaurantDetails();
             }
         });
     }

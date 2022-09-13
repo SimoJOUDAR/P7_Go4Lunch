@@ -41,7 +41,6 @@ public class HomepageViewModel extends ViewModel {
     private final NearbysearchRepository nearbysearchRepository;
     private final AutocompleteRepository autocompleteRepository;
     private final PlaceDetailsRepository placeDetailsRepository;
-    private final WorkManager workManager;
 
     private Location lastLocation;
     private static Place[] lastResults;
@@ -51,13 +50,11 @@ public class HomepageViewModel extends ViewModel {
     public HomepageViewModel(FirebaseServicesRepository firebaseServicesRepository,
                              NearbysearchRepository nearbysearchRepository,
                              AutocompleteRepository autocompleteRepository,
-                             PlaceDetailsRepository placeDetailsRepository,
-                             WorkManager workManager) {
+                             PlaceDetailsRepository placeDetailsRepository) {
         this.firebaseServicesRepository = firebaseServicesRepository;
         this.nearbysearchRepository = nearbysearchRepository;
         this.autocompleteRepository = autocompleteRepository;
         this.placeDetailsRepository = placeDetailsRepository;
-        this.workManager = workManager;
     }
 
     /***********************************************************************************************
@@ -213,6 +210,6 @@ public class HomepageViewModel extends ViewModel {
                 .setConstraints(constraints)
                 .build();
 
-        workManager.getInstance(context).enqueueUniquePeriodicWork(JOB_TAG, ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest);
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(JOB_TAG, ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest);
     }
 }

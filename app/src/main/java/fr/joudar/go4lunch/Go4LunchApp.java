@@ -11,16 +11,6 @@ import javax.inject.Inject;
 import dagger.hilt.android.HiltAndroidApp;
 
 @HiltAndroidApp
-public class Go4LunchApp extends Application implements Configuration.Provider {
+public class Go4LunchApp extends Application {
 
-    @Inject
-    HiltWorkerFactory hiltWorkerFactory;
-
-    @NonNull
-    @Override
-    public Configuration getWorkManagerConfiguration() {
-        return new Configuration.Builder()
-                .setMinimumLoggingLevel(android.util.Log.DEBUG)
-                .setWorkerFactory(hiltWorkerFactory).build();
-    }
 }
