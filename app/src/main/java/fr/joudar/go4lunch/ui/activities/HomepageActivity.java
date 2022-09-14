@@ -80,7 +80,6 @@ public class HomepageActivity extends AppCompatActivity {
     @Inject public CurrentLocationProvider currentLocationProvider;
     private HomepageViewModel homepageViewModel;
     private Location currentLocation;
-    private User currentUser = null;
     private static WorkplaceDialogFragment workplaceDialog;
     boolean firstInit = true;
 
@@ -170,10 +169,9 @@ public class HomepageActivity extends AppCompatActivity {
 
     // Opens up the RestaurantDetailsFragment to display the chosen restaurant
     private void displayChosenRestaurant() {
-        String id = currentUser.getChosenRestaurantId();
-        if (id != null && !id.isEmpty()) {
+        if (homepageViewModel.isChosenRestaurantSet()) {
             Toast.makeText(this, R.string.your_lunch_toast, Toast.LENGTH_SHORT).show();
-            navigateToPlaceDetailsFragment(id);
+            navigateToPlaceDetailsFragment(homepageViewModel.getChosenRestaurantId());
             binding.getRoot().closeDrawer(binding.drawerNav, false);
         }
         else {
@@ -217,13 +215,10 @@ public class HomepageActivity extends AppCompatActivity {
         Log.d(TAG, "initViewModel");
         homepageViewModel = new ViewModelProvider(this).get(HomepageViewModel.class);
         homepageViewModel.getLiveCurrentUser().observe(this, user -> {
-            if (user != null) {
-                currentUser = user;
-                if (firstInit) {
-                    initSharedPreferences();
-                    initUserWorkplaceId();
-                    firstInit = false;
-                }
+            if (user != null && firstInit) {
+                initSharedPreferences();
+                initUserWorkplaceId();
+                firstInit = false;
             }
         });
 
@@ -331,25 +326,24 @@ public class HomepageActivity extends AppCompatActivity {
      **********************************************************************************************/
     // Manages the SharedPreferences (to save basic user info)
     private void initSharedPreferences() {
-        Log.d(TAG, "initSharedPreferences - Start - currentUser.getId() = " + currentUser.getId());
+        Log.d(TAG, "initSharedPreferences - Start - currentUser.getId() = " + homepageViewModel.getId());
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         final SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
-        if ( !sharedPreferences.getString("owner", "").equals(currentUser.getId()) ) {
+        if ( !sharedPreferences.getString("owner", "").equals(homepageViewModel.getId()) ) {
             sharedPreferencesEditor.clear();
-            sharedPreferencesEditor.putString("owner", currentUser.getId());
-            sharedPreferencesEditor.putString("username", currentUser.getUsername());
-            initLunchNotification(); //If the currentUser changed
+            sharedPreferencesEditor.putString("owner", homepageViewModel.getId());
+            sharedPreferencesEditor.putString("username", homepageViewModel.getCurrentUser().getUsername());
+            initLunchNotification(); //If the currentUser has changed
         }
-        if ( !sharedPreferences.getString("workplaceId", "0").equals(currentUser.getWorkplaceId()) ) {
-            String workplaceId = homepageViewModel.getWorkplaceId();
-            if (workplaceId != null || !workplaceId.isEmpty()) {
-                sharedPreferencesEditor.putString("workplaceId", workplaceId);
+        if ( !sharedPreferences.getString("workplaceId", "0").equals(homepageViewModel.getWorkplaceId()) ) {
+            if (homepageViewModel.isWorkplaceIdSet()) {
+                sharedPreferencesEditor.putString("workplaceId", homepageViewModel.getWorkplaceId());
                 sharedPreferencesEditor.putString("workplace", homepageViewModel.getWorkplaceName() + "\n" + homepageViewModel.getWorkplaceAddress());
             }
         }
 
-        if ( !sharedPreferences.getString("username", "null").equals(currentUser.getUsername()) ) {
-            String username = currentUser.getUsername();
+        if ( !sharedPreferences.getString("username", "null").equals(homepageViewModel.getCurrentUser().getUsername()) ) {
+            String username = homepageViewModel.getCurrentUser().getUsername();
             if (username != null || !username.isEmpty()) {
                 sharedPreferencesEditor.putString("username", username);
             }
@@ -381,7 +375,7 @@ public class HomepageActivity extends AppCompatActivity {
     // Initializes the workplaceID
     private void initUserWorkplaceId() {
         Log.d(TAG, "initUserWorkplaceId");
-        if (currentUser.getWorkplaceId() == null || currentUser.getWorkplaceId().isEmpty()) {
+        if (!homepageViewModel.isWorkplaceIdSet()) {
             launchWorkplacePickerDialog(null);
         }
     }
@@ -429,20 +423,20 @@ public class HomepageActivity extends AppCompatActivity {
             public void onSuccess(Autocomplete result) {
                 // Updates currentUser workplaceId value
                 Log.d(TAG, "launchWorkplacePickerDialog - onItemSelected - onSuccess");
-                currentUser.setWorkplace(result);
+                homepageViewModel.getCurrentUser().setWorkplace(result);
 
                 // Updates sharedPreferences workplaceId, workplaceTitle & workplaceDetail values
                 final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
                 final SharedPreferences.Editor sharedPreferencesEditor = sharedPreferences.edit();
-                sharedPreferencesEditor.putString("workplaceId", currentUser.getWorkplaceId());
-                sharedPreferencesEditor.putString("workplace", currentUser.getWorkplaceName() + "\n" + currentUser.getWorkplaceAddress());
+                sharedPreferencesEditor.putString("workplaceId", homepageViewModel.getWorkplaceId());
+                sharedPreferencesEditor.putString("workplace", homepageViewModel.getWorkplaceName() + "\n" + homepageViewModel.getWorkplaceAddress());
                 sharedPreferencesEditor.apply();
 
                 if (innerCallback != null) {
-                    innerCallback.onSuccess(currentUser.getWorkplaceName() + "\n" + currentUser.getWorkplaceAddress());
+                    innerCallback.onSuccess(homepageViewModel.getWorkplaceName() + "\n" + homepageViewModel.getWorkplaceAddress());
                 }
 
-                homepageViewModel.updateAllCurrentUserData(currentUser);
+                homepageViewModel.updateAllCurrentUserData(homepageViewModel.getCurrentUser());
 
                 workplaceDialog.dismiss();
                 Toast.makeText(HomepageActivity.this, R.string.workplace_dialog_toast, Toast.LENGTH_SHORT).show();
@@ -474,6 +468,7 @@ public class HomepageActivity extends AppCompatActivity {
                 if (input.length() > 2) {
                     homepageViewModel.setUsername(input);
                     callback.onSuccess(input);
+                    initDrawerNavDataDisplay();
                     dialogInterface.dismiss();
                 }
                 else
@@ -484,7 +479,7 @@ public class HomepageActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 final Resources resources = binding.getRoot().getResources();
-                String contentText = resources.getString(R.string.usernameDialog_snackbar, currentUser.getUsername());
+                String contentText = resources.getString(R.string.usernameDialog_snackbar, homepageViewModel.getCurrentUser().getUsername());
                 Snackbar snackbar = Snackbar.make(binding.getRoot(), contentText, Snackbar.LENGTH_LONG);
                 snackbar.setAction(R.string.usernameDialog_snackbar_actionBtn, new View.OnClickListener() {
                     @Override

@@ -7,11 +7,11 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
@@ -39,7 +39,6 @@ import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.services.FirebaseServicesProvider;
 import fr.joudar.go4lunch.domain.utils.Calculus;
 import fr.joudar.go4lunch.domain.utils.Callback;
-import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 import fr.joudar.go4lunch.ui.core.adapters.ColleaguesListAdapter;
 import fr.joudar.go4lunch.ui.core.adapters.RestaurantDetailsPictureListAdapter;
 import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
@@ -48,6 +47,7 @@ import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 public class RestaurantDetailsFragment extends Fragment {
 
     private final String TAG = "RestaurantDetailsFrag";
+    boolean isFirstInit = true;
 
     // Error code for emptyColleaguesListMessage method:
     final int NO_JOINING_COLLEAGUES_CODE = 1;
@@ -67,13 +67,12 @@ public class RestaurantDetailsFragment extends Fragment {
         public void onClick(View view) {
             String id = viewModel.getCurrentUser().getChosenRestaurantId();
             if (id != null && id.equals(place.getId())) {
-                viewModel.resetChosenRestaurant();
                 favoriteRestaurantBtnHandler(false);
+                viewModel.resetChosenRestaurant();
+
             }
             else {
-                viewModel.getCurrentUser().setChosenRestaurantId(place.getId());
-                viewModel.getCurrentUser().setChosenRestaurantName(place.getName());
-                viewModel.getCurrentUser().setChosenRestaurantAddress(place.getVicinity());
+                viewModel.getCurrentUser().setChosenRestaurant(place);
                 viewModel.updateCurrentUserData(FirebaseServicesProvider.CHOSEN_RESTAURANT_ID, place.getId());
                 favoriteRestaurantBtnHandler(true);
             }
@@ -140,9 +139,10 @@ public class RestaurantDetailsFragment extends Fragment {
         viewModel = viewModelProvider.get(HomepageViewModel.class);
 
         viewModel.getLiveCurrentUser().observe(getViewLifecycleOwner(), user -> {
-            if (user != null) {
+            if (isFirstInit && user != null) {
                 likedPlaces = viewModel.getCurrentUser().getLikedRestaurantsIdList();
                 fetchRestaurantDetails();
+                isFirstInit = false;
             }
         });
     }
@@ -172,8 +172,7 @@ public class RestaurantDetailsFragment extends Fragment {
     // Fetches the joining colleagues
     private void fetchJoiningColleagues(String placeId) {
         Log.d(TAG, "fetchJoiningColleagues");
-        String workplaceID = viewModel.getWorkplaceId();
-        if (workplaceID == null || workplaceID.isEmpty())
+        if (!viewModel.isWorkplaceIdSet())
             emptyColleaguesListMessage(NO_WORKPLACE_SELECTED_CODE);
         else
             viewModel.getColleaguesByRestaurant(placeId, new Callback<User[]>() {
@@ -362,14 +361,14 @@ public class RestaurantDetailsFragment extends Fragment {
     // Updates colleagues' vertical recyclerView
     private void updateColleaguesRecyclerView() {
         Log.d(TAG, "updateColleaguesRecyclerView");
-        if (users.length == 0)
+        if (users == null || users.length == 0)
             emptyColleaguesListMessage(NO_JOINING_COLLEAGUES_CODE);
         else
             colleaguesAdapter.updateData(users);
     }
 
     /***********************************************************************************************
-     ** Option menu
+     ** Toolbar & Option menu
      **********************************************************************************************/
 
     @Override
@@ -387,6 +386,18 @@ public class RestaurantDetailsFragment extends Fragment {
                 return false;
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().show();
     }
 
     /***********************************************************************************************

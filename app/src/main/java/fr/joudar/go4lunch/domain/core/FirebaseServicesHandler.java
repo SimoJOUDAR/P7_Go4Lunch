@@ -17,10 +17,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
+import fr.joudar.go4lunch.domain.models.Place;
 import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.services.FirebaseServicesProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
@@ -324,7 +327,12 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                         ));
             }
         }
-
-        return userList.toArray(new User[0]); //We added (new User[0]) as arg to avoid NullPointer exceptions
+        if (!userList.isEmpty()) {
+            Stream<User> stream = userList.stream().sorted((u1, u2) -> Boolean.compare(u2.isChosenRestaurantSet(), u1.isChosenRestaurantSet()));
+            return stream.toArray(User[]::new);
+        }
+        else
+            return null;
     }
+
 }

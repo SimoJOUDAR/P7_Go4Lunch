@@ -6,25 +6,14 @@ import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.MenuHost;
-import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
 
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -35,10 +24,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +34,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory;
 import fr.joudar.go4lunch.R;
 import fr.joudar.go4lunch.domain.models.Place;
-import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.services.CurrentLocationProvider;
 import fr.joudar.go4lunch.domain.utils.Callback;
 import fr.joudar.go4lunch.ui.activities.HomepageActivity;
@@ -108,7 +92,7 @@ public class MapFragment extends Fragment {
     // a HashMap of colleagues distribution overs nearby restaurant
     private void getColleaguesDistributionOverRestaurants() {
         Log.d(TAG, "getColleaguesDistributionOverRestaurants");
-        if (homepageViewModel.getWorkplaceId() != null) {
+        if (homepageViewModel.isWorkplaceIdSet()) {
             homepageViewModel.getColleaguesDistributionOverRestaurants(new Callback<Map<String, Integer>>() {
                 @Override
                 public void onSuccess(Map<String, Integer> results) {

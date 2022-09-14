@@ -130,6 +130,20 @@ public class User {
         this.workplaceName = workplace.getTitle();
         this.workplaceAddress = workplace.getDetail();
     }
+
+    public void setChosenRestaurant(Place place) {
+        this.chosenRestaurantId = place.getId();
+        this.chosenRestaurantName = place.getName();
+        this.chosenRestaurantAddress = place.getVicinity();
+    }
+
+    public boolean isWorkplaceIdSet() { //TODO: use these to replace the long expressions
+        return (getWorkplaceId() != null && !getWorkplaceId().isEmpty() && !getWorkplaceId().equals(""));
+    }
+
+    public boolean isChosenRestaurantSet() { //TODO: use these to replace the long expressions
+        return (getChosenRestaurantId() != null && !getChosenRestaurantId().isEmpty() && !getChosenRestaurantId().equals(""));
+    }
 }
 
 

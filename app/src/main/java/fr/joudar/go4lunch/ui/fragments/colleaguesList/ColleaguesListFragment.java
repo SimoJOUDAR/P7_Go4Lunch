@@ -3,17 +3,10 @@ package fr.joudar.go4lunch.ui.fragments.colleaguesList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
@@ -95,7 +88,7 @@ public class ColleaguesListFragment extends Fragment {
 
     private void checkWorkplaceAvailable() {
         Log.d(TAG, "checkWorkplaceAvailable");
-        if (viewModel.getWorkplaceId() == null || viewModel.getWorkplaceId().isEmpty())
+        if (!viewModel.isWorkplaceIdSet())
             emptyListMessage(NO_WORKPLACE_SELECTED_CODE);
         else
             fetchData();

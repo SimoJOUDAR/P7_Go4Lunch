@@ -1,12 +1,7 @@
 package fr.joudar.go4lunch.ui.fragments.settings;
 
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,34 +11,20 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavBackStackEntry;
-import androidx.navigation.NavController;
-import androidx.navigation.NavDeepLinkBuilder;
-import androidx.navigation.Navigation;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
-import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreferenceCompat;
 import androidx.work.WorkManager;
 
-import com.google.android.gms.maps.SupportMapFragment;
-
-import java.util.Arrays;
 import java.util.Calendar;
-
-import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory;
 import fr.joudar.go4lunch.R;
-import fr.joudar.go4lunch.domain.models.User;
 import fr.joudar.go4lunch.domain.utils.Callback;
 import fr.joudar.go4lunch.ui.activities.HomepageActivity;
 import fr.joudar.go4lunch.ui.core.dialogs.TimePreference;
 import fr.joudar.go4lunch.ui.core.dialogs.TimePreferenceDialog;
-import fr.joudar.go4lunch.viewmodel.HomepageViewModel;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -186,7 +167,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     /***********************************************************************************************
-     ** Option menu
+     ** Toolbar & Option menu
      **********************************************************************************************/
 
     @Override
@@ -206,4 +187,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().show();
+    }
 }

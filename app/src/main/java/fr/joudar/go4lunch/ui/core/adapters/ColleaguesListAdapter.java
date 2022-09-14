@@ -1,6 +1,8 @@
 package fr.joudar.go4lunch.ui.core.adapters;
 
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,10 +78,14 @@ public class ColleaguesListAdapter extends RecyclerView.Adapter<ColleaguesListAd
                 contentText = resources.getString(R.string.colleague_is_joining, user.getUsername());
             }
             else {
-                if (user.getChosenRestaurantName() == null || user.getChosenRestaurantName().isEmpty())
+                if (!user.isChosenRestaurantSet()) {
                     contentText = resources.getString(R.string.colleague_has_not_chosen, user.getUsername());
+                    binding.colleagueName.setTypeface(null, Typeface.ITALIC);
+                }
                 else {
                     contentText = resources.getString(R.string.colleague_is_eating_at, user.getUsername(), user.getChosenRestaurantName());
+                    binding.colleagueName.setTextColor(Color.BLACK);
+//                    binding.colleagueName.setTypeface(null, Typeface.BOLD);
                     binding.getRoot().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {

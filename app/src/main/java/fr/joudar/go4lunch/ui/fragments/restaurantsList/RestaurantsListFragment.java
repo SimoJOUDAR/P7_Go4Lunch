@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +140,7 @@ public class RestaurantsListFragment extends Fragment {
 
     private void checkWorkplaceAvailable() {
         Log.d(TAG, "checkWorkplaceAvailable");
-        if (viewModel.getWorkplaceId() == null || viewModel.getWorkplaceId().isEmpty())
+        if (!viewModel.isWorkplaceIdSet())
             emptyListMessage(NO_WORKPLACE_SELECTED_CODE);
         else
             getCurrentLocation();
@@ -162,8 +163,7 @@ public class RestaurantsListFragment extends Fragment {
 
     private void fetchingColleaguesDistribution(){
         Log.d(TAG, "fetchingColleaguesDistribution");
-        String workplaceId = viewModel.getCurrentUser().getWorkplaceId();
-        if (workplaceId == null || workplaceId.equals(""))
+        if (!viewModel.isWorkplaceIdSet())
             emptyListMessage(NO_WORKPLACE_SELECTED_CODE);
         else
             viewModel.getColleaguesDistributionOverRestaurants(fetchingColleaguesCallback);
@@ -212,7 +212,7 @@ public class RestaurantsListFragment extends Fragment {
                 Stream<Place> stream;
                 switch (menuItem.getItemId()) {
                     case R.id.sorting_rates:
-                        stream = restaurants.stream().sorted((t1, t2) -> sortByRatings(t1, t2));
+                        stream = restaurants.stream().sorted(Comparator.comparingDouble(Place::getRating).reversed());
                         listAdapter.updateRestaurantList(stream.toArray(Place[]::new), currentLocation);
                         return true;
                     case R.id.sorting_nearest:
@@ -233,11 +233,6 @@ public class RestaurantsListFragment extends Fragment {
     /***********************************************************************************************
      ** Sorting
      **********************************************************************************************/
-
-    public int sortByRatings(Place place1, Place place2) {
-        Log.d(TAG, "sortByRatings");
-        return (int) (place2.getRating() - place1.getRating());
-    }
 
     private int sortByDistance(Place place1, Place place2) {
         Log.d(TAG, "sortByDistance");

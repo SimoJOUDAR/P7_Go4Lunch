@@ -105,6 +105,10 @@ public class HomepageViewModel extends ViewModel {
         firebaseServicesRepository.deleteCurrentUserAccount(callback);
     }
 
+    public String getId() {
+        return getCurrentUser().getId();
+    }
+
     public String getWorkplaceId(){
         return firebaseServicesRepository.getWorkplaceId();
     }
@@ -115,6 +119,18 @@ public class HomepageViewModel extends ViewModel {
 
     public String getWorkplaceAddress() {
         return firebaseServicesRepository.getWorkplaceAddress();
+    }
+
+    public String getChosenRestaurantId() {
+        return getCurrentUser().getChosenRestaurantId();
+    }
+
+    public boolean isWorkplaceIdSet() {
+        return getCurrentUser().isWorkplaceIdSet();
+    }
+
+    public boolean isChosenRestaurantSet() {
+        return getCurrentUser().isChosenRestaurantSet();
     }
 
     public void setUsername(String username) {
