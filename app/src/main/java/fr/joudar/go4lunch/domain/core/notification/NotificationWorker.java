@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.hilt.work.HiltWorker;
 import androidx.navigation.NavDeepLinkBuilder;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -22,6 +25,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedInject;
@@ -186,6 +190,7 @@ public class NotificationWorker extends Worker {
                 .build();
 
         notificationManager.notify(NOTIFICATION_ID, notification);
+        chainNextWork();
     }
 
 
@@ -202,6 +207,21 @@ public class NotificationWorker extends Worker {
             notificationChannel.setDescription(notificationChannelDescription);
             notificationManager.createNotificationChannel(notificationChannel);
         }
+    }
+
+
+    /***********************************************************************************************
+     ** Reset chosenRestaurant
+     **********************************************************************************************/
+    // Chains another worker responsible to reset chosenRestaurant data in Firestore
+    private void chainNextWork() {
+
+        final OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(ResetWorker.class)
+                .setInitialDelay(2, TimeUnit.HOURS)
+                .addTag("ResetWorker")
+                .build();
+
+        WorkManager.getInstance(context).enqueue(workRequest);
     }
 
 }
