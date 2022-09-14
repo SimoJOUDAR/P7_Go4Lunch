@@ -26,7 +26,7 @@ public class Autocomplete {
         return placeId;
     }
 
-    public int getDistance() {
-        return distance;
+    public String getDistance() {
+        return String.valueOf(distance);
     }
 }

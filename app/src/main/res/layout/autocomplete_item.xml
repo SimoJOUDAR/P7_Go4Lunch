@@ -61,20 +61,9 @@
             tool:text="Related Word Or Secondary Txt..."
             android:textAppearance="?attr/textAppearanceListItemSecondary"
             app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintRight_toLeftOf="@id/showDetail"
             app:layout_constraintTop_toBottomOf="@id/autocomplete_title"
             app:layout_constraintLeft_toLeftOf="@id/autocomplete_title"
             app:layout_constraintBottom_toBottomOf="parent"
-            />
-
-        <ImageView
-            android:id="@+id/showDetail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_show_details_24"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

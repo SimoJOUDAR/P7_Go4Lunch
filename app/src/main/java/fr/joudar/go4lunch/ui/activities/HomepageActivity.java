@@ -284,9 +284,7 @@ public class HomepageActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onFailure() {
-
-                        }
+                        public void onFailure() {}
                     });
                 }
                 return false;

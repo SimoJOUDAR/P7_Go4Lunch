@@ -62,11 +62,10 @@ public class AutocompleteListAdapter extends RecyclerView.Adapter<AutocompleteLi
             binding.autocompleteTitle.setText(autocomplete.getTitle());
             binding.autocompleteSubtitle.setText(autocomplete.getDetail());
             binding.distance.setText(autocomplete.getDistance());
-            binding.showDetail.setOnClickListener(new View.OnClickListener() {
+            binding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     callback.onSuccess(autocomplete.getPlaceId());
-                    //binding.getRoot().setVisibility(View.INVISIBLE); // TODO : Close the search RecyclerView before navigation ?
                 }
             });
 

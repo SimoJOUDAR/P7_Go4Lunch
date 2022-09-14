@@ -168,8 +168,6 @@ public class MapFragment extends Fragment {
     private void displayPlaceDetails(Marker marker) {
         Log.d(TAG, "displayPlaceDetails");
         String restaurantId = marker.getTag().toString();
-//        NavDirections action = MapFragmentDirections.actionMapFragmentToRestaurantDetailsFragment(restaurantId);
-//        Navigation.findNavController(this.getView()).navigate(action);
 
         Bundle bundle = new Bundle();
         bundle.putString("placeId", restaurantId);
