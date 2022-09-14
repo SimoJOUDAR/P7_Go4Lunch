@@ -9,11 +9,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.NavController;
@@ -154,14 +159,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     @Override
-    public void onResume() {
-        Log.d(TAG, "onResume");
-        super.onResume();
-        ((HomepageActivity)getActivity()).settingsFragmentDisplayOptions();
-    }
-
-
-    @Override
     public void onDisplayPreferenceDialog(@NonNull Preference preference) {
         Log.d(TAG, "onDisplayPreferenceDialog");
         if (preference instanceof TimePreference) {
@@ -186,6 +183,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         Log.d(TAG, "deleteNotificationJob");
         String JOB_TAG = "GO4LUNCH_NOTIFICATION_WORKER";
         WorkManager.getInstance(context).cancelAllWorkByTag(JOB_TAG);
+    }
+
+    /***********************************************************************************************
+     ** Option menu
+     **********************************************************************************************/
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated");
+        requireActivity().addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menu.findItem(R.id.search).setVisible(false);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
 }

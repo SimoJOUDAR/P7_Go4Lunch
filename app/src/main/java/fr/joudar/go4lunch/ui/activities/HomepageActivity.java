@@ -243,14 +243,14 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     /***********************************************************************************************
-     ** Searchbar
+     ** Menu - Searchbar
      **********************************************************************************************/
     // To connect our option menu to the Navigation
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.toolbar_layout, menu);
-        mapFragmentDisplayOptions();
+        menu.findItem(R.id.sort).setVisible(false);
         final SearchView searchbar = (SearchView) menu.findItem(R.id.search).getActionView();
         searchbar.setOnQueryTextFocusChangeListener(this::getSearchbarFocusListener);
         searchbar.setOnQueryTextListener(getQueryTextListener());
@@ -500,11 +500,6 @@ public class HomepageActivity extends AppCompatActivity {
 
     }
 
-//    public String getSearchRadius() {
-//        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
-//        return sharedPreferences.getString("search_radius", "2000");
-//    }   // False logic
-
     public String getSearchRadius() {
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomepageActivity.this);
         int val = sharedPreferences.getInt("search_radius", 2);
@@ -520,77 +515,6 @@ public class HomepageActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, mLocationPermissionHandler);
-    }
-
-    /***********************************************************************************************
-    ** Fragments display options
-    **********************************************************************************************/
-    // Visibility setups for the toolbar, menu and bottomNav
-
-    //TODO: How to control these components straight from the fragments ? (to avoid calling the methods below from this parent activity, which might result in bugs)
-
-    public void mapFragmentDisplayOptions(){
-        actionbarVisibility(true);
-        menuVisibility(false);
-        bottomNavigationVisibility(true);
-    }
-
-    //TODO: Check why search menu is displayed twice
-    public void restaurantsListFragmentDisplayOptions(){
-        actionbarVisibility(true);
-        menuVisibility(true);
-        bottomNavigationVisibility(true);
-    }
-
-    public void colleaguesListFragmentDisplayOptions(){
-        actionbarVisibility(true);
-        menuVisibility(false);
-        bottomNavigationVisibility(true);
-    }
-
-    //TODO: Display UpButton
-    public void restaurantDetailsFragmentDisplayOptions(){
-        actionbarVisibility(false);
-        bottomNavigationVisibility(false);
-    }
-    //TODO: Display UpButton
-    public void settingsFragmentDisplayOptions(){
-        actionbarVisibility(false);
-        bottomNavigationVisibility(false);
-    }
-
-    public void actionbarVisibility(boolean val) {
-        if(val) {
-            if(getSupportActionBar() != null && !getSupportActionBar().isShowing()) {
-                getSupportActionBar().show();
-            }
-        } else {
-            if(getSupportActionBar() != null && getSupportActionBar().isShowing()) {
-                getSupportActionBar().hide();
-            }
-        }
-    }
-    public void menuVisibility(boolean val) {
-        if (val) {
-            if(menu != null && !menu.findItem(R.id.sort).isVisible()) {
-                menu.findItem(R.id.sort).setVisible(true);
-            }
-        } else {
-            if(menu != null && menu.findItem(R.id.sort).isVisible()) {
-                menu.findItem(R.id.sort).setVisible(false);
-            }
-        }
-    }
-    public void bottomNavigationVisibility(boolean val) {
-        if (val) {
-            if(bottomNav != null && bottomNav.getVisibility() != View.VISIBLE) {
-                bottomNav.setVisibility(View.VISIBLE);
-            }
-        } else {
-            if(bottomNav != null && bottomNav.getVisibility() == View.VISIBLE) {
-                bottomNav.setVisibility(View.INVISIBLE);
-            }
-        }
     }
 
 }

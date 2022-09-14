@@ -7,7 +7,11 @@ import android.os.Bundle;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
@@ -18,6 +22,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -183,22 +190,21 @@ public class MapFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putString("placeId", restaurantId);
         Navigation.findNavController(getView()).navigate(R.id.restaurantDetailsFragment, bundle);
-        //((HomepageActivity)getActivity()).navigateToPlaceDetailsFragment(restaurantId); // TODO: Which one to use ?
     }
+
+    private String getSearchRadius() {
+        return ((HomepageActivity) getActivity()).getSearchRadius();
+    }
+
+    /***********************************************************************************************
+     ** Error handling
+     **********************************************************************************************/
 
     private void showErrorMessage() {
         Log.d(TAG, "showErrorMessage");
         //TODO: Implement Error handling here (Hide view, display Error message)
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        ((HomepageActivity)getActivity()).mapFragmentDisplayOptions();
-    }
 
-    private String getSearchRadius() {
-        return ((HomepageActivity) getActivity()).getSearchRadius();
-    }
 
 }

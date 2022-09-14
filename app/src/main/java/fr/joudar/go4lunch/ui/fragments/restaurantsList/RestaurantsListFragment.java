@@ -115,12 +115,6 @@ public class RestaurantsListFragment extends Fragment {
         return binding.getRoot();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        ((HomepageActivity)getActivity()).restaurantsListFragmentDisplayOptions();
-    }
-
     /***********************************************************************************************
      ** ViewModel
      **********************************************************************************************/
@@ -209,7 +203,7 @@ public class RestaurantsListFragment extends Fragment {
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                menuInflater.inflate(R.menu.toolbar_layout, menu);
+                menu.findItem(R.id.sort).setVisible(true);
             }
 
             @Override
