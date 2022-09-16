@@ -22,18 +22,6 @@ public class NearbysearchRepository {
     }
 
     public void getNearbyRestaurant(Location location, String radius, Callback<Place[]> callback) {
-        nearbysearchProvider.getPlaces(location, radius, callback
-//                new Callback<Place[]>() {  //We pass the callback strait away with no additional treatments
-//                    @Override
-//                    public void onSuccess(Place[] results) {
-//                        callback.onSuccess(results);
-//                    }
-//
-//                    @Override
-//                    public void onFailure() {
-//                        callback.onFailure();
-//                    }
-//                }
-        );
+        nearbysearchProvider.getPlaces(location, radius, callback);
     }
 }

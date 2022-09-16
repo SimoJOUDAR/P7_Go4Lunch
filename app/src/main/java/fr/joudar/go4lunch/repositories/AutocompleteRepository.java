@@ -24,18 +24,6 @@ public class AutocompleteRepository {
     }
 
     public void getAutocompletes(@NonNull String input, @NonNull Location location, @NonNull String searchRadius, boolean isFiltered, Callback<Autocomplete[]> callback) {
-        autocompleteProvider.getAutocompletes(input, location, searchRadius, isFiltered, callback
-//                new Callback<Autocomplete[]>() {   // Pass the callback straight away with no additional treatment
-//                    @Override
-//                    public void onSuccess(Autocomplete[] results) {
-//                        callback.onSuccess(results);
-//                    }
-//
-//                    @Override
-//                    public void onFailure() {
-//                        callback.onFailure();
-//                    }
-//                }
-        );
+        autocompleteProvider.getAutocompletes(input, location, searchRadius, isFiltered, callback);
     }
 }
