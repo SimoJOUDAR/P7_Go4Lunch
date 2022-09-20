@@ -6,6 +6,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.annimon.stream.Stream;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -80,7 +83,6 @@ public class FirebaseServicesRepository {
     }
 
     public void getColleaguesDistributionOverRestaurants(Callback<Map<String, Integer>> callback) {
-        Log.d("FirebaseServicesRepo", "getColleaguesDistributionOverRestaurants");
         firebaseServicesProvider.getColleaguesDistributionOverRestaurants(callback);
     }
 
@@ -98,5 +100,12 @@ public class FirebaseServicesRepository {
 
     public void setUsername(String username) {
         firebaseServicesProvider.setUsername(username);
+    }
+
+    public void setLikedRestaurantsIdList(List<String> likedRestaurants) {
+        firebaseServicesProvider.getCurrentUser().setLikedRestaurantsIdList(likedRestaurants);
+    }
+    public List<String> getLikedRestaurantsIdList() {
+        return firebaseServicesProvider.getCurrentUser().getLikedRestaurantsIdList();
     }
 }

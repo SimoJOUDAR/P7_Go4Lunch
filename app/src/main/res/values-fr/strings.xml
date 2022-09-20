@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="logo_title">Trouver un bon restaurant pour déjeuner avec vos colleagues</string>
+    <string name="email_login_btn_txt">Se connecter avec un email</string>
+    <string name="facebook_login_btn_txt">Se connecter avec Facebook</string>
+    <string name="google_login_btn_txt">Se connecter avec Google</string>
+    <string name="retry_login_btn_txt">Réessayer</string>
+    <string name="login_failed_unknown_error">Échec de la connexion.\nUne erreur s\'est produite lors du processus d\'authentification, veuillez réessayer.</string>
+
+    <string name="search_restaurant_btn_txt">Trouver un restaurant</string>
+    <string name="sort_menu">Trier les restaurants</string>
+    <string name="order_by_stars">Les mieux notés</string>
+    <string name="order_by_nearest">La plus proche</string>
+    <string name="order_by_workmates_count">Avec le plus de ollègues</string>
+    <string name="map_menu">Afficher la carte</string>
+    <string name="restaurant_list_menu">Affichage de liste</string>
+    <string name="colleagues_list_menu">Collègues</string>
+    <string name="your_lunch_drawer_nav_btn_txt">VOTREE DÉJEUNER</string>
+    <string name="settings_drawer_nav_btn_txt">RÉGLAGES</string>
+    <string name="logout_drawer_nav_btn_txt">SE DÉCONNECTER</string>
+
+    <string name="call_btn_text">APPELLER</string>
+    <string name="like_btn_text">AIMER</string>
+    <string name="website_btn_text">SITEWEB</string>
+    <string name="error_fetching_place_details">Une erreur s\'est produite lors de la récupération des données</string>
+    <string name="no_colleagues_joining_message">Aucun collègue n\'a encore rejoint ce restaurant</string>
+    <string name="no_workplace_selected_message">Vous n\'avez pas encore choisi de lieu de travail, nous ne pouvons donc pas fournir la liste des collègues</string>
+    <string name="error_fetching_colleagues_list_message">Une erreur s\'est produite lors du chargement de la liste collègues</string>
+    <string name="default_empty_list_message">Une erreur s\'est produite lors du chargement des données</string>
+
+    <string name="Restaurant_Name">Nom du restaurant</string>
+    <string name="chosen_restaurant">Restaurant choisi</string>
+    <string name="location_permission_request_txt">Go4Lunch doit accéder à votre emplacement pour fonctionner</string>
+    <string name="location_permission_request_negative_btn_txt">Ignorer</string>
+    <string name="location_permission_request_positive_btn_txt">Continuer</string>
+    <string name="homepage_search_field_hint">Rechercher un restaurant…</string>
+    <string name="empty_chosen_restaurant">Vous n\'avez pas encore choisi de restaurant! Sélectionnez en un.</string>
+    <string name="empty_chosen_restaurant_snackbar_action">Voir plus</string>
+    <string name="empty_chosen_restaurant_toast">Trouvez un restaurant à l\'aide de la barre de recherche, de la carte ou de la vue par liste, puis sélectionnez un restaurant en cliquant sur le bouton \"sélectionner\"</string>
+    <string name="your_lunch_toast">Vous avez sélectionné ce restaurant pour le déjeuner</string>
+    <string name="signed_out">Vous vous êtes déconnecté</string>
+
+    <string name="settings_search">Cherche</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_account">Compte</string>
+    <string name="settings_enable_notifications">Autoriser les notifications</string>
+    <string name="settings_notifications_summary_on">Vous allez recevoir des notifications</string>
+    <string name="settings_notifications_summary_of">Vous n\'allez plus recevoir de notification</string>
+    <string name="settings_set_lunch_reminder_at">Mettre la notification du déjeuner à</string>
+    <string name="settings_my_workplace">Mon lieu de travail</string>
+    <string name="settings_delete_my_account">Supprimer mon compte</string>
+    <string name="search_radius">Rayon de recherche (km)</string>
+    <string name="workplace_dialog_toast">Votre lieu de travail est sauvegardé</string>
+    <string name="workplace_dialog_search_hint">Entrez le nom ou l\'adresse de votre lieu de travail</string>
+    <string name="workplace_dialog_tag">Selectionner un lieu de travail</string>
+    <string name="account_successfully_deleted_msg">Compte supprimé avec succès</string>
+    <string name="account_not_deleted_error_msg">Erreur! Un problème est survenu. Impossible de supprimer ce compte</string>
+
+    <string name="notification_channel_name">Notification de rappel de déjeuner</string>
+    <string name="notification_channel_description">Cette notification s\'affichera tous les jours à l\'heure du déjeuner</string>
+    <string name="lunch_notification_title">C\'est l\'heure du déjeuner</string>
+    <string name="lunch_time_notification_msg_userless">C\'est l\'heure du déjeuner, profitez-en !</string>
+    <string name="lunch_time_notification_msg_restaurantless">%1$s, c\'est l\'heure du déjeuner.</string>
+    <string name="lunch_time_notification_msg_unaccompanied">%1$s, c\'est l\'heure du déjeuner, à %2$s (%3$s), bon appetit!</string>
+    <string name="lunch_time_notification_msg">%1$s, c\'est l\'heure du déjeuner, à %2$s (%3$s), avec %4$s.</string>
+    <string name="colleague_is_joining">%1$s est présent</string>
+    <string name="colleague_has_not_chosen">%1$s n\'a pas encore décidé</string>
+    <string name="colleague_is_eating_at">%1$s déjeune à %2$s</string>
+    <string name="restaurant_photo_description">Photo du restaurant</string>
+    <string name="is_open_true">Ouvert</string>
+    <string name="is_open_false">Fermé</string>
+    <string name="restaurant_distance_unavailable">indisponible</string>
+
+    <string name="NoColleagues_msg">Actuellement, vous êtes le premier sur votre lieu de travail à utiliser cette application. S\'il vous plaît, partagez cette application avec vos collègues pour activer cette fonctionnalité.</string>
+    <string name="NoWorkplaceSelected_msg">Veuillez sélectionner votre lieu de travail. Cette information est nécessaire pour afficher la liste de vos collègues.</string>
+    <string name="ErrorFetchingColleagues_msg">Une erreur s\'est produite lors de la récupération des données, veuillez signaler ce bug.</string>
+    <string name="select_my_workplace_btn">Sélectionnez mon lieu de travail</string>
+
+    <string name="RestaurantsListFragment_CurrentLocationError_msg">Une erreur s\'est produite lors du traitement de votre position.</string>
+    <string name="RestaurantsListFragment_FailFetchingNearbyRestaurant_msg">Un problème est survenu lors de la recherche des restaurants à proximité.</string>
+    <string name="RestaurantsListFragment_NoRestaurantFound_msg">Aucun restaurant trouvé dans les environs.</string>
+    <string name="workplaceDialog_title">Sélectionnez votre lieu de travail actuel</string>
+    <string name="workplaceDialog_negativeBtn">Plus tard</string>
+
+    <string name="usernameDialog_title">Entrez votre nom:</string>
+    <string name="usernameDialog_positiveBtn">Valider</string>
+    <string name="usernameDialog_Toast_invalidInput">Nom trop court. Merci d\'entrer un nom valide</string>
+    <string name="usernameDialog_negativeBtn">Annuler</string>
+    <string name="usernameDialog_snackbar">Nouveau nom abandonné. Votre nom actuel est %1$s.</string>
+    <string name="usernameDialog_snackbar_actionBtn">Ajouter un nouveau nom</string>
+    <string name="settings_my_username">Mon nom</string>
+
+</resources>

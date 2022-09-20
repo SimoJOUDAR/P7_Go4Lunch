@@ -1,14 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Go4Lunch</string>
 
-    <string name="facebook_application_id" translatable="false">519620606638895</string>
-    <string name="facebook_login_protocol_scheme" translatable="false">fb519620606638895</string>
+    <string name="app_name" translatable="false">Go4Lunch</string>
+
+    <string name="facebook_application_id" translatable="false">922928809095923</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb922928809095923</string>
 
     <string name="logo_title">Find a nice restaurant and invite your co-workers for lunch</string>
+    <string name="email_login_btn_txt">Sign in with email</string>
     <string name="facebook_login_btn_txt">Sign in with Facebook</string>
     <string name="google_login_btn_txt">Sign in with Google</string>
-    <string name="retry_login_btn_txt">Retry</string>
-    <string name="login_failed_unknown_error">Login Failed \n An error occurred during the authentication process, please try again.</string>
+    <string name="retry_login_btn_txt">Try again</string>
+    <string name="login_failed_unknown_error">Login Failed.\nAn error occurred during the authentication process, please try again.</string>
 
     <string name="search_restaurant_btn_txt">Search for a restaurant</string>
     <string name="sort_menu">Sort restaurants</string>
@@ -21,10 +24,10 @@
     <string name="your_lunch_drawer_nav_btn_txt">YOUR LUNCH</string>
     <string name="settings_drawer_nav_btn_txt">SETTINGS</string>
     <string name="logout_drawer_nav_btn_txt">LOGOUT</string>
+
     <string name="call_btn_text">CALL</string>
     <string name="like_btn_text">LIKE</string>
     <string name="website_btn_text">WEBSITE</string>
-
     <string name="error_fetching_place_details">Something went wrong while fetching the data</string>
     <string name="no_colleagues_joining_message">No colleagues joining this restaurant yet</string>
     <string name="no_workplace_selected_message">You haven\'t chosen a workplace yet, thus we can\'t provide the colleagues joining on</string>
@@ -42,6 +45,7 @@
     <string name="empty_chosen_restaurant_toast">Find a restaurant using the search bar, the map or the list view, and from there select a restaurant by clicking on the \"select\" button</string>
     <string name="your_lunch_toast">You have selected this restaurant for lunch</string>
     <string name="signed_out">You\'ve signed out</string>
+
     <string name="settings_search">Search</string>
     <string name="settings_notifications">Notifications</string>
     <string name="settings_account">Account</string>
@@ -74,11 +78,11 @@
     <string name="restaurant_distance_unavailable">unavailable</string>
 
     <string name="NoColleagues_msg">Currently, you are the first in your workplace to use this app. Please, share this app with your colleagues to activate this functionality.</string>
-    <string name="NoWorkplaceSelected_msg">Please selected your workplace. This information is required in order to display the available list of your colleagues.</string>
+    <string name="NoWorkplaceSelected_msg">Please select your workplace. This information is required in order to display the available list of your colleagues.</string>
     <string name="ErrorFetchingColleagues_msg">An error has occurred while fetching the data, please report this bug.</string>
     <string name="select_my_workplace_btn">Select my workplace</string>
 
-    <string name="RestaurantsListFragment_CurrentLocationError_msg">An error occurred while proceeding your location.</string>
+    <string name="RestaurantsListFragment_CurrentLocationError_msg">An error occurred while processing your location.</string>
     <string name="RestaurantsListFragment_FailFetchingNearbyRestaurant_msg">A problem occurred while trying to fetch nearby restaurants.</string>
     <string name="RestaurantsListFragment_NoRestaurantFound_msg">No restaurant found around here.</string>
     <string name="workplaceDialog_title">Select your actual workplace</string>

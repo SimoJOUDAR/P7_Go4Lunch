@@ -16,7 +16,8 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "fr.joudar.go4lunch.utils.CustomTestRunner"
     }
 
     buildTypes {
@@ -59,10 +60,12 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     testImplementation 'org.mockito:mockito-core:4.0.0'
-    testImplementation 'org.mockito:mockito-inline:3.8.0'
+    testImplementation 'org.mockito:mockito-inline:3.12.4'
     androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
     androidTestImplementation "androidx.test.espresso:espresso-intents:3.4.0"
-    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.4.0"
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0", {
+        exclude module: "protobuf-lite"
+    })
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 
     //FIREBASE
@@ -70,8 +73,8 @@ dependencies {
     //implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-firestore:24.0.0'
     implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
-    implementation 'com.facebook.android:facebook-login:14.0.0'
-    implementation 'com.facebook.android:facebook-android-sdk:14.0.0'
+    //implementation 'com.facebook.android:facebook-login:14.0.0'
+    implementation 'com.facebook.android:facebook-android-sdk:13.0.0'
 
 
      //GLIDE

@@ -10,10 +10,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.facebook.FacebookSdk;
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -83,13 +85,13 @@ public class AuthenticationActivity extends AppCompatActivity {
         signInLauncher.launch(signInIntent);
     }
 
-    // Provides the auth services (google, facebook)
+    // Provides the auth services (google, facebook & email)
     private List<AuthUI.IdpConfig> getAuthProviders() {
         Log.d(TAG, "getAuthProviders");
         return Arrays.asList(
                 new AuthUI.IdpConfig.GoogleBuilder().build(),
-                new AuthUI.IdpConfig.EmailBuilder().build() //TODO - Just a place filler for facebook Auth below
-                //new AuthUI.IdpConfig.FacebookBuilder().build()
+                new AuthUI.IdpConfig.FacebookBuilder().build(),
+                new AuthUI.IdpConfig.EmailBuilder().build()
         );
     }
 
@@ -98,8 +100,8 @@ public class AuthenticationActivity extends AppCompatActivity {
         Log.d(TAG, "getCustomAuthMethodPickerLayout");
         return new AuthMethodPickerLayout.Builder(R.layout.auth_method_picker_layout)
                 .setGoogleButtonId(R.id.google_login_btn)
-                .setEmailButtonId(R.id.fb_login_btn) //TODO - Just a place filler for facebook auth below
-                //.setFacebookButtonId(R.id.fb_login_btn)
+                .setFacebookButtonId(R.id.fb_login_btn)
+                .setEmailButtonId(R.id.email_login_btn)
                 .build();
     }
 
@@ -109,8 +111,8 @@ public class AuthenticationActivity extends AppCompatActivity {
         if (result.getResultCode() == Activity.RESULT_OK) {
             startHomepageActivity();
         } else {
-            binding.getRoot().setVisibility(View.VISIBLE);
-            binding.retryLogin.setOnClickListener(arg -> startAuth());
+            binding.activityAuthenticationLayout.setVisibility(View.VISIBLE);
+            binding.retryLoginBtn.setOnClickListener(arg -> startAuth());
         }
     }
 

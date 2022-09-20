@@ -110,17 +110,21 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot userDocument) {
-                        currentUser.setWorkplaceId(userDocument.getString(WORKPLACE_ID));
-                        currentUser.setWorkplaceName(userDocument.getString(WORKPLACE_NAME));
-                        currentUser.setWorkplaceAddress(userDocument.getString(WORKPLACE_ADDRESS));
-                        currentUser.setChosenRestaurantId(userDocument.getString(CHOSEN_RESTAURANT_ID));
-                        currentUser.setChosenRestaurantName(userDocument.getString(CHOSEN_RESTAURANT_NAME));
-                        currentUser.setChosenRestaurantAddress(userDocument.getString(CHOSEN_RESTAURANT_ADDRESS));
-                        List<String> likedRestaurant = (List<String>) userDocument.get(LIKED_RESTAURANTS_ID_LIST);
-                        if (likedRestaurant == null) likedRestaurant = new ArrayList<>(); // To avoid null ArrayList
-                        currentUser.setLikedRestaurantsIdList(likedRestaurant);
-                        isUsernameNull(userDocument.getString(USERNAME));
-                        liveCurrentUser.postValue(currentUser);
+                        if (userDocument != null) {
+                            currentUser.setWorkplaceId(userDocument.getString(WORKPLACE_ID));
+                            currentUser.setWorkplaceName(userDocument.getString(WORKPLACE_NAME));
+                            currentUser.setWorkplaceAddress(userDocument.getString(WORKPLACE_ADDRESS));
+                            currentUser.setChosenRestaurantId(userDocument.getString(CHOSEN_RESTAURANT_ID));
+                            currentUser.setChosenRestaurantName(userDocument.getString(CHOSEN_RESTAURANT_NAME));
+                            currentUser.setChosenRestaurantAddress(userDocument.getString(CHOSEN_RESTAURANT_ADDRESS));
+                            List<String> likedRestaurant = (List<String>) userDocument.get(LIKED_RESTAURANTS_ID_LIST);
+                            if (likedRestaurant == null) likedRestaurant = new ArrayList<>(); // To avoid null ArrayList
+                            currentUser.setLikedRestaurantsIdList(likedRestaurant);
+                            isUsernameNull(userDocument.getString(USERNAME));
+                            liveCurrentUser.postValue(currentUser);
+                        }
+                        else
+                            initUserDataInFirestore();
                     }
                 });
     }
@@ -228,11 +232,6 @@ public class FirebaseServicesHandler implements FirebaseServicesProvider {
     @Override
     public void deleteCurrentUserAccount(Callback<Boolean> callback) {
         Log.d(TAG, "deleteCurrentUserAccount");
-        deleteUserFromFirestore(callback);
-    }
-
-    private void deleteUserFromFirestore(Callback<Boolean> callback){
-        Log.d(TAG, "deleteUserFromFirestore");
         firestore.collection("users").document(currentUser.getId()).delete()
                 .addOnSuccessListener(__ -> deleteUserFromFirebase(callback))
                 .addOnFailureListener(__ -> callback.onFailure());

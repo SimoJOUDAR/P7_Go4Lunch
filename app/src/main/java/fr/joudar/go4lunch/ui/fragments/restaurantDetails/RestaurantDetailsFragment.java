@@ -209,7 +209,7 @@ public class RestaurantDetailsFragment extends Fragment {
      **********************************************************************************************/
     public void updateTextViews(){
         Log.d(TAG, "updateTextViews");
-        binding.name.setText(place.getName());
+        binding.restaurantName.setText(place.getName());
         binding.address.setText(place.getVicinity());
     }
     /***********************************************************************************************

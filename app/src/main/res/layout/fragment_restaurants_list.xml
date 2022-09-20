@@ -7,6 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/restaurants_list_fragment_layout"
     android:name="fr.joudar.go4lunch.RestaurantsListFragment">
 
     <androidx.recyclerview.widget.RecyclerView
