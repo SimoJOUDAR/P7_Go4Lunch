@@ -19,3 +19,11 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-obfuscationdictionary "/Users/simo/Library/Android/sdk/tools/proguard/dic.txt"
+-classobfuscationdictionary "/Users/simo/Library/Android/sdk/tools/proguard/dic.txt"
+-packageobfuscationdictionary "/Users/simo/Library/Android/sdk/tools/proguard/dic.txt"
+
+-mergeinterfacesaggressively
+-overloadaggressively
+-repackageclasses 'fr.joudar.go4lunch'
