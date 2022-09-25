@@ -191,11 +191,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onResume() {
         super.onResume();
         ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
+        ((HomepageActivity)getActivity()).bottomNavVisibility(View.INVISIBLE);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         ((AppCompatActivity)getActivity()).getSupportActionBar().show();
+        ((HomepageActivity)getActivity()).bottomNavVisibility(View.VISIBLE);
     }
 }

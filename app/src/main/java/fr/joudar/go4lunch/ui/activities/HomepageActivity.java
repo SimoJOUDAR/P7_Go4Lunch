@@ -510,4 +510,11 @@ public class HomepageActivity extends AppCompatActivity {
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, mLocationPermissionHandler);
     }
 
+    /***********************************************************************************************
+     ** Callbacks for fragments
+     **********************************************************************************************/
+
+    public void bottomNavVisibility(int visibility) {
+        bottomNav.setVisibility(visibility);
+    }
 }
