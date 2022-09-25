@@ -30,4 +30,5 @@ From Android Studio:
 ## Preview
 <img src = "media/P7_Go4Lunch_1.png" height="550"> <img src = "media/P7_Go4Lunch_2.png" height="550"> <img src = "media/P7_Go4Lunch_3.png" height="550"> 
 <img src = "media/P7_Go4Lunch_4.png" height="550"> <img src = "media/P7_Go4Lunch_5.png" height="550"> <img src = "media/P7_Go4Lunch_6.png" height="550"> 
-<img src = "media/P7_Go4Lunch_7.png" height="550"> <img src = "media/P7_Go4Lunch_8.png" height="550"> https://user-images.githubusercontent.com/80898080/192167705-a975de9e-9d35-4afa-bf39-7c2b5a7e385b.mp4
+<img src = "media/P7_Go4Lunch_7.png" height="550"> <img src = "media/P7_Go4Lunch_8.png" height="550"> 
+https://user-images.githubusercontent.com/80898080/192167705-a975de9e-9d35-4afa-bf39-7c2b5a7e385b.mp4
